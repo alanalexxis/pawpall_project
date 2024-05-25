@@ -1,19 +1,19 @@
-"use client";
 import { Button } from "@/components/ui/button";
 import { signInWithGoogle } from "@/lib/auth-actions";
 import React from "react";
+import { FcGoogle } from "react-icons/fc";
 
 const SignInWithGoogleButton = () => {
   return (
     <Button
       type="button"
       variant="outline"
-      className="w-full"
+      className="w-full flex items-center"
       onClick={() => {
         signInWithGoogle();
       }}
     >
-      Iniciar sesión con Google
+      <FcGoogle className="mr-2" /> Iniciar sesión con Google
     </Button>
   );
 };

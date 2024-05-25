@@ -1,3 +1,4 @@
+"use client";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -5,10 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import LoginImage from "./login-image.jpg";
+import LoginImage2 from "./login-image2.jpg";
 import { login } from "@/lib/auth-actions";
 import SignInWithGoogleButton from "./SignInWithGoogleButton";
+import Footer from "@/components/footer/Footer";
+import { useTheme } from "next-themes";
+import { IoMoon, IoSunny } from "react-icons/io5";
 
 export function LoginForm() {
+  const { theme, setTheme } = useTheme();
   return (
     <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
       <div className="flex items-center justify-center py-12">
@@ -57,7 +63,8 @@ export function LoginForm() {
           </div>
         </div>
       </div>
-      <div className="hidden bg-muted lg:block">
+
+      <div className="hidden bg-muted lg:block relative">
         <Image
           src={LoginImage}
           alt="Imagen"
@@ -65,7 +72,27 @@ export function LoginForm() {
           height="1080"
           className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />
+        <div className="absolute w-[600px] top-2/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center">
+          <h2 className="text-3xl font-bold">
+            "Haz que cada momento con tu mascota sea especial. Únete y descubre
+            cómo hacerlo realidad."
+          </h2>
+          <blockquote className="text-sm italic mt-2">
+            - Equipo de Pawpall
+          </blockquote>
+        </div>
       </div>
+      <Footer />
+      <Button
+        className="absolute bottom-20 right-10 flex min-h-10 min-w-10 cursor-pointer rounded-full bg-zinc-950 p-0 text-xl text-white hover:bg-zinc-950 dark:bg-white dark:text-zinc-950 hover:dark:bg-white xl:bg-white xl:text-zinc-950 xl:hover:bg-white xl:dark:text-zinc-900"
+        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      >
+        {theme === "light" ? (
+          <IoMoon className="h-4 w-4" />
+        ) : (
+          <IoSunny className="h-4 w-4" />
+        )}
+      </Button>
     </div>
   );
 }
