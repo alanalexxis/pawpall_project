@@ -17,6 +17,10 @@ import { AlertDestructive } from "@/components/AlertError";
 import { AlertDemo } from "@/components/AlertSucces";
 import { motion } from "framer-motion";
 export function SignUpForm() {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   // Lista de imágenes para la transición
   const images = [
     LoginImage,
@@ -47,6 +51,11 @@ export function SignUpForm() {
       setError(errorMessage);
     } else {
       setSuccess(true);
+      // Limpiar los campos del formulario
+      setFirstName("");
+      setLastName("");
+      setEmail("");
+      setPassword("");
     }
   };
 
@@ -61,7 +70,9 @@ export function SignUpForm() {
               Ingrese su información para crear una cuenta
             </p>
           </div>
-          {success && <AlertDemo description="Registro exitoso" />}
+          {success && (
+            <AlertDemo description="Registro exitoso. Verifica tu correo electrónico." />
+          )}
           {error && (
             <AlertDestructive
               description={
@@ -84,6 +95,8 @@ export function SignUpForm() {
                       id="first-name"
                       placeholder="Max"
                       required
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
                     />
                   </div>
                   <div className="grid gap-2">
@@ -93,6 +106,8 @@ export function SignUpForm() {
                       id="last-name"
                       placeholder="Robinson"
                       required
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
                     />
                   </div>
                 </div>
@@ -103,6 +118,8 @@ export function SignUpForm() {
                   type="email"
                   placeholder="m@example.com"
                   required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               <div className="grid gap-2">
@@ -115,7 +132,14 @@ export function SignUpForm() {
                     ¿Olvidaste tu contraseña?
                   </Link>
                 </div>
-                <Input id="password" name="password" type="password" required />
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
               </div>
               <Button type="submit" formAction={signup} className="w-full">
                 Crear cuenta
