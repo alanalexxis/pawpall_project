@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,8 +12,18 @@ import SignInWithGoogleButton from "./SignInWithGoogleButton";
 import Footer from "@/components/footer/Footer";
 import { useTheme } from "next-themes";
 import { IoMoon, IoSunny } from "react-icons/io5";
-
+import { AlertDestructive } from "@/components/AlertError";
 export function LoginForm() {
+  //manejamos el error de login de auth-actions.ts
+  const [error, setError] = useState<string | null>(null);
+  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const errorMessage = await login(formData);
+    if (errorMessage) {
+      setError(errorMessage);
+    }
+  };
   const { theme, setTheme } = useTheme();
   return (
     <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
@@ -25,7 +35,8 @@ export function LoginForm() {
               Ingresa tu correo electrónico a continuación
             </p>
           </div>
-          <form action="">
+          {error && <AlertDestructive />}
+          <form onSubmit={handleLogin}>
             <div className="grid gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="email">Correo electrónico</Label>
