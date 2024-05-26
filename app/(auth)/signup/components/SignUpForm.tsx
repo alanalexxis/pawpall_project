@@ -14,6 +14,7 @@ import Footer from "@/components/footer/Footer";
 import { useTheme } from "next-themes";
 import { IoMoon, IoSunny } from "react-icons/io5";
 import { AlertDestructive } from "@/components/AlertError";
+import { AlertDemo } from "@/components/AlertSucces";
 import { motion } from "framer-motion";
 export function SignUpForm() {
   // Lista de imágenes para la transición
@@ -37,14 +38,18 @@ export function SignUpForm() {
 
   //manejamos el error de login de auth-actions.ts
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<boolean>(false);
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const errorMessage = await signup(formData);
     if (errorMessage) {
       setError(errorMessage);
+    } else {
+      setSuccess(true);
     }
   };
+
   const { theme, setTheme } = useTheme();
   return (
     <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
@@ -56,6 +61,7 @@ export function SignUpForm() {
               Ingrese su información para crear una cuenta
             </p>
           </div>
+          {success && <AlertDemo description="Registro exitoso" />}
           {error && (
             <AlertDestructive
               description={
@@ -67,7 +73,6 @@ export function SignUpForm() {
               }
             />
           )}
-
           <form onSubmit={handleLogin}>
             <div className="grid gap-4">
               <div className="grid gap-2">
