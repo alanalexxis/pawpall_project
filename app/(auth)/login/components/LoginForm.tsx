@@ -35,7 +35,9 @@ export function LoginForm() {
               Ingresa tu correo electrónico a continuación
             </p>
           </div>
-          {error && <AlertDestructive />}
+          {error && (
+            <AlertDestructive description="Credenciales inválidas. Inténtelo de nuevo." />
+          )}
           <form onSubmit={handleLogin}>
             <div className="grid gap-4">
               <div className="grid gap-2">
