@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import LoginImage from "./login-image.jpg";
 import LoginImage2 from "./login-image2.jpg";
+import LoginImage3 from "./login-image3.jpg";
 import { login } from "@/lib/auth-actions";
 import SignInWithGoogleButton from "./SignInWithGoogleButton";
 import Footer from "@/components/footer/Footer";
@@ -15,7 +16,12 @@ import { IoMoon, IoSunny } from "react-icons/io5";
 import { AlertDestructive } from "@/components/AlertError";
 import { motion } from "framer-motion";
 export function LoginForm() {
-  const images = [LoginImage, LoginImage2];
+  // Lista de imágenes para la transición
+  const images = [
+    LoginImage,
+    LoginImage2,
+    LoginImage3 /* Agrega más imágenes aquí */,
+  ];
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
@@ -28,6 +34,7 @@ export function LoginForm() {
 
     return () => clearInterval(interval);
   }, []);
+
   //manejamos el error de login de auth-actions.ts
   const [error, setError] = useState<string | null>(null);
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -46,7 +53,7 @@ export function LoginForm() {
           <div className="grid gap-2 text-center">
             <h1 className="text-3xl font-bold">Iniciar sesión</h1>
             <p className="text-balance text-muted-foreground">
-              Ingresa tu correo electrónico a continuación
+              Ingrese su información para iniciar sesión.
             </p>
           </div>
           {error && (
