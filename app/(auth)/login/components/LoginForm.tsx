@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,7 +13,21 @@ import Footer from "@/components/footer/Footer";
 import { useTheme } from "next-themes";
 import { IoMoon, IoSunny } from "react-icons/io5";
 import { AlertDestructive } from "@/components/AlertError";
+import { motion } from "framer-motion";
 export function LoginForm() {
+  const images = [LoginImage, LoginImage2];
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    // Cambiar la imagen cada 5 segundos
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) =>
+        prevIndex === images.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
   //manejamos el error de login de auth-actions.ts
   const [error, setError] = useState<string | null>(null);
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -78,13 +92,26 @@ export function LoginForm() {
       </div>
 
       <div className="hidden bg-muted lg:block relative">
-        <Image
-          src={LoginImage}
-          alt="Imagen"
-          width="1920"
-          height="1080"
-          className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-        />
+        {images.map((image, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0 }}
+            animate={{
+              opacity: index === currentImageIndex ? 1 : 0,
+              transition: { duration: 1 },
+            }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0"
+          >
+            <Image
+              src={image}
+              alt="Imagen"
+              width="1920"
+              height="1080"
+              className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+            />
+          </motion.div>
+        ))}
         <div className="absolute w-[600px] top-2/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center">
           <h2 className="text-3xl font-bold">
             "Haz que cada momento con tu mascota sea especial. Únete y descubre
