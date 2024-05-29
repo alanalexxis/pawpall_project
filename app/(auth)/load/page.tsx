@@ -3,6 +3,7 @@ import styles from "@/app/page.module.css";
 import { useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import Preloader from "@/components/preloader";
+import Galery from "@/components/galery/Galery";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
@@ -22,6 +23,7 @@ export default function Home() {
       <AnimatePresence mode="wait">
         {isLoading && <Preloader />}
       </AnimatePresence>
+      <Galery />
     </main>
   );
 }

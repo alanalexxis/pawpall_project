@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { opacity, slideUp } from "./anim";
 
 const words = [
+  "Hola",
   "Hello",
   "Bonjour",
   "Ciao",
