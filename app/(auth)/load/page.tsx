@@ -3,9 +3,9 @@ import styles from "@/app/page.module.css";
 import { useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import Preloader from "@/components/preloader";
-import Galery from "@/components/galery/Galery";
+import Hero from "../3d/page";
 
-export default function Home() {
+export default function LoaderPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -19,11 +19,10 @@ export default function Home() {
   }, []);
 
   return (
-    <main className={styles.main}>
+    <main>
       <AnimatePresence mode="wait">
         {isLoading && <Preloader />}
       </AnimatePresence>
-      <Galery />
     </main>
   );
 }
