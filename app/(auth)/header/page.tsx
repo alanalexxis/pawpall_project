@@ -12,7 +12,6 @@ export default function index() {
   return (
     <div className={styles.header}>
       <div className={styles.bar}>
-        <Link href="/">Olivier</Link>
         <div
           onClick={() => {
             setIsActive(!isActive);
@@ -36,6 +35,7 @@ export default function index() {
             </motion.p>
           </div>
         </div>
+        <Link href="/">PawPal</Link>
         <motion.div
           variants={opacity}
           animate={!isActive ? "open" : "closed"}
