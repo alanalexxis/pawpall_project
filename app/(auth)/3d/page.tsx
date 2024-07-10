@@ -2,6 +2,7 @@
 import dynamic from "next/dynamic";
 import React, { useRef } from "react";
 import { useScroll } from "framer-motion";
+import Text1 from "../text1/page";
 const Scene = dynamic(() => import("@/components/scene"), {
   ssr: false,
 });
@@ -20,7 +21,6 @@ export default function Hero() {
           <Scene scrollProgress={scrollYProgress} />
         </div>
       </div>
-      <div className="h-screen"></div>
     </main>
   );
 }

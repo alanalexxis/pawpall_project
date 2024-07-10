@@ -1,6 +1,5 @@
 "use client";
 
-import Gallery from "@/components/gallery";
 import Lenis from "@studio-freight/lenis";
 import { useEffect } from "react";
 import { useSpring } from "framer-motion";
@@ -8,24 +7,24 @@ import Description from "@/components/description";
 
 const projects = [
   {
-    name: "Dyal Thak",
+    name: "cada perro abandonado",
     handle: "dyal_thak",
   },
   {
-    name: "Leidinger Matthias",
+    name: "carga una historia",
     handle: "leidinger_matthias",
   },
   {
-    name: "Mark Rammers",
+    name: "de dolor",
     handle: "mark_rammers",
   },
   {
-    name: "Landon Speers",
+    name: "¿te atreves a descubrirla?",
     handle: "landon_speers",
   },
 ];
 
-export default function Home() {
+export default function Text1() {
   const spring = {
     stiffness: 150,
     damping: 15,
@@ -58,11 +57,6 @@ export default function Home() {
 
   return (
     <main onMouseMove={mouseMove}>
-      {projects.map(({ handle }, i) => {
-        return (
-          <Gallery mousePosition={mousePosition} handle={handle} key={i} />
-        );
-      })}
       <Description mousePosition={mousePosition} projects={projects} />
     </main>
   );
