@@ -58,7 +58,7 @@ export default function index() {
                 strokeLinejoin="round"
               ></path>
             </svg>
-            <p>Cart(0)</p>
+            <p>Ver planes</p>
           </div>
         </motion.div>
       </div>

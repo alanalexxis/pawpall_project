@@ -15,6 +15,7 @@ import { useTheme } from "next-themes";
 import { IoMoon, IoSunny } from "react-icons/io5";
 import { AlertDestructive } from "@/components/AlertError";
 import { motion } from "framer-motion";
+import { ModeToggle } from "@/components/Toggle";
 export function LoginForm() {
   // Lista de imágenes para la transición
   const images = [
@@ -130,16 +131,10 @@ export function LoginForm() {
         </div>
       </div>
       <Footer />
-      <Button
-        className="absolute bottom-20 right-10 flex min-h-10 min-w-10 cursor-pointer rounded-full bg-zinc-950 p-0 text-xl text-white hover:bg-zinc-950 dark:bg-white dark:text-zinc-950 hover:dark:bg-white xl:bg-white xl:text-zinc-950 xl:hover:bg-white xl:dark:text-zinc-900"
-        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      >
-        {theme === "light" ? (
-          <IoMoon className="h-4 w-4" />
-        ) : (
-          <IoSunny className="h-4 w-4" />
-        )}
-      </Button>
+      <div className="absolute bottom-20 right-10 flex min-h-10 min-w-10 cursor-pointer rounded-full  p-0">
+        {" "}
+        <ModeToggle></ModeToggle>
+      </div>
     </div>
   );
 }
