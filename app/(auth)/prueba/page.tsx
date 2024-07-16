@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import useMousePosition from "@/utils/useMousePosition";
 
-export default function Home() {
+export default function Prueba() {
   const [isHovered, setIsHovered] = useState(false);
   const { x, y } = useMousePosition();
   const size = isHovered ? 400 : 40;

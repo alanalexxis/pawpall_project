@@ -1,9 +1,10 @@
+//funciona para galery
 import { useState } from "react";
 import styles from "./style.module.css";
 import { motion } from "framer-motion";
 import Image from "next/image";
 
-export default function index({
+export default function Description({
   mousePosition,
   projects,
 }: {

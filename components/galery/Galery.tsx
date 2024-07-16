@@ -84,8 +84,8 @@ export default function Galery() {
         <Image src={floating5} alt="image" width={200} />
       </div>
       <div className={styles.title}>
-        <h1>Floating Images Gallery</h1>
-        <p>Next.js and GSAP</p>
+        <h1>PawPal</h1>
+        <p>Hogar para tu mascota</p>
       </div>
     </main>
   );
