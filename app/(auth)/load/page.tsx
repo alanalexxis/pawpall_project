@@ -8,6 +8,7 @@ import Prueba from "../prueba/page";
 import Galery from "@/components/galery/Galery";
 
 import Text1 from "../text1/page";
+import Header from "@/components/header/page";
 
 export default function LoaderPage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -27,10 +28,7 @@ export default function LoaderPage() {
       <AnimatePresence mode="wait">
         {isLoading && <Preloader />}
       </AnimatePresence>
-      <Hero />
-      <Prueba />
-      <Galery />
-      <Text1 />
+      <Header />
     </main>
   );
 }
