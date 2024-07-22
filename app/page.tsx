@@ -1,5 +1,5 @@
 import LoginButton from "@/components/LoginLogoutButton";
-import { Main, Section, Container, Article } from "@/components/craft";
+import { Main, Section, Container } from "@/components/craft";
 import Footer from "@/components/home-page/footer";
 import CTA from "@/components/home-page/cta";
 import FeatureLeft from "@/components/home-page/feature-left";
@@ -13,12 +13,20 @@ export default function Page() {
   return (
     <Main>
       <AuroraBackgroundDemo />
+
       <Section>
         <Container>
           <Hero />
           <FeatureRight />
           <FeatureLeft />
           <FeatureSet />
+        </Container>
+      </Section>
+
+      <PricingSectionCards />
+
+      <Section>
+        <Container>
           <CTA />
           <Footer />
           <LoginButton />
