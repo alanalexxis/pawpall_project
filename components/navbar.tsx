@@ -29,7 +29,7 @@ export function NavBar() {
           </SheetTrigger>
           <SheetContent side="left">
             <SheetHeader>
-              <SheetTitle>fabrika.</SheetTitle>
+              <SheetTitle>Pawpal.</SheetTitle>
               <SheetDescription>
                 Scale and launch products with expert developers, on-demand, at
                 a flat monthly fee
@@ -39,21 +39,14 @@ export function NavBar() {
               <DialogClose asChild>
                 <Link href="/">
                   <Button variant="outline" className="w-full">
-                    Home
+                    Características
                   </Button>
                 </Link>
               </DialogClose>
               <DialogClose asChild>
-                <Link href="/software">
+                <Link href="/precios">
                   <Button variant="outline" className="w-full">
-                    Software
-                  </Button>
-                </Link>
-              </DialogClose>
-              <DialogClose asChild>
-                <Link href="/automation">
-                  <Button variant="outline" className="w-full">
-                    Automation
+                    Precios
                   </Button>
                 </Link>
               </DialogClose>
@@ -65,9 +58,9 @@ export function NavBar() {
                 </Link>
               </DialogClose>
               <DialogClose asChild>
-                <Link href="/projects">
+                <Link href="/blog">
                   <Button variant="outline" className="w-full">
-                    Projects
+                    Contacto
                   </Button>
                 </Link>
               </DialogClose>
@@ -78,22 +71,22 @@ export function NavBar() {
         <NavigationMenu>
           <NavigationMenuList className="max-[825px]:hidden ">
             <Link href="/" className="pl-2">
-              <h1 className="font-bold">fabrika.</h1>
+              <h1 className="font-bold">Pawpal.</h1>
             </Link>
           </NavigationMenuList>
         </NavigationMenu>
         <div className="flex items-center gap-2 max-[825px]:hidden">
           <Link href="/software">
-            <Button variant="ghost">Software</Button>
+            <Button variant="ghost">Características</Button>
           </Link>
           <Link href="/automation">
-            <Button variant="ghost">Automation</Button>
+            <Button variant="ghost">Precios</Button>
           </Link>
           <Link href="/blog">
             <Button variant="ghost">Blog</Button>
           </Link>
           <Link href="/projects">
-            <Button variant="ghost">Projects</Button>
+            <Button variant="ghost">Contacto</Button>
           </Link>
           <ModeToggle />
         </div>
