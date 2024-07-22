@@ -1,7 +1,5 @@
-"use client";
 import React from "react";
 import { ContainerScroll } from "../ui/container-scroll-animation";
-import Image from "next/image";
 import { motion } from "framer-motion";
 
 export function HeroScrollDemo() {
@@ -9,14 +7,15 @@ export function HeroScrollDemo() {
     <div className="flex flex-col overflow-hidden -mt-60 -mb-96 relative">
       <ContainerScroll>
         <div className="-mb-20">---</div>
-        <Image
-          src={`/images/image.webp`}
-          alt="hero"
-          height={720}
-          width={1400}
+        <video
+          autoPlay
+          loop
+          muted
           className="mx-auto rounded-2xl h-full object-cover object-left-top"
-          draggable={false}
-        />
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        >
+          <source src="/videos/video.mp4" type="video/mp4" />
+        </video>
       </ContainerScroll>
       <motion.div
         initial={{ opacity: 0, y: 100 }}
@@ -28,7 +27,7 @@ export function HeroScrollDemo() {
         viewport={{ once: true, amount: 0.5 }}
         className="absolute inset-0 flex items-center justify-center"
       >
-        <h1 className="text-white text-9xl font-bold">Pawpal</h1>
+        <h1 className="text-white   2xl:text-9xl font-bold">Pawpal</h1>
       </motion.div>
     </div>
   );

@@ -12,7 +12,6 @@ import { login } from "@/lib/auth-actions";
 import SignInWithGoogleButton from "./SignInWithGoogleButton";
 import Footer from "@/components/footer/Footer";
 import { useTheme } from "next-themes";
-import { IoMoon, IoSunny } from "react-icons/io5";
 import { AlertDestructive } from "@/components/AlertError";
 import { motion } from "framer-motion";
 import { ModeToggle } from "@/components/Toggle";
