@@ -1,3 +1,4 @@
+"use client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { motion } from "framer-motion";
 
 import { CheckIcon } from "lucide-react";
 
@@ -64,7 +66,18 @@ export default function PricingSectionCards() {
           <Card>
             <CardHeader className="text-center pb-2">
               <CardTitle className="mb-7">Free</CardTitle>
-              <span className="font-bold text-5xl">Free</span>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.2,
+                  ease: "easeOut",
+                }}
+                viewport={{ once: true, amount: 0.5 }} // Añadir once: true aquí
+              >
+                <span className="font-bold text-5xl">Free</span>
+              </motion.div>
             </CardHeader>
             <CardDescription className="text-center">
               Forever free
@@ -99,7 +112,17 @@ export default function PricingSectionCards() {
                 Most popular
               </Badge>
               <CardTitle className="!mb-7">Startup</CardTitle>
-              <span className="font-bold text-5xl">£39</span>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.4,
+                  ease: "easeOut",
+                }}
+                viewport={{ once: true, amount: 0.5 }} // Añadir once: true aquí
+              >
+                <span className="font-bold text-5xl">£39</span>
+              </motion.div>
             </CardHeader>
             <CardDescription className="text-center w-11/12 mx-auto">
               All the basics for starting a new business
@@ -129,7 +152,17 @@ export default function PricingSectionCards() {
           <Card>
             <CardHeader className="text-center pb-2">
               <CardTitle className="mb-7">Team</CardTitle>
-              <span className="font-bold text-5xl">£89</span>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.6,
+                  ease: "easeOut",
+                }}
+                viewport={{ once: true, amount: 0.5 }} // Añadir once: true aquí
+              >
+                <span className="font-bold text-5xl">£89</span>
+              </motion.div>
             </CardHeader>
             <CardDescription className="text-center  w-11/12 mx-auto">
               Everything you need for a growing business
@@ -161,7 +194,17 @@ export default function PricingSectionCards() {
           <Card>
             <CardHeader className="text-center pb-2">
               <CardTitle className="mb-7">Enterprise</CardTitle>
-              <span className="font-bold text-5xl">149</span>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.8,
+                  ease: "easeOut",
+                }}
+                viewport={{ once: true, amount: 0.5 }} // Añadir once: true aquí
+              >
+                <span className="font-bold text-5xl">149</span>
+              </motion.div>
             </CardHeader>
             <CardDescription className="text-center  w-11/12 mx-auto">
               Advanced features for scaling your business

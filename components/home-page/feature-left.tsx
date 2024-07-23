@@ -1,6 +1,5 @@
 "use client";
 // React and Next.js imports
-import Image from "next/image";
 import Link from "next/link";
 
 // UI component imports
@@ -8,7 +7,6 @@ import * as Craft from "@/components/craft";
 import { Button } from "@/components/ui/button";
 
 // Asset imports
-import Placeholder from "@/public/placeholder.jpg";
 import { motion } from "framer-motion";
 
 const FeatureLeft = () => {
@@ -25,24 +23,23 @@ const FeatureLeft = () => {
       >
         <Craft.Container className="grid items-stretch md:grid-cols-2 md:gap-12">
           <div className="not-prose relative flex h-96 overflow-hidden rounded-lg border">
-            <Image
-              src={Placeholder}
-              alt="placeholder"
-              className="fill object-cover"
-            />
+            <video autoPlay loop muted className="fill object-cover">
+              <source src="/videos/hero1.mp4" type="video/mp4" />
+            </video>
           </div>
           <div className="flex flex-col gap-6 py-8">
-            <h3 className="!my-0">Lorem ipsum dolor sit</h3>
+            <h3 className="!my-0">Todo para tu perro en un solo lugar</h3>
             <p className="font-light leading-[1.4] opacity-70">
-              Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-              labore et dolore magna aliqua.
+              Con nuestra app, organiza y gestiona las necesidades de tu perro
+              de manera sencilla y eficiente. Desde recordatorios de vacunación
+              hasta consejos de entrenamiento.
             </p>
             <div className="not-prose flex items-center gap-2">
               <Button className="w-fit" asChild>
-                <Link href="#">Get Started</Link>
+                <Link href="#">Empieza ahora</Link>
               </Button>
               <Button className="w-fit" variant="link" asChild>
-                <Link href="#">Learn More {"->"}</Link>
+                <Link href="#">Más información {"->"}</Link>
               </Button>
             </div>
           </div>

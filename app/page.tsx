@@ -20,13 +20,7 @@ export default function Page() {
           <FeatureRight />
           <FeatureLeft />
           <FeatureSet />
-        </Container>
-      </Section>
-
-      <PricingSectionCards />
-
-      <Section>
-        <Container>
+          <PricingSectionCards />
           <CTA />
           <Footer />
           <LoginButton />
