@@ -2,13 +2,6 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import Preloader from "@/components/preloader";
-import Hero from "../3d/page";
-
-import Prueba from "../prueba/page";
-import Galery from "@/components/galery/Galery";
-
-import Text1 from "../text1/page";
-import Header from "@/components/header/page";
 
 export default function LoaderPage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -28,7 +21,6 @@ export default function LoaderPage() {
       <AnimatePresence mode="wait">
         {isLoading && <Preloader />}
       </AnimatePresence>
-      <Header />
     </main>
   );
 }

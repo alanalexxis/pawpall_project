@@ -13,7 +13,6 @@ export default function Page() {
   return (
     <Main>
       <AuroraBackgroundDemo />
-
       <Section>
         <Container>
           <Hero />
@@ -21,7 +20,11 @@ export default function Page() {
           <FeatureLeft />
           <FeatureSet />
           <PricingSectionCards />
-          <CTA />
+        </Container>
+      </Section>
+      <CTA />
+      <Section>
+        <Container>
           <Footer />
           <LoginButton />
         </Container>

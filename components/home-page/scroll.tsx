@@ -27,7 +27,7 @@ export function HeroScrollDemo() {
         viewport={{ once: true, amount: 0.5 }}
         className="absolute inset-0 flex items-center justify-center"
       >
-        <h1 className="text-white   2xl:text-9xl font-bold">Pawpal</h1>
+        <h1 className="text-white  2xl:text-9xl font-bold">Pawpal</h1>
       </motion.div>
     </div>
   );
