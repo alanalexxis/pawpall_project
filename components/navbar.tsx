@@ -15,7 +15,10 @@ import {
 import { ModeToggle } from "./Toggle";
 
 export function NavBar() {
-  const handleScrollToSection = (event, sectionId) => {
+  const handleScrollToSection = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    sectionId: string
+  ) => {
     event.preventDefault();
     const element = document.getElementById(sectionId);
     if (element) {
