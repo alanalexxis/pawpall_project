@@ -30,30 +30,26 @@ export function NavBar() {
           <SheetContent side="left">
             <SheetHeader>
               <SheetTitle>Pawpal.</SheetTitle>
-              <SheetDescription>
-                Scale and launch products with expert developers, on-demand, at
-                a flat monthly fee
-              </SheetDescription>
             </SheetHeader>
             <div className="flex flex-col space-y-3 mt-[1rem] z-[99]">
               <DialogClose asChild>
                 <Link href="/">
                   <Button variant="outline" className="w-full">
-                    Características
+                    Historia
                   </Button>
                 </Link>
               </DialogClose>
               <DialogClose asChild>
                 <Link href="/precios">
                   <Button variant="outline" className="w-full">
-                    Precios
+                    Características
                   </Button>
                 </Link>
               </DialogClose>
               <DialogClose asChild>
                 <Link href="/blog">
                   <Button variant="outline" className="w-full">
-                    Blog
+                    Precios
                   </Button>
                 </Link>
               </DialogClose>
@@ -64,7 +60,9 @@ export function NavBar() {
                   </Button>
                 </Link>
               </DialogClose>
-              <ModeToggle />
+              <div className="absolute bottom-4 right-4 m-4">
+                <ModeToggle />
+              </div>
             </div>
           </SheetContent>
         </Dialog>
@@ -77,13 +75,13 @@ export function NavBar() {
         </NavigationMenu>
         <div className="flex items-center gap-2 max-[825px]:hidden">
           <Link href="/software">
-            <Button variant="ghost">Características</Button>
+            <Button variant="ghost">Historia</Button>
           </Link>
           <Link href="/automation">
-            <Button variant="ghost">Precios</Button>
+            <Button variant="ghost">Características</Button>
           </Link>
           <Link href="/blog">
-            <Button variant="ghost">Blog</Button>
+            <Button variant="ghost">Precios</Button>
           </Link>
           <Link href="/projects">
             <Button variant="ghost">Contacto</Button>
