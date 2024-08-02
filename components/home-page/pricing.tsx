@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,28 +17,45 @@ import { motion } from "framer-motion";
 import { CheckIcon } from "lucide-react";
 
 export default function PricingSectionCards() {
+  const [isAnnual, setIsAnnual] = useState(false);
+
+  const prices = {
+    free: "Gratis",
+    premium: isAnnual ? "$420/año" : "$39/mes",
+    elite: isAnnual ? "$698/año" : "$59/mes",
+  };
+
+  const handleSwitchChange = () => {
+    setIsAnnual(!isAnnual);
+  };
+
   return (
     <>
       {/* Pricing */}
-      <div className="container py-24 lg:py-32 -mt-40 -mb-28">
+      <div className="container  mt-10 mb-8">
         {/* Title */}
         <div className="max-w-2xl mx-auto text-center mb-10 lg:mb-14">
           <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0">
-            Pricing
+            Precios
           </h2>
           <p className="mt-1 text-muted-foreground">
-            Whatever your status, our offers evolve according to your needs.
+            Nuestros servicios se adaptan con cariño al número de mascotas que
+            tenga.
           </p>
         </div>
         {/* End Title */}
         {/* Switch */}
         <div className="flex justify-center items-center">
           <Label htmlFor="payment-schedule" className="me-3">
-            Monthly
+            Mensual
           </Label>
-          <Switch id="payment-schedule" />
+          <Switch
+            id="payment-schedule"
+            checked={isAnnual}
+            onCheckedChange={handleSwitchChange}
+          />
           <Label htmlFor="payment-schedule" className="relative ms-3">
-            Annual
+            Anual
             <span className="absolute -top-10 start-auto -end-28">
               <span className="flex items-center">
                 <svg
@@ -54,53 +72,56 @@ export default function PricingSectionCards() {
                     className="text-muted-foreground"
                   />
                 </svg>
-                <Badge className="mt-3 uppercase">Save up to 10%</Badge>
+                <Badge className="mt-3 uppercase">Ahorra 10%</Badge>
               </span>
             </span>
           </Label>
         </div>
         {/* End Switch */}
         {/* Grid */}
-        <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:items-center">
+        <div className="mt-12 grid sm:grid-cols-1 lg:grid-cols-3 gap-6 lg:items-center">
           {/* Card */}
           <Card>
             <CardHeader className="text-center pb-2">
-              <CardTitle className="mb-7">Free</CardTitle>
-
+              <CardTitle className="mb-7">Gratis</CardTitle>
               <motion.div
+                key={`free-${isAnnual}`}
                 initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{
                   duration: 0.2,
                   ease: "easeOut",
                 }}
-                viewport={{ once: true, amount: 0.5 }} // Añadir once: true aquí
               >
-                <span className="font-bold text-5xl">Free</span>
+                <span className="font-bold text-5xl">{prices.free}</span>
               </motion.div>
             </CardHeader>
             <CardDescription className="text-center">
-              Forever free
+              Para siempre gratis
             </CardDescription>
             <CardContent>
               <ul className="mt-7 space-y-2.5 text-sm">
                 <li className="flex space-x-2">
                   <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
-                  <span className="text-muted-foreground">1 user</span>
+                  <span className="text-muted-foreground">1 mascota</span>
                 </li>
                 <li className="flex space-x-2">
                   <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
-                  <span className="text-muted-foreground">Plan features</span>
+                  <span className="text-muted-foreground">
+                    Acceso limitado a funciones básicas
+                  </span>
                 </li>
                 <li className="flex space-x-2">
                   <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
-                  <span className="text-muted-foreground">Product support</span>
+                  <span className="text-muted-foreground">
+                    Soporte básico a través de FAQs
+                  </span>
                 </li>
               </ul>
             </CardContent>
             <CardFooter>
               <Button className="w-full" variant={"outline"}>
-                Sign up
+                Inscribirse
               </Button>
             </CardFooter>
           </Card>
@@ -109,125 +130,97 @@ export default function PricingSectionCards() {
           <Card className="border-primary">
             <CardHeader className="text-center pb-2">
               <Badge className="uppercase w-max self-center mb-3">
-                Most popular
+                Más popular
               </Badge>
-              <CardTitle className="!mb-7">Startup</CardTitle>
+              <CardTitle className="!mb-7">Premium</CardTitle>
               <motion.div
+                key={`premium-${isAnnual}`}
                 initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{
                   duration: 0.4,
                   ease: "easeOut",
                 }}
-                viewport={{ once: true, amount: 0.5 }} // Añadir once: true aquí
               >
-                <span className="font-bold text-5xl">£39</span>
+                <span className="font-bold text-5xl">{prices.premium}</span>
               </motion.div>
             </CardHeader>
             <CardDescription className="text-center w-11/12 mx-auto">
-              All the basics for starting a new business
+              {isAnnual ? "Anual" : "Mensual"}
             </CardDescription>
             <CardContent>
               <ul className="mt-7 space-y-2.5 text-sm">
                 <li className="flex space-x-2">
                   <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
-                  <span className="text-muted-foreground">2 user</span>
+                  <span className="text-muted-foreground">
+                    Hasta 2 mascotas
+                  </span>
                 </li>
                 <li className="flex space-x-2">
                   <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
-                  <span className="text-muted-foreground">Plan features</span>
+                  <span className="text-muted-foreground">
+                    Todas las funciones del plan básico + características
+                    avanzadas
+                  </span>
                 </li>
                 <li className="flex space-x-2">
                   <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
-                  <span className="text-muted-foreground">Product support</span>
+                  <span className="text-muted-foreground">
+                    Soporte prioritario por correo electrónico y chat en vivo
+                  </span>
                 </li>
               </ul>
             </CardContent>
             <CardFooter>
-              <Button className="w-full">Sign up</Button>
+              <Button className="w-full">Inscribirse</Button>
             </CardFooter>
           </Card>
           {/* End Card */}
           {/* Card */}
           <Card>
             <CardHeader className="text-center pb-2">
-              <CardTitle className="mb-7">Team</CardTitle>
+              <CardTitle className="!mb-7">Élite</CardTitle>
               <motion.div
+                key={`elite-${isAnnual}`}
                 initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{
                   duration: 0.6,
                   ease: "easeOut",
                 }}
-                viewport={{ once: true, amount: 0.5 }} // Añadir once: true aquí
               >
-                <span className="font-bold text-5xl">£89</span>
+                <span className="font-bold text-5xl">{prices.elite}</span>
               </motion.div>
             </CardHeader>
-            <CardDescription className="text-center  w-11/12 mx-auto">
-              Everything you need for a growing business
+            <CardDescription className="text-center w-11/12 mx-auto">
+              {isAnnual ? "Anual" : "Mensual"}
             </CardDescription>
             <CardContent>
               <ul className="mt-7 space-y-2.5 text-sm">
                 <li className="flex space-x-2">
                   <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
-                  <span className="text-muted-foreground">5 user</span>
+                  <span className="text-muted-foreground">
+                    Hasta 5 mascotas
+                  </span>
                 </li>
                 <li className="flex space-x-2">
                   <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
-                  <span className="text-muted-foreground">Plan features</span>
+                  <span className="text-muted-foreground">
+                    Todas las funciones del plan Premium + características
+                    exclusivas
+                  </span>
                 </li>
                 <li className="flex space-x-2">
                   <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
-                  <span className="text-muted-foreground">Product support</span>
+                  <span className="text-muted-foreground">
+                    Soporte VIP con acceso directo a expertos
+                  </span>
                 </li>
               </ul>
             </CardContent>
             <CardFooter>
               <Button className="w-full" variant={"outline"}>
-                Sign up
-              </Button>
-            </CardFooter>
-          </Card>
-          {/* End Card */}
-          {/* Card */}
-          <Card>
-            <CardHeader className="text-center pb-2">
-              <CardTitle className="mb-7">Enterprise</CardTitle>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.8,
-                  ease: "easeOut",
-                }}
-                viewport={{ once: true, amount: 0.5 }} // Añadir once: true aquí
-              >
-                <span className="font-bold text-5xl">149</span>
-              </motion.div>
-            </CardHeader>
-            <CardDescription className="text-center  w-11/12 mx-auto">
-              Advanced features for scaling your business
-            </CardDescription>
-            <CardContent>
-              <ul className="mt-7 space-y-2.5 text-sm">
-                <li className="flex space-x-2">
-                  <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
-                  <span className="text-muted-foreground">10 user</span>
-                </li>
-                <li className="flex space-x-2">
-                  <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
-                  <span className="text-muted-foreground">Plan features</span>
-                </li>
-                <li className="flex space-x-2">
-                  <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
-                  <span className="text-muted-foreground">Product support</span>
-                </li>
-              </ul>
-            </CardContent>
-            <CardFooter>
-              <Button className="w-full" variant={"outline"}>
-                Sign up
+                Inscribirse
               </Button>
             </CardFooter>
           </Card>
