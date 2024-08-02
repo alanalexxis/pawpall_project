@@ -13,10 +13,11 @@ export default function CTA() {
             {/* Title */}
             <div className="text-center">
               <p className="text-xs font-semibold text-muted-foreground tracking-wide uppercase mb-3">
-                Small business solutions
+                Ofrece el mejor cuidado a tus mascotas con nuestros servicios
               </p>
               <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
-                Turn online shoppers into lifetime customers
+                Recibie las mejores soluciones para el cuidado de tus amigos
+                peludos
               </h1>
             </div>
             {/* End Title */}
@@ -36,9 +37,9 @@ export default function CTA() {
               </div>
               <div className="border-t sm:border-t-0 sm:border-s  w-32 h-px sm:w-auto sm:h-full mx-auto sm:mx-0" />
               <div className="pt-5 sm:pt-0 sm:ps-5">
-                <div className="text-lg font-semibold">Trust pilot</div>
+                <div className="text-lg font-semibold">Pawpal</div>
                 <div className="text-sm text-muted-foreground">
-                  Rated best over 37k reviews
+                  Más de 7 mil dueños felices
                 </div>
               </div>
             </div>
@@ -50,7 +51,7 @@ export default function CTA() {
                   <Label htmlFor="name">
                     <span className="sr-only">Your name</span>
                   </Label>
-                  <Input type="text" id="name" placeholder="Your name" />
+                  <Input type="text" id="name" placeholder="Tu nombre" />
                 </div>
                 <div className="pt-2 sm:pt-0 sm:ps-3 border-t sm:border-t-0 sm:border-s sm:flex-[1_0_0%]">
                   <Label
@@ -59,10 +60,10 @@ export default function CTA() {
                   >
                     <span className="sr-only">Your email address</span>
                   </Label>
-                  <Input type="email" id="email" placeholder="Your email" />
+                  <Input type="email" id="email" placeholder="Tu correo" />
                 </div>
                 <div className="pt-2 sm:pt-0 grid sm:block sm:flex-[0_0_auto]">
-                  <Button>Get started</Button>
+                  <Button>Suscribirse</Button>
                 </div>
               </div>
             </form>
