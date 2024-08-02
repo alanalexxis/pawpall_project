@@ -12,19 +12,32 @@ import PricingSectionCards from "@/components/home-page/pricing";
 export default function Page() {
   return (
     <Main>
+      {/* Sección hero*/}
       <AuroraBackgroundDemo />
-      <Section>
+      <Section id="history">
         <Container>
+          {/* Sección historia */}
           <Hero />
+        </Container>
+      </Section>
+      <Section id="features">
+        <Container>
+          {/* Sección características */}
           <FeatureRight />
           <FeatureLeft />
           <FeatureSet />
+        </Container>
+      </Section>
+      <Section id="pricing">
+        <Container>
+          {/* Sección precios */}
           <PricingSectionCards />
         </Container>
       </Section>
-      <CTA />
-      <Section>
+      <Section id="contact">
         <Container>
+          {/* Sección contacto */}
+          <CTA />
           <Footer />
           <LoginButton />
         </Container>
