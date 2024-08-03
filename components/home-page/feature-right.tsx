@@ -8,7 +8,7 @@ import { Section, Container } from "@/components/craft";
 import { Button } from "@/components/ui/button";
 
 // Asset imports
-import Placeholder from "@/public/images/image4.jpg";
+
 import { motion } from "framer-motion";
 
 const FeatureRight = () => {
@@ -23,7 +23,7 @@ const FeatureRight = () => {
         }}
         viewport={{ once: true, amount: 0.5 }} // Añadir once: true aquí
       >
-        <Container className="grid items-stretch md:grid-cols-2 md:gap-12">
+        <Container className="grid items-stretch md:grid-cols-2 md:gap-12 -mt-24">
           <div className="flex flex-col gap-6 py-8">
             <h3 className="!my-0">Cuida a tu mejor amigo</h3>
             <p className="font-light leading-[1.4] opacity-70">
