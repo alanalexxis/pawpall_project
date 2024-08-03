@@ -1,6 +1,8 @@
 "use client";
 import { usePathname, useRouter } from "next/navigation";
 import { animatePageOut } from "@/utils/animation";
+import { Button } from "@/components/ui/button";
+import { ArrowRightIcon } from "lucide-react";
 
 interface Props {
   href: string;
@@ -18,13 +20,17 @@ const TransitionLink = ({ href, label }: Props) => {
   };
 
   return (
-    <button
-      className="text-xl text-neutral-900 hover:text-neutral-700"
+    <Button
+      variant="expandIcon"
+      Icon={ArrowRightIcon}
+      iconPlacement="right"
       onClick={handleClick}
     >
       {label}
-    </button>
+    </Button>
   );
+
+  <>Icon right</>;
 };
 
 export default TransitionLink;

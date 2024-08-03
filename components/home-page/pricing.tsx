@@ -84,7 +84,7 @@ export default function PricingSectionCards() {
           {/* Card */}
           <Card>
             <CardHeader className="text-center pb-2">
-              <CardTitle className="mb-7">Gratis</CardTitle>
+              <CardTitle className="mb-7">Básico</CardTitle>
               <motion.div
                 key={`free-${isAnnual}`}
                 initial={{ opacity: 0, y: 20 }}

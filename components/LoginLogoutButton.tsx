@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { signout } from "@/lib/auth-actions";
+import TransitionLink from "@/utils/transitionLink";
 
 const LoginButton = () => {
   const [user, setUser] = useState<any>(null);
@@ -30,16 +31,7 @@ const LoginButton = () => {
       </Button>
     );
   }
-  return (
-    <Button
-      variant="outline"
-      onClick={() => {
-        router.push("/login");
-      }}
-    >
-      Iniciar sesión
-    </Button>
-  );
+  return <TransitionLink href="/login" label="Iniciar sesión" />;
 };
 
 export default LoginButton;

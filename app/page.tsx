@@ -8,13 +8,15 @@ import Hero from "@/components/home-page/hero";
 import { AuroraBackgroundDemo } from "@/components/home-page/back";
 import PricingSectionCards from "@/components/home-page/pricing";
 import { MarqueeDemo } from "@/components/home-page/tweetInfinite";
+import Background from "@/components/background";
 
 export default function Page() {
   return (
     <Main>
-      {/* Sección hero*/}
+      {/* Sección hero */}
       <AuroraBackgroundDemo />
-      <Section id="history">
+      <Section id="history" className="relative">
+        <Background />
         <Container>
           {/* Sección historia */}
           <Hero />
@@ -38,7 +40,11 @@ export default function Page() {
         <Container>
           {/* Sección contacto */}
           <CTA />
-          <MarqueeDemo />
+        </Container>
+      </Section>
+      <MarqueeDemo />
+      <Section>
+        <Container>
           <Footer />
         </Container>
       </Section>
