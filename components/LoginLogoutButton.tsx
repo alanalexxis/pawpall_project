@@ -26,7 +26,7 @@ const LoginButton = () => {
           setUser(null);
         }}
       >
-        Log out
+        Cerrar sesión
       </Button>
     );
   }
@@ -37,7 +37,7 @@ const LoginButton = () => {
         router.push("/login");
       }}
     >
-      Login
+      Iniciar sesión
     </Button>
   );
 };

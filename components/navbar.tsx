@@ -13,6 +13,7 @@ import {
   SheetTrigger,
 } from "./ui/sheet";
 import { ModeToggle } from "./Toggle";
+import LoginButton from "./LoginLogoutButton";
 
 export function NavBar() {
   const handleScrollToSection = (
@@ -115,6 +116,9 @@ export function NavBar() {
           </Button>
           <ModeToggle />
         </div>
+      </div>
+      <div className="absolute right-4 top-4">
+        <LoginButton />
       </div>
     </div>
   );

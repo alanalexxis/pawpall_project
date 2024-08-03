@@ -1,4 +1,3 @@
-import LoginButton from "@/components/LoginLogoutButton";
 import { Main, Section, Container } from "@/components/craft";
 import Footer from "@/components/home-page/footer";
 import CTA from "@/components/home-page/cta";
@@ -8,6 +7,7 @@ import FeatureSet from "@/components/home-page/feature-set";
 import Hero from "@/components/home-page/hero";
 import { AuroraBackgroundDemo } from "@/components/home-page/back";
 import PricingSectionCards from "@/components/home-page/pricing";
+import { MarqueeDemo } from "@/components/home-page/tweetInfinite";
 
 export default function Page() {
   return (
@@ -38,8 +38,8 @@ export default function Page() {
         <Container>
           {/* Sección contacto */}
           <CTA />
+          <MarqueeDemo />
           <Footer />
-          <LoginButton />
         </Container>
       </Section>
     </Main>

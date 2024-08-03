@@ -15,6 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import { motion } from "framer-motion";
 
 import { CheckIcon } from "lucide-react";
+import { BorderBeam } from "../magicui/border-beam";
 
 export default function PricingSectionCards() {
   const [isAnnual, setIsAnnual] = useState(false);
@@ -32,7 +33,7 @@ export default function PricingSectionCards() {
   return (
     <>
       {/* Pricing */}
-      <div className="container  mt-10 mb-8">
+      <div className="container -mt-16 mb-8">
         {/* Title */}
         <div className="max-w-2xl mx-auto text-center mb-10 lg:mb-14">
           <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0">
@@ -127,7 +128,8 @@ export default function PricingSectionCards() {
           </Card>
           {/* End Card */}
           {/* Card */}
-          <Card className="border-primary">
+          <Card className="border-primary relative">
+            <BorderBeam size={250} duration={12} delay={9} />
             <CardHeader className="text-center pb-2">
               <Badge className="uppercase w-max self-center mb-3">
                 Más popular
