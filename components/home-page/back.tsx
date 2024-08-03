@@ -5,6 +5,7 @@ import React from "react";
 import { AuroraBackground } from "./aurora-background";
 
 import SparklesText from "@/components/magicui/sparkles-text";
+import { Button } from "../ui/button";
 
 export function AuroraBackgroundDemo() {
   return (
@@ -25,9 +26,12 @@ export function AuroraBackgroundDemo() {
         <div className="font-extralight text-base md:text-4xl dark:text-neutral-200 py-4">
           El cuidado perfecto con Pawpal.
         </div>
-        <button className="bg-black dark:bg-white rounded-full w-fit text-white dark:text-black px-4 py-2">
+        <Button
+          variant={"gooeyLeft"}
+          className=" text-lg bg-black dark:bg-white rounded-full w-fit text-white dark:text-black px-4 py-6"
+        >
           Comienza ahora
-        </button>
+        </Button>
       </motion.div>
     </AuroraBackground>
   );
