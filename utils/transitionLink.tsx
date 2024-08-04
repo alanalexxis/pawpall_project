@@ -25,7 +25,6 @@ const TransitionLink = ({ href, label }: Props) => {
       Icon={ArrowRightIcon}
       iconPlacement="right"
       onClick={handleClick}
-      className=" text-white"
     >
       {label}
     </Button>
