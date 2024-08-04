@@ -15,7 +15,7 @@ import { motion } from "framer-motion";
 
 const Hero = () => {
   return (
-    <Section className="-mt-10">
+    <Section>
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -37,7 +37,7 @@ const Hero = () => {
                 Leer más <ArrowRight className="w-4" />
               </Link>
             </Button>
-            <h1>
+            <h1 className="text-primary">
               <Balancer>Nuestra historia</Balancer>
             </h1>
             <h3 className="text-muted-foreground">

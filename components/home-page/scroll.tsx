@@ -1,6 +1,7 @@
 import React from "react";
 import { ContainerScroll } from "../ui/container-scroll-animation";
 import { motion } from "framer-motion";
+import Balancer from "react-wrap-balancer";
 
 export function HeroScrollDemo() {
   return (
@@ -27,7 +28,9 @@ export function HeroScrollDemo() {
         viewport={{ once: true, amount: 0.5 }}
         className="absolute inset-0 flex items-center justify-center"
       >
-        <h1 className="text-white  2xl:text-9xl font-bold">Pawpal</h1>
+        <Balancer>
+          <h1 className="text-white  2xl:text-9xl font-bold">Pawpal</h1>
+        </Balancer>
       </motion.div>
     </div>
   );

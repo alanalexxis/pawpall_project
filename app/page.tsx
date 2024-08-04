@@ -44,9 +44,7 @@ export default function Page() {
       </Section>
       <MarqueeDemo />
       <Section>
-        <Container>
-          <Footer />
-        </Container>
+        <Footer />
       </Section>
     </Main>
   );
