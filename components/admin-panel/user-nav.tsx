@@ -1,6 +1,6 @@
 // components/UserNav.tsx
 "use client";
-import { signout } from "@/lib/auth-actions";
+
 import Link from "next/link";
 import { LayoutGrid, LogOut, User } from "lucide-react";
 import React from "react";
