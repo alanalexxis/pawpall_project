@@ -1,9 +1,9 @@
+// components/UserNav.tsx
 "use client";
-
+import { signout } from "@/lib/auth-actions";
 import Link from "next/link";
 import { LayoutGrid, LogOut, User } from "lucide-react";
-import { createClient } from "@/utils/supabase/client";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -21,20 +21,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useUser } from "@/contexts/userContext";
 
 export function UserNav() {
-  const [user, setUser] = useState<any>(null);
-  const supabase = createClient();
+  const { user, setUser } = useUser();
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
-    };
-    fetchUser();
-  }, []);
   return (
     <DropdownMenu>
       <TooltipProvider disableHoverableContent>
@@ -99,9 +90,15 @@ export function UserNav() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="hover:cursor-pointer" onClick={() => {}}>
+        <DropdownMenuItem
+          className="hover:cursor-pointer"
+          onClick={() => {
+            signout();
+            setUser(null);
+          }}
+        >
           <LogOut className="w-4 h-4 mr-3 text-muted-foreground" />
-          Sign out
+          Cerrar sesión
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
