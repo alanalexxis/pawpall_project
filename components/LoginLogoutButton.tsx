@@ -4,7 +4,7 @@ import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { signout } from "@/lib/auth-actions";
-import TransitionLink from "@/utils/transitionLink";
+import { ArrowRightIcon } from "lucide-react";
 
 const LoginButton = () => {
   const [user, setUser] = useState<any>(null);
@@ -31,7 +31,18 @@ const LoginButton = () => {
       </Button>
     );
   }
-  return <TransitionLink href="/login" label="Iniciar sesión" />;
+  return (
+    <Button
+      variant="expandIcon"
+      Icon={ArrowRightIcon}
+      iconPlacement="right"
+      onClick={() => {
+        router.push("/login");
+      }}
+    >
+      Iniciar sesión
+    </Button>
+  );
 };
 
 export default LoginButton;
