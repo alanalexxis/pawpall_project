@@ -22,9 +22,23 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useUser } from "@/contexts/userContext";
-
+import { useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
 export function UserNav() {
   const { user, setUser } = useUser();
+  const router = useRouter();
+
+  const handleSignout = async () => {
+    const supabase = createClient();
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      console.log(error);
+      // En vez de redirigir, podrías mostrar un mensaje de error o hacer otra cosa
+      return false;
+    }
+    return true;
+  };
 
   return (
     <DropdownMenu>
@@ -92,13 +106,12 @@ export function UserNav() {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="hover:cursor-pointer"
-          onClick={() => {
-            signout();
-            setUser(null);
-          }}
+          onClick={handleSignout}
         >
-          <LogOut className="w-4 h-4 mr-3 text-muted-foreground" />
-          Cerrar sesión
+          <Link href="/logout" className="flex items-center">
+            <LogOut className="w-4 h-4 mr-3 text-muted-foreground" />
+            Cerrar sesión
+          </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
