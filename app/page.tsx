@@ -9,43 +9,47 @@ import { AuroraBackgroundDemo } from "@/components/home-page/back";
 import PricingSectionCards from "@/components/home-page/pricing";
 import { MarqueeDemo } from "@/components/home-page/tweetInfinite";
 import Background from "@/components/background";
+import { NavBar } from "@/components/navbar";
 
 export default function Page() {
   return (
-    <Main>
-      {/* Sección hero */}
-      <AuroraBackgroundDemo />
-      <Section id="history" className="relative">
-        <Background />
-        <Container>
-          {/* Sección historia */}
-          <Hero />
-        </Container>
-      </Section>
-      <Section id="features">
-        <Container>
-          {/* Sección características */}
-          <FeatureRight />
-          <FeatureLeft />
-          <FeatureSet />
-        </Container>
-      </Section>
-      <Section id="pricing">
-        <Container>
-          {/* Sección precios */}
-          <PricingSectionCards />
-        </Container>
-      </Section>
-      <Section id="contact">
-        <Container>
-          {/* Sección contacto */}
-          <CTA />
-        </Container>
-      </Section>
-      <MarqueeDemo />
-      <Section>
-        <Footer />
-      </Section>
-    </Main>
+    <>
+      <NavBar />
+      <Main>
+        {/* Sección hero */}
+        <AuroraBackgroundDemo />
+        <Section id="history" className="relative">
+          <Background />
+          <Container>
+            {/* Sección historia */}
+            <Hero />
+          </Container>
+        </Section>
+        <Section id="features">
+          <Container>
+            {/* Sección características */}
+            <FeatureRight />
+            <FeatureLeft />
+            <FeatureSet />
+          </Container>
+        </Section>
+        <Section id="pricing">
+          <Container>
+            {/* Sección precios */}
+            <PricingSectionCards />
+          </Container>
+        </Section>
+        <Section id="contact">
+          <Container>
+            {/* Sección contacto */}
+            <CTA />
+          </Container>
+        </Section>
+        <MarqueeDemo />
+        <Section>
+          <Footer />
+        </Section>
+      </Main>
+    </>
   );
 }
