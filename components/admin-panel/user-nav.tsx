@@ -46,8 +46,24 @@ export function UserNav() {
                 className="relative h-8 w-8 rounded-full"
               >
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src="#" alt="Avatar" />
-                  <AvatarFallback className="bg-transparent">JD</AvatarFallback>
+                  <AvatarImage
+                    src={
+                      user?.user_metadata?.avatar_url ??
+                      "https://example.com/default-avatar.png"
+                    }
+                    alt={user?.user_metadata?.full_name ?? "Usuario"}
+                  />
+                  <AvatarFallback className="bg-transparent">
+                    {(() => {
+                      if (!user?.user_metadata?.full_name) return "U";
+                      const names = user.user_metadata.full_name.split(" ");
+                      return names
+                        .slice(0, 2)
+                        .map((name: any[]) => name[0])
+                        .join("")
+                        .toUpperCase();
+                    })()}
+                  </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
