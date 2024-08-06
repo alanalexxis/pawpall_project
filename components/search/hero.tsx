@@ -5,7 +5,7 @@ import { SearchBar } from "./search";
 
 function Hero() {
   return (
-    <div className="bg-[conic-gradient(at_top,_var(--tw-gradient-stops))] from-yellow-200 via-emerald-200 to-yellow-200 flex items-center justify-center h-auto py-10">
+    <div className="bg-[conic-gradient(at_top,_var(--tw-gradient-stops))] from-yellow-200 via-emerald-200 to-yellow-200 flex items-center justify-center h-auto py-10 dark:brightness-[0.9] ">
       <div className="absolute top-4 left-4 right-4 ">
         <SearchBar />
       </div>
