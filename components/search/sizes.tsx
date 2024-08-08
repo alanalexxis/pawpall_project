@@ -269,8 +269,10 @@ const Size = () => {
             </svg>
             <div>
               <p className="text-md font-semibold text-primary mb-2">MEDIDAS</p>
-              <p className="text-sm  ">23-24 inches (male)</p>
-              <p className="text-sm ">21.5-22.5 inches (female)</p>
+              <p className="text-sm text-gray-400  ">23-24 inches (male)</p>
+              <p className="text-sm text-gray-400  ">
+                21.5-22.5 inches (female)
+              </p>
             </div>
           </Card>
           <Card className="flex items-center space-x-4 p-4 rounded-lg shadow-sm border border-gray-200 lg:w-full transition-transform duration-300 ease-in-out transform hover:bg-gray-100 dark:hover:bg-secondary hover:border-primary hover:scale-105">
@@ -323,8 +325,8 @@ const Size = () => {
             </svg>
             <div>
               <p className="text-md font-semibold text-primary mb-2">PESO</p>
-              <p className="text-sm ">65-75 pounds (male)</p>
-              <p className="text-sm">55-65 pounds (female)</p>
+              <p className="text-sm text-gray-400  ">65-75 pounds (male)</p>
+              <p className="text-sm text-gray-400 ">55-65 pounds (female)</p>
             </div>
           </Card>
 
@@ -431,7 +433,7 @@ const Size = () => {
               <p className="text-md font-semibold text-primary mb-2">
                 ESPERANZA DE VIDA
               </p>
-              <p className="text-sm">10-12 years</p>
+              <p className="text-sm text-gray-400 ">10-12 years</p>
             </div>
           </Card>
         </div>

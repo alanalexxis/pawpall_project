@@ -3,6 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import Hero from "../search/hero";
 import Sizes from "../search/sizes";
 import Stadistics from "../search/stats";
+import BreedStandard from "../search/bread";
+import About from "../search/about";
 
 export default function PlaceholderContent() {
   return (
@@ -13,6 +15,8 @@ export default function PlaceholderContent() {
           <Hero />
           <Sizes />
           <Stadistics />
+          <BreedStandard />
+          <About />
         </div>
       </CardContent>
     </Card>
