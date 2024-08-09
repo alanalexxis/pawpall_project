@@ -7,7 +7,13 @@ import {
   FaUtensils,
 } from "react-icons/fa";
 
-const CareSection = ({ title, icon: Icon, children }) => {
+interface CareSectionProps {
+  title: string;
+  icon: React.ElementType;
+  children: React.ReactNode;
+}
+
+const CareSection = ({ title, icon: Icon, children }: CareSectionProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (

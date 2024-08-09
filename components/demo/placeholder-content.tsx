@@ -7,6 +7,7 @@ import Stadistics from "../search/stats";
 import BreedStandard from "../search/bread";
 import About from "../search/about";
 import Acordeon from "../search/accordeon";
+import DidYouKnow from "../search/didyouknow";
 
 export default function PlaceholderContent() {
   return (
@@ -20,6 +21,7 @@ export default function PlaceholderContent() {
           <BreedStandard />
           <About />
           <Acordeon />
+          <DidYouKnow />
         </div>
       </CardContent>
     </Card>
