@@ -1,3 +1,4 @@
+"use client";
 import { Card, CardContent } from "@/components/ui/card";
 
 import Hero from "../search/hero";
@@ -5,6 +6,7 @@ import Sizes from "../search/sizes";
 import Stadistics from "../search/stats";
 import BreedStandard from "../search/bread";
 import About from "../search/about";
+import Acordeon from "../search/accordeon";
 
 export default function PlaceholderContent() {
   return (
@@ -17,6 +19,7 @@ export default function PlaceholderContent() {
           <Stadistics />
           <BreedStandard />
           <About />
+          <Acordeon />
         </div>
       </CardContent>
     </Card>
