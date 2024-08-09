@@ -2,11 +2,11 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Card } from "../ui/card";
-
+type Section = "ACERCA" | "HISTORIA";
 export default function About() {
-  const [activeSection, setActiveSection] = useState("ACERCA");
+  const [activeSection, setActiveSection] = useState<Section>("ACERCA");
 
-  const sectionWidths = {
+  const sectionWidths: Record<Section, number> = {
     ACERCA: 0,
     HISTORIA: 100,
   };
@@ -112,7 +112,7 @@ export default function About() {
               className={`w-1/2 py-2 text-center relative z-10 ${
                 activeSection === section ? "text-primary" : "text-secondary"
               }`}
-              onClick={() => setActiveSection(section)}
+              onClick={() => setActiveSection(section as Section)}
             >
               {section}
             </button>

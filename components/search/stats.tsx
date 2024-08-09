@@ -3,8 +3,10 @@ import React, { useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+
+type Section = "FAMILIAR" | "FISICO" | "SOCIAL" | "PERSONALIDAD";
 const Stadistics = () => {
-  const [activeSection, setActiveSection] = useState("FAMILIAR");
+  const [activeSection, setActiveSection] = useState<Section>("FAMILIAR");
   const [expandedInfo, setExpandedInfo] = useState<string | null>(null);
 
   const renderRating = (
@@ -54,7 +56,7 @@ const Stadistics = () => {
     setExpandedInfo(expandedInfo === section ? null : section);
   };
   // Define los anchos relativos para cada sección.
-  const sectionWidths = {
+  const sectionWidths: Record<Section, number> = {
     FAMILIAR: 0,
     FISICO: 100,
     SOCIAL: 200,
@@ -623,7 +625,7 @@ const Stadistics = () => {
               className={`w-1/4 py-2 text-center relative z-10 ${
                 activeSection === section ? "text-primary" : "text-secondary"
               }`}
-              onClick={() => setActiveSection(section)}
+              onClick={() => setActiveSection(section as Section)}
             >
               {section}
             </button>
