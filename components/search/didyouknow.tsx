@@ -43,7 +43,7 @@ const DidYouKnow = () => {
           {facts.map((fact, index) => (
             <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/4">
               <div className="p-1">
-                <Card className="bg-[conic-gradient(at_top,_var(--tw-gradient-stops))] from-yellow-200 via-emerald-200 to-yellow-200">
+                <Card className="bg-[conic-gradient(at_top,_var(--tw-gradient-stops))] from-yellow-200 via-emerald-200 to-yellow-200 text-black">
                   <CardContent className="flex aspect-square items-center justify-center p-6">
                     <span className="text-md font-semibold"> {fact.text}</span>
                   </CardContent>
