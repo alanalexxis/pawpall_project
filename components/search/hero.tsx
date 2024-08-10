@@ -21,6 +21,7 @@ function Hero() {
           <Badge className="bg-yellow-200 text-black ml-1">
             GRUPO DEPORTIVO
           </Badge>
+          <Badge className="bg-red-200 text-black">#3 EN POPULARIDAD</Badge>
         </div>
         <div className="flex-1 relative mt-6 md:mt-0">
           <img
