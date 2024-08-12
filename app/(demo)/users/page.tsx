@@ -8,8 +8,10 @@ import {
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator
+  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import GuiaBlog from "@/components/guia/blog";
+import GuiasBlogContent from "@/components/demo/guiaBlog_content";
 
 export default function UsersPage() {
   return (
@@ -33,7 +35,7 @@ export default function UsersPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <PlaceholderContent />
+      <GuiasBlogContent />
     </ContentLayout>
   );
 }

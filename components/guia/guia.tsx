@@ -1,8 +1,8 @@
 "use client";
 
-import { SetStateAction, useState } from "react";
+import { JSX, SetStateAction, SVGProps, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 export default function Guias() {
   const [activeFilter, setActiveFilter] = useState("all");
@@ -12,7 +12,7 @@ export default function Guias() {
       type: "image",
       title: "Serene Landscape",
       description: "A tranquil mountain scene captured at golden hour.",
-      src: "/placeholder.svg",
+      src: "/labrador.jpg",
       category: "nature",
     },
     {
@@ -90,31 +90,31 @@ export default function Guias() {
             variant={activeFilter === "nature" ? "ghost" : "outline"}
             onClick={() => handleFilterChange("nature")}
           >
-            Nature
+            Nutrición
           </Button>
           <Button
             variant={activeFilter === "urban" ? "ghost" : "outline"}
             onClick={() => handleFilterChange("urban")}
           >
-            Urban
+            Salud
           </Button>
           <Button
             variant={activeFilter === "architecture" ? "ghost" : "outline"}
             onClick={() => handleFilterChange("architecture")}
           >
-            Architecture
+            Entrenamiento
           </Button>
           <Button
             variant={activeFilter === "art" ? "ghost" : "outline"}
             onClick={() => handleFilterChange("art")}
           >
-            Art
+            Ejercicio
           </Button>
           <Button
             variant={activeFilter === "design" ? "ghost" : "outline"}
             onClick={() => handleFilterChange("design")}
           >
-            Design
+            Cuidado personal
           </Button>
         </div>
       </div>
@@ -126,7 +126,7 @@ export default function Guias() {
           >
             {item.type === "image" ? (
               <img
-                src="/placeholder.svg"
+                src={item.src}
                 alt={item.title}
                 width={600}
                 height={400}
@@ -141,6 +141,10 @@ export default function Guias() {
                 <div className="flex h-full items-center justify-center bg-black/50 text-white"></div>
               </div>
             )}
+
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50 dark:bg-white/50 opacity-0 transition-opacity duration-300 ease-in-out hover:opacity-100">
+              <EyeIcon className="h-12 w-12 text-white" />
+            </div>
             <div className="p-4 bg-background">
               <h3 className="text-lg font-semibold">{item.title}</h3>
               <p className="text-sm text-muted-foreground">
@@ -150,61 +154,11 @@ export default function Guias() {
           </div>
         ))}
       </div>
-      {isLightboxOpen && selectedItem && (
-        <Dialog open={isLightboxOpen} onOpenChange={handleLightboxClose}>
-          <DialogContent className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
-            {selectedItem.type === "image" ? (
-              <img
-                src="/placeholder.svg"
-                alt={selectedItem.title}
-                width={800}
-                height={600}
-                className="max-h-[90vh] max-w-[90vw] object-contain"
-                style={{ aspectRatio: "800/600", objectFit: "cover" }}
-              />
-            ) : (
-              <video
-                src={selectedItem.src}
-                controls
-                className="max-h-[90vh] max-w-[90vw]"
-              />
-            )}
-            <div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute top-4 right-4 text-white hover:bg-white/10"
-              >
-                <XIcon className="h-6 w-6" />
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
     </div>
   );
 }
 
-function PlayIcon(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polygon points="6 3 20 12 6 21 6 3" />
-    </svg>
-  );
-}
-
-function XIcon(props) {
+function XIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -220,6 +174,25 @@ function XIcon(props) {
     >
       <path d="M18 6 6 18" />
       <path d="m6 6 12 12" />
+    </svg>
+  );
+}
+function EyeIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
     </svg>
   );
 }
