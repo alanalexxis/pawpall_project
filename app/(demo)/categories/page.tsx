@@ -9,7 +9,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import Guias from "@/components/guia/guia";
+
+import GuiasContent from "@/components/demo/guia_content";
 
 export default function CategoriesPage() {
   return (
@@ -33,7 +34,7 @@ export default function CategoriesPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <Guias />
+      <GuiasContent />
     </ContentLayout>
   );
 }

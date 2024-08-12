@@ -17,7 +17,7 @@ export default function Guias() {
     },
     {
       id: 2,
-      type: "video",
+      type: "image",
       title: "Cityscape Timelapse",
       description: "A dynamic timelapse showcasing the bustling city skyline.",
       src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
@@ -34,7 +34,7 @@ export default function Guias() {
     },
     {
       id: 4,
-      type: "video",
+      type: "image",
       title: "Underwater Exploration",
       description:
         "A captivating underwater journey through a vibrant coral reef.",
@@ -138,9 +138,7 @@ export default function Guias() {
                 className="h-64 w-full cursor-pointer bg-cover bg-center"
                 style={{ backgroundImage: `url(${item.src})` }}
               >
-                <div className="flex h-full items-center justify-center bg-black/50 text-white">
-                  <PlayIcon className="h-12 w-12" />
-                </div>
+                <div className="flex h-full items-center justify-center bg-black/50 text-white"></div>
               </div>
             )}
             <div className="p-4 bg-background">
