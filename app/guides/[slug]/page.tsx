@@ -52,7 +52,7 @@ export default async function Blog({ params }: { params: { slug: string } }) {
       <article className="container relative max-w-3xl mt-[4rem]">
         <div className="flex justify-end items-center w-full min-[1280px]:hidden">
           <Link
-            href="/"
+            href="/guides"
             className={cn(buttonVariants({ variant: "ghost" }), "rounded")}
           >
             <ChevronLeft className="mr-2 h-4 w-4" />
@@ -60,7 +60,7 @@ export default async function Blog({ params }: { params: { slug: string } }) {
           </Link>
         </div>
         <Link
-          href="/"
+          href="/guides"
           className={cn(
             buttonVariants({ variant: "ghost" }),
             "absolute rounded left-[-200px] top-14 hidden xl:inline-flex"
@@ -83,7 +83,7 @@ export default async function Blog({ params }: { params: { slug: string } }) {
         <hr className="mt-12" />
         <div className="flex justify-center py-6 lg:py-10">
           <Link
-            href="/"
+            href="/guides"
             className={cn(buttonVariants({ variant: "ghost" }), "rounded")}
           >
             <ChevronLeft className="mr-2 h-4 w-4" />
