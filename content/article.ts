@@ -12,6 +12,7 @@ export const blogs = [
     article: html_article_rendering,
     image: "https://utfs.io/f/05f9572b-60e1-4085-9634-aa91494b72a4-3s2kwh.png",
     keywords: [],
+    category: "salud",
   },
   {
     id: 1,
