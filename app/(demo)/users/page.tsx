@@ -1,6 +1,4 @@
 import Link from "next/link";
-
-import PlaceholderContent from "@/components/demo/placeholder-content";
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import {
   Breadcrumb,
@@ -10,8 +8,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import GuiaBlog from "@/components/guia/blog";
-import GuiasBlogContent from "@/components/demo/guiaBlog_content";
 
 export default function UsersPage() {
   return (
@@ -35,7 +31,6 @@ export default function UsersPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <GuiasBlogContent />
     </ContentLayout>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 import { Card, CardContent } from "@/components/ui/card";
-import Guias from "../guia/guia";
+import Guias from "../guia/guia-menu";
 
 export default function GuiasContent() {
   return (
