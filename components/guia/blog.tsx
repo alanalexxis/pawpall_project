@@ -49,7 +49,7 @@ export default async function Blog({ params }: { params: { slug: string } }) {
   const response = getBlogs(params?.slug);
   return (
     <PageWrapper>
-      <article className="container relative max-w-3xl mt-[4rem]">
+      <article className="container relative max-w-3xl ">
         <div className="flex justify-end items-center w-full min-[1280px]:hidden">
           <Link
             href="/guides"

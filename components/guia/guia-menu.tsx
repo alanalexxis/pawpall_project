@@ -13,7 +13,7 @@ export default function Guias() {
       ? blogs
       : blogs.filter((item) => item.category === activeFilter);
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 ">
       <div className="mb-8 flex justify-center">
         <div className="flex gap-4">
           <Button
@@ -56,7 +56,7 @@ export default function Guias() {
       </div>
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {filteredItems.map((item) => (
-          <Link href={item?.link} key={item?.id}>
+          <Link href={`/guides/${item.slug}`} key={item?.id}>
             <div
               key={item.id}
               className="relative overflow-hidden rounded-lg shadow-lg transition-transform duration-300 ease-in-out hover:-translate-y-2 hover:shadow-xl"

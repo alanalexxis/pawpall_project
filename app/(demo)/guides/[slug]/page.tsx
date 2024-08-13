@@ -10,9 +10,8 @@ import {
 } from "@/components/ui/breadcrumb";
 
 import BlogContent from "@/components/demo/blog_content";
-import Blog from "@/components/guia/blog";
 
-export default function UsersPage() {
+export default function UsersPage({ params }: { params: { slug: string } }) {
   return (
     <ContentLayout title="Users">
       <Breadcrumb>
@@ -34,7 +33,7 @@ export default function UsersPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <BlogContent />
+      <BlogContent params={params} />
     </ContentLayout>
   );
 }

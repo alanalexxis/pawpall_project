@@ -1,5 +1,6 @@
 import { data_fetching_article } from "./articles/data-fetching";
 import { html_article_rendering } from "./articles/html-redering";
+import { alimentacion } from "./articles/alimentacion";
 export const blogs = [
   {
     id: 0,
@@ -23,6 +24,18 @@ export const blogs = [
     created_at: new Date("8/1/2024").toLocaleString(),
     link: "guides/nextjs-data-fetch",
     article: data_fetching_article,
+    image: "https://utfs.io/f/db400086-1ef0-4a18-9941-6b398789d65d-u8tcx6.png",
+    keywords: [],
+  },
+  {
+    id: 2,
+    name: "Alimentación saludable",
+    description: "Aprende a alimentarte de forma saludable",
+    title: "Aliemntación Saludable",
+    slug: "alimentacion",
+    created_at: new Date("8/1/2024").toLocaleString(),
+    link: "guides/alimentacion",
+    article: alimentacion,
     image: "https://utfs.io/f/db400086-1ef0-4a18-9941-6b398789d65d-u8tcx6.png",
     keywords: [],
   },
