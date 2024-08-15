@@ -13,7 +13,7 @@ import GuiasContent from "@/components/demo/guia_content";
 
 export default function UsersPage() {
   return (
-    <ContentLayout title="Users">
+    <ContentLayout title="Guías">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
