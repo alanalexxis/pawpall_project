@@ -18,42 +18,22 @@ import {
 import { toast } from "@/components/ui/use-toast";
 
 const items = [
-  {
-    id: "recents",
-    label: "Recents",
-  },
-  {
-    id: "home",
-    label: "Home",
-  },
-  {
-    id: "applications",
-    label: "Applications",
-  },
-  {
-    id: "desktop",
-    label: "Desktop",
-  },
-  {
-    id: "downloads",
-    label: "Downloads",
-  },
-  {
-    id: "documents",
-    label: "Documents",
-  },
+  { id: "recents", label: "Dashboard" },
+  { id: "home", label: "Guías" },
+  { id: "applications", label: "Salud" },
+  { id: "desktop", label: "Cuidado" },
 ] as const;
 
 const displayFormSchema = z.object({
-  items: z.array(z.string()).refine((value) => value.some((item) => item), {
-    message: "You have to select at least one item.",
+  items: z.array(z.string()).nonempty({
+    message: "Debes seleccionar al menos un ítem.",
   }),
 });
 
 type DisplayFormValues = z.infer<typeof displayFormSchema>;
 
-// This can come from your database or API.
-const defaultValues: Partial<DisplayFormValues> = {
+// Estos valores pueden venir de tu base de datos o API.
+const defaultValues: DisplayFormValues = {
   items: ["recents", "home"],
 };
 
@@ -65,7 +45,7 @@ export function DisplayForm() {
 
   function onSubmit(data: DisplayFormValues) {
     toast({
-      title: "You submitted the following values:",
+      title: "Has enviado los siguientes valores:",
       description: (
         <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
           <code className="text-white">{JSON.stringify(data, null, 2)}</code>
@@ -80,52 +60,39 @@ export function DisplayForm() {
         <FormField
           control={form.control}
           name="items"
-          render={() => (
+          render={({ field }) => (
             <FormItem>
               <div className="mb-4">
-                <FormLabel className="text-base">Sidebar</FormLabel>
+                <FormLabel className="text-base">Barra Lateral</FormLabel>
                 <FormDescription>
-                  Select the items you want to display in the sidebar.
+                  Selecciona los elementos que quieres mostrar en la barra
+                  lateral.
                 </FormDescription>
               </div>
               {items.map((item) => (
-                <FormField
+                <FormItem
                   key={item.id}
-                  control={form.control}
-                  name="items"
-                  render={({ field }) => {
-                    return (
-                      <FormItem
-                        key={item.id}
-                        className="flex flex-row items-start space-x-3 space-y-0"
-                      >
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value?.includes(item.id)}
-                            onCheckedChange={(checked) => {
-                              return checked
-                                ? field.onChange([...field.value, item.id])
-                                : field.onChange(
-                                    field.value?.filter(
-                                      (value) => value !== item.id
-                                    )
-                                  );
-                            }}
-                          />
-                        </FormControl>
-                        <FormLabel className="font-normal">
-                          {item.label}
-                        </FormLabel>
-                      </FormItem>
-                    );
-                  }}
-                />
+                  className="flex flex-row items-start space-x-3 space-y-0"
+                >
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value.includes(item.id)}
+                      onCheckedChange={(checked) => {
+                        const newItems = checked
+                          ? [...field.value, item.id]
+                          : field.value.filter((value) => value !== item.id);
+                        field.onChange(newItems);
+                      }}
+                    />
+                  </FormControl>
+                  <FormLabel className="font-normal">{item.label}</FormLabel>
+                </FormItem>
               ))}
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit">Update display</Button>
+        <Button type="submit">Actualizar visualización</Button>
       </form>
     </Form>
   );

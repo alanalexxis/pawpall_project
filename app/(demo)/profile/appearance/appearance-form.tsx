@@ -21,17 +21,17 @@ import { toast } from "@/components/ui/use-toast";
 
 const appearanceFormSchema = z.object({
   theme: z.enum(["light", "dark"], {
-    required_error: "Please select a theme.",
+    required_error: "Por favor, selecciona un tema.",
   }),
   font: z.enum(["inter", "manrope", "system"], {
-    invalid_type_error: "Select a font",
-    required_error: "Please select a font.",
+    invalid_type_error: "Selecciona una fuente",
+    required_error: "Por favor, selecciona una fuente.",
   }),
 });
 
 type AppearanceFormValues = z.infer<typeof appearanceFormSchema>;
 
-// This can come from your database or API.
+// Esto puede provenir de tu base de datos o API.
 const defaultValues: Partial<AppearanceFormValues> = {
   theme: "light",
 };
@@ -44,7 +44,7 @@ export function AppearanceForm() {
 
   function onSubmit(data: AppearanceFormValues) {
     toast({
-      title: "You submitted the following values:",
+      title: "Has enviado los siguientes valores:",
       description: (
         <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
           <code className="text-white">{JSON.stringify(data, null, 2)}</code>
@@ -61,7 +61,7 @@ export function AppearanceForm() {
           name="font"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Font</FormLabel>
+              <FormLabel>Fuente</FormLabel>
               <div className="relative w-max">
                 <FormControl>
                   <select
@@ -73,13 +73,13 @@ export function AppearanceForm() {
                   >
                     <option value="inter">Inter</option>
                     <option value="manrope">Manrope</option>
-                    <option value="system">System</option>
+                    <option value="system">Sistema</option>
                   </select>
                 </FormControl>
                 <ChevronDownIcon className="absolute right-3 top-2.5 h-4 w-4 opacity-50" />
               </div>
               <FormDescription>
-                Set the font you want to use in the dashboard.
+                Configura la fuente que deseas usar en el panel.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -90,9 +90,9 @@ export function AppearanceForm() {
           name="theme"
           render={({ field }) => (
             <FormItem className="space-y-1">
-              <FormLabel>Theme</FormLabel>
+              <FormLabel>Tema</FormLabel>
               <FormDescription>
-                Select the theme for the dashboard.
+                Selecciona el tema para el panel.
               </FormDescription>
               <FormMessage />
               <RadioGroup
@@ -122,7 +122,7 @@ export function AppearanceForm() {
                       </div>
                     </div>
                     <span className="block w-full p-2 text-center font-normal">
-                      Light
+                      Claro
                     </span>
                   </FormLabel>
                 </FormItem>
@@ -148,7 +148,7 @@ export function AppearanceForm() {
                       </div>
                     </div>
                     <span className="block w-full p-2 text-center font-normal">
-                      Dark
+                      Oscuro
                     </span>
                   </FormLabel>
                 </FormItem>
@@ -157,7 +157,7 @@ export function AppearanceForm() {
           )}
         />
 
-        <Button type="submit">Update preferences</Button>
+        <Button type="submit">Actualizar preferencias</Button>
       </form>
     </Form>
   );

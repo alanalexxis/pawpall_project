@@ -17,29 +17,30 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 
 export const metadata: Metadata = {
-  title: "Forms",
-  description: "Advanced form example using react-hook-form and Zod.",
+  title: "Formularios",
+  description:
+    "Ejemplo avanzado de formulario utilizando react-hook-form y Zod.",
 };
 
 const sidebarNavItems = [
   {
-    title: "Profile",
+    title: "Perfil",
     href: "/profile",
   },
   {
-    title: "Account",
+    title: "Cuenta",
     href: "/profile/account",
   },
   {
-    title: "Appearance",
+    title: "Apariencia",
     href: "/profile/appearance",
   },
   {
-    title: "Notifications",
+    title: "Notificaciones",
     href: "/profile/notifications",
   },
   {
-    title: "Display",
+    title: "Visualización",
     href: "/profile/display",
   },
 ];
@@ -51,23 +52,23 @@ interface SettingsLayoutProps {
 export default function SettingsLayout({ children }: SettingsLayoutProps) {
   return (
     <>
-      <ContentLayout title="Account">
+      <ContentLayout title="Cuenta">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link href="/">Home</Link>
+                <Link href="/">Inicio</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link href="/dashboard">Dashboard</Link>
+                <Link href="/dashboard">Panel de control</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Account</BreadcrumbPage>
+              <BreadcrumbPage>Cuenta</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -81,24 +82,25 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
                   src="/examples/forms-light.png"
                   width={1280}
                   height={791}
-                  alt="Forms"
+                  alt="Formularios"
                   className="block dark:hidden"
                 />
                 <Image
                   src="/examples/forms-dark.png"
                   width={1280}
                   height={791}
-                  alt="Forms"
+                  alt="Formularios"
                   className="hidden dark:block"
                 />
               </div>
               <div className="hidden space-y-6 p-10 pb-16 md:block">
                 <div className="space-y-0.5">
                   <h2 className="text-2xl font-bold tracking-tight">
-                    Settings
+                    Configuración
                   </h2>
                   <p className="text-muted-foreground">
-                    Manage your account settings and set e-mail preferences.
+                    Administra la configuración de tu cuenta y establece las
+                    preferencias de correo electrónico.
                   </p>
                 </div>
                 <Separator className="my-6" />

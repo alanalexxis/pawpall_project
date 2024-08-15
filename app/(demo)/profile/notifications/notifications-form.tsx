@@ -22,23 +22,23 @@ import { toast } from "@/components/ui/use-toast";
 
 const notificationsFormSchema = z.object({
   type: z.enum(["all", "mentions", "none"], {
-    required_error: "You need to select a notification type.",
+    required_error: "Debes seleccionar un tipo de notificación.",
   }),
   mobile: z.boolean().default(false).optional(),
-  communication_emails: z.boolean().default(false).optional(),
-  social_emails: z.boolean().default(false).optional(),
-  marketing_emails: z.boolean().default(false).optional(),
-  security_emails: z.boolean(),
+  email_health_updates: z.boolean().default(false).optional(),
+  email_appointments_reminders: z.boolean().default(false).optional(),
+  email_new_features: z.boolean().default(false).optional(),
+  email_security: z.boolean(),
 });
 
 type NotificationsFormValues = z.infer<typeof notificationsFormSchema>;
 
-// This can come from your database or API.
+// Estos pueden venir de tu base de datos o API.
 const defaultValues: Partial<NotificationsFormValues> = {
-  communication_emails: false,
-  marketing_emails: false,
-  social_emails: true,
-  security_emails: true,
+  email_health_updates: false,
+  email_appointments_reminders: false,
+  email_new_features: true,
+  email_security: true,
 };
 
 export function NotificationsForm() {
@@ -49,7 +49,7 @@ export function NotificationsForm() {
 
   function onSubmit(data: NotificationsFormValues) {
     toast({
-      title: "You submitted the following values:",
+      title: "Has enviado los siguientes valores:",
       description: (
         <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
           <code className="text-white">{JSON.stringify(data, null, 2)}</code>
@@ -66,7 +66,7 @@ export function NotificationsForm() {
           name="type"
           render={({ field }) => (
             <FormItem className="space-y-3">
-              <FormLabel>Notify me about...</FormLabel>
+              <FormLabel>Notificarme sobre...</FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
@@ -78,7 +78,7 @@ export function NotificationsForm() {
                       <RadioGroupItem value="all" />
                     </FormControl>
                     <FormLabel className="font-normal">
-                      All new messages
+                      Todos los nuevos mensajes
                     </FormLabel>
                   </FormItem>
                   <FormItem className="flex items-center space-x-3 space-y-0">
@@ -86,14 +86,14 @@ export function NotificationsForm() {
                       <RadioGroupItem value="mentions" />
                     </FormControl>
                     <FormLabel className="font-normal">
-                      Direct messages and mentions
+                      Mensajes directos y menciones
                     </FormLabel>
                   </FormItem>
                   <FormItem className="flex items-center space-x-3 space-y-0">
                     <FormControl>
                       <RadioGroupItem value="none" />
                     </FormControl>
-                    <FormLabel className="font-normal">Nothing</FormLabel>
+                    <FormLabel className="font-normal">Nada</FormLabel>
                   </FormItem>
                 </RadioGroup>
               </FormControl>
@@ -102,19 +102,21 @@ export function NotificationsForm() {
           )}
         />
         <div>
-          <h3 className="mb-4 text-lg font-medium">Email Notifications</h3>
+          <h3 className="mb-4 text-lg font-medium">
+            Notificaciones por correo electrónico
+          </h3>
           <div className="space-y-4">
             <FormField
               control={form.control}
-              name="communication_emails"
+              name="email_health_updates"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">
-                      Communication emails
+                      Actualizaciones de salud
                     </FormLabel>
                     <FormDescription>
-                      Receive emails about your account activity.
+                      Recibe correos electrónicos sobre la salud de tu perro.
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -128,15 +130,15 @@ export function NotificationsForm() {
             />
             <FormField
               control={form.control}
-              name="marketing_emails"
+              name="email_appointments_reminders"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">
-                      Marketing emails
+                      Recordatorios de citas
                     </FormLabel>
                     <FormDescription>
-                      Receive emails about new products, features, and more.
+                      Recibe correos electrónicos sobre tus próximas citas.
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -150,13 +152,16 @@ export function NotificationsForm() {
             />
             <FormField
               control={form.control}
-              name="social_emails"
+              name="email_new_features"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">Social emails</FormLabel>
+                    <FormLabel className="text-base">
+                      Nuevas funciones
+                    </FormLabel>
                     <FormDescription>
-                      Receive emails for friend requests, follows, and more.
+                      Recibe correos electrónicos sobre nuevas funciones y
+                      características.
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -170,13 +175,14 @@ export function NotificationsForm() {
             />
             <FormField
               control={form.control}
-              name="security_emails"
+              name="email_security"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">Security emails</FormLabel>
+                    <FormLabel className="text-base">Seguridad</FormLabel>
                     <FormDescription>
-                      Receive emails about your account activity and security.
+                      Recibe correos electrónicos sobre la seguridad de tu
+                      cuenta.
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -205,17 +211,17 @@ export function NotificationsForm() {
               </FormControl>
               <div className="space-y-1 leading-none">
                 <FormLabel>
-                  Use different settings for my mobile devices
+                  Usar configuraciones diferentes para mis dispositivos móviles
                 </FormLabel>
                 <FormDescription>
-                  You can manage your mobile notifications in the{" "}
-                  <Link href="/examples/forms">mobile settings</Link> page.
+                  Puedes gestionar tus notificaciones móviles en la página de{" "}
+                  <Link href="/examples/forms">configuración móvil</Link>.
                 </FormDescription>
               </div>
             </FormItem>
           )}
         />
-        <Button type="submit">Update notifications</Button>
+        <Button type="submit">Actualizar notificaciones</Button>
       </form>
     </Form>
   );

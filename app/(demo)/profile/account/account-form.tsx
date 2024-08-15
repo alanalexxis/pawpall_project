@@ -35,39 +35,39 @@ import {
 import { toast } from "@/components/ui/use-toast";
 
 const languages = [
-  { label: "English", value: "en" },
-  { label: "French", value: "fr" },
-  { label: "German", value: "de" },
-  { label: "Spanish", value: "es" },
-  { label: "Portuguese", value: "pt" },
-  { label: "Russian", value: "ru" },
-  { label: "Japanese", value: "ja" },
-  { label: "Korean", value: "ko" },
-  { label: "Chinese", value: "zh" },
+  { label: "Inglés", value: "en" },
+  { label: "Francés", value: "fr" },
+  { label: "Alemán", value: "de" },
+  { label: "Español", value: "es" },
+  { label: "Portugués", value: "pt" },
+  { label: "Ruso", value: "ru" },
+  { label: "Japonés", value: "ja" },
+  { label: "Coreano", value: "ko" },
+  { label: "Chino", value: "zh" },
 ] as const;
 
 const accountFormSchema = z.object({
   name: z
     .string()
     .min(2, {
-      message: "Name must be at least 2 characters.",
+      message: "El nombre debe tener al menos 2 caracteres.",
     })
     .max(30, {
-      message: "Name must not be longer than 30 characters.",
+      message: "El nombre no debe tener más de 30 caracteres.",
     }),
   dob: z.date({
-    required_error: "A date of birth is required.",
+    required_error: "Se requiere una fecha de nacimiento.",
   }),
   language: z.string({
-    required_error: "Please select a language.",
+    required_error: "Por favor, selecciona un idioma.",
   }),
 });
 
 type AccountFormValues = z.infer<typeof accountFormSchema>;
 
-// This can come from your database or API.
+// Estos valores pueden provenir de tu base de datos o API.
 const defaultValues: Partial<AccountFormValues> = {
-  // name: "Your name",
+  // name: "Tu nombre",
   // dob: new Date("2023-01-23"),
 };
 
@@ -79,7 +79,7 @@ export function AccountForm() {
 
   function onSubmit(data: AccountFormValues) {
     toast({
-      title: "You submitted the following values:",
+      title: "Has enviado los siguientes valores:",
       description: (
         <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
           <code className="text-white">{JSON.stringify(data, null, 2)}</code>
@@ -96,13 +96,13 @@ export function AccountForm() {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>Nombre</FormLabel>
               <FormControl>
-                <Input placeholder="Your name" {...field} />
+                <Input placeholder="Tu nombre" {...field} />
               </FormControl>
               <FormDescription>
-                This is the name that will be displayed on your profile and in
-                emails.
+                Este es el nombre que se mostrará en tu perfil y en los correos
+                electrónicos.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -113,7 +113,7 @@ export function AccountForm() {
           name="dob"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel>Date of birth</FormLabel>
+              <FormLabel>Fecha de nacimiento</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
                   <FormControl>
@@ -127,7 +127,7 @@ export function AccountForm() {
                       {field.value ? (
                         format(field.value, "PPP")
                       ) : (
-                        <span>Pick a date</span>
+                        <span>Seleccionar fecha</span>
                       )}
                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
@@ -146,7 +146,7 @@ export function AccountForm() {
                 </PopoverContent>
               </Popover>
               <FormDescription>
-                Your date of birth is used to calculate your age.
+                Tu fecha de nacimiento se utiliza para calcular tu edad.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -157,7 +157,7 @@ export function AccountForm() {
           name="language"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel>Language</FormLabel>
+              <FormLabel>Idioma</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
                   <FormControl>
@@ -173,16 +173,16 @@ export function AccountForm() {
                         ? languages.find(
                             (language) => language.value === field.value
                           )?.label
-                        : "Select language"}
+                        : "Seleccionar idioma"}
                       <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
                 <PopoverContent className="w-[200px] p-0">
                   <Command>
-                    <CommandInput placeholder="Search language..." />
+                    <CommandInput placeholder="Buscar idioma..." />
                     <CommandList>
-                      <CommandEmpty>No language found.</CommandEmpty>
+                      <CommandEmpty>No se encontró ningún idioma.</CommandEmpty>
                       <CommandGroup>
                         {languages.map((language) => (
                           <CommandItem
@@ -209,13 +209,13 @@ export function AccountForm() {
                 </PopoverContent>
               </Popover>
               <FormDescription>
-                This is the language that will be used in the dashboard.
+                Este es el idioma que se utilizará en el panel de control.
               </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit">Update account</Button>
+        <Button type="submit">Actualizar cuenta</Button>
       </form>
     </Form>
   );
