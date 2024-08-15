@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PanelsTopLeft, PawPrint } from "lucide-react";
+import { PawPrint } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useStore } from "@/hooks/use-store";

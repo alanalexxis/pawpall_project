@@ -1,9 +1,9 @@
 export const alimentacion = `
-    <h1>Guía de Alimentación para Perros</h1>
+    <h1>Guía de alimentación para perros</h1>
     <p>
       Alimentar a tu perro de manera adecuada es esencial para su salud y bienestar. La frecuencia con la que debe comer un perro depende de su edad, tamaño, nivel de actividad y salud en general. En esta guía, exploraremos cuántas veces al día debes alimentar a tu perro y qué factores debes considerar para establecer un horario de comidas.
     </p>
-    <h2>Frecuencia de Alimentación por Edad</h2>
+    <h2>Frecuencia de alimentación por edad</h2>
     <p>
       La edad de tu perro es uno de los factores más importantes para determinar cuántas veces debe comer al día:
     </p>
@@ -18,7 +18,7 @@ export const alimentacion = `
         <p><strong>Perros mayores:</strong> Los perros mayores pueden beneficiarse de comidas más frecuentes y pequeñas, lo que ayuda a mantener estables sus niveles de energía y a evitar problemas digestivos.</p>
       </li>
     </ul>
-    <h2>Consideraciones de Tamaño y Raza</h2>
+    <h2>Consideraciones de tamaño y raza</h2>
     <p>
       Además de la edad, el tamaño y la raza de tu perro también influyen en la frecuencia de las comidas:
     </p>
@@ -30,15 +30,15 @@ export const alimentacion = `
         <p><strong>Perros medianos y grandes:</strong> Estos perros suelen funcionar bien con 2 comidas al día, aunque algunos perros muy activos o de razas gigantes pueden beneficiarse de una tercera comida.</p>
       </li>
     </ul>
-    <h2>Impacto del Nivel de Actividad</h2>
+    <h2>Impacto del nivel de actividad</h2>
     <p>
       La cantidad de ejercicio que realiza tu perro también afecta cuántas veces debería comer al día. Los perros que realizan mucho ejercicio pueden necesitar más comida o comidas más frecuentes para mantener sus niveles de energía.
     </p>
-    <h2>Importancia de la Rutina</h2>
+    <h2>Importancia de la rutina</h2>
     <p>
       Establecer una rutina de alimentación es importante para la salud digestiva de tu perro. Alimentar a tu perro a la misma hora todos los días ayuda a regular su digestión y puede prevenir problemas como la ansiedad por la comida.
     </p>
-    <h2>¿Qué Hacer si Tu Perro No Come?</h2>
+    <h2>¿Qué hacer si tu perro no come?</h2>
     <p>
       Si notas que tu perro no está comiendo con la frecuencia que debería, es importante investigar la causa. La falta de apetito puede ser un signo de enfermedad, estrés o un problema con la comida que le estás dando.
     </p>
