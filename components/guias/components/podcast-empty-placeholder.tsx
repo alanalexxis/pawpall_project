@@ -30,9 +30,11 @@ export function PodcastEmptyPlaceholder() {
           <path d="M17 18.5a9 9 0 1 0-10 0" />
         </svg>
 
-        <h3 className="mt-4 text-lg font-semibold">No episodes added</h3>
+        <h3 className="mt-4 text-lg font-semibold">
+          No se han agregado episodios
+        </h3>
         <p className="mb-4 mt-2 text-sm text-muted-foreground">
-          You have not added any podcasts. Add one below.
+          No has agregado ningún podcast. Agrega uno a continuación.
         </p>
         <Dialog>
           <DialogTrigger asChild>
@@ -42,9 +44,9 @@ export function PodcastEmptyPlaceholder() {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add Podcast</DialogTitle>
+              <DialogTitle>Añadir podcast</DialogTitle>
               <DialogDescription>
-                Copy and paste the podcast feed URL to import.
+                Copia y pega la URL del feed del podcast para importarlo.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -54,7 +56,7 @@ export function PodcastEmptyPlaceholder() {
               </div>
             </div>
             <DialogFooter>
-              <Button>Import Podcast</Button>
+              <Button>Importar podcast</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

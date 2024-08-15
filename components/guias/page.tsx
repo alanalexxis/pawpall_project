@@ -118,10 +118,10 @@ export default function GuiasPage() {
                       <div className="flex items-center justify-between">
                         <div className="space-y-1">
                           <h2 className="text-2xl font-semibold tracking-tight">
-                            New Episodes
+                            Nuevos episodios
                           </h2>
                           <p className="text-sm text-muted-foreground">
-                            Your favorite podcasts. Updated daily.
+                            Tus podcasts favoritos. Actualizados diariamente.
                           </p>
                         </div>
                       </div>
