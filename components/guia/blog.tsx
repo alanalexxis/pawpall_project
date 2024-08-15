@@ -56,7 +56,7 @@ export default async function Blog({ params }: { params: { slug: string } }) {
             className={cn(buttonVariants({ variant: "ghost" }), "rounded")}
           >
             <ChevronLeft className="mr-2 h-4 w-4" />
-            <p className="text-sm">See all posts</p>
+            <p className="text-sm"> Ver todas las guías</p>
           </Link>
         </div>
         <Link
@@ -67,7 +67,7 @@ export default async function Blog({ params }: { params: { slug: string } }) {
           )}
         >
           <ChevronLeft className="mr-2 h-4 w-4" />
-          <p className="text-sm">See all posts</p>
+          <p className="text-sm"> Ver todas las guías</p>
         </Link>
         <div>
           <p className="block text-sm text-muted-foreground">
@@ -87,7 +87,7 @@ export default async function Blog({ params }: { params: { slug: string } }) {
             className={cn(buttonVariants({ variant: "ghost" }), "rounded")}
           >
             <ChevronLeft className="mr-2 h-4 w-4" />
-            <p className="text-sm">See all posts</p>
+            <p className="text-sm"> Ver todas las guías</p>
           </Link>
         </div>
       </article>
