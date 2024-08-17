@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
-
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card } from "../ui/card";
 export default function PetList() {
   const pets = [
     {
@@ -17,21 +17,23 @@ export default function PetList() {
   ];
 
   return (
-    <ul className="bg-white border-b border-light">
-      {pets.map((pet) => (
-        <li key={pet.id}>
-          <div className="flex items-center h-[70px] w-full cursor-pointer px-5 text-base gap-3 hover:bg-[#EFF1F2] focus:bg-[#EFF1F2] transition">
-            <Image
-              src={pet.imageUrl}
-              alt="Pet image"
-              width={45}
-              height={45}
-              className="w-[45px] h-[45px] rounded-full object-cover"
-            />
-            <p className="font-semibold">{pet.name}</p>
-          </div>
-        </li>
-      ))}
-    </ul>
+    <Card>
+      <ul className="border-b ">
+        {pets.map((pet) => (
+          <li key={pet.id}>
+            <div className="flex items-center h-[70px] w-full cursor-pointer px-5 text-base gap-3 hover:bg-secondary dark:hover:bg-secondary focus:bg-[#EFF1F2] transition ">
+              <Avatar className="w-[45px] h-[45px] rounded-full object-cover">
+                <AvatarImage
+                  src="https://github.com/shadcn.png"
+                  alt="@shadcn"
+                />
+                <AvatarFallback>CN</AvatarFallback>
+              </Avatar>
+              <p className="font-semibold">{pet.name}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </Card>
   );
 }

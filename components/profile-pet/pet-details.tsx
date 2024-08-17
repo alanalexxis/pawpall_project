@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import PetButton from "./pet-button";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Card } from "../ui/card";
 
 export default function PetDetails() {
   const pets = [
@@ -61,22 +63,21 @@ function EmptyView() {
 
 function TopBar({ pet }: PetProps) {
   return (
-    <div className="flex items-center bg-white px-8 py-5 border-b border-light">
-      <Image
-        src={pet.imageUrl}
-        alt={`${pet.name} image`}
-        height={75}
-        width={75}
-        className="h-[75px] w-[75px] rounded-full object-cover"
-      />
+    <Card>
+      <div className="flex items-center  px-8 py-5 ">
+        <Avatar className="w-[45px] h-[45px] rounded-full object-cover">
+          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+          <AvatarFallback>CN</AvatarFallback>
+        </Avatar>
 
-      <h2 className="text-3xl font-semibold leading-7 ml-5">{pet.name}</h2>
+        <h2 className="text-3xl font-semibold leading-7 ml-5">{pet.name}</h2>
 
-      <div className="ml-auto space-x-2">
-        <PetButton actionType="edit">Edit</PetButton>
-        <PetButton actionType="checkout">Checkout</PetButton>
+        <div className="ml-auto space-x-2">
+          <PetButton actionType="edit">Edit</PetButton>
+          <PetButton actionType="checkout">Checkout</PetButton>
+        </div>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -84,15 +85,13 @@ function OtherInfo({ pet }: PetProps) {
   return (
     <div className="flex justify-around py-10 px-5 text-center">
       <div>
-        <h3 className="text-[13px] font-medium uppercase text-zinc-700">
-          Owner name
-        </h3>
-        <p className="mt-1 text-lg text-zinc-800">{pet.ownerName}</p>
+        <h3 className="text-[13px] font-medium uppercase ">Owner name</h3>
+        <p className="mt-1 text-lg ">{pet.ownerName}</p>
       </div>
 
       <div>
-        <h3 className="text-[13px] font-medium uppercase text-zinc-700">Age</h3>
-        <p className="mt-1 text-lg text-zinc-800">{pet.age}</p>
+        <h3 className="text-[13px] font-medium uppercase ">Age</h3>
+        <p className="mt-1 text-lg ">{pet.age}</p>
       </div>
     </div>
   );
@@ -100,7 +99,7 @@ function OtherInfo({ pet }: PetProps) {
 
 function Notes({ pet }: PetProps) {
   return (
-    <section className="flex-1 bg-white px-7 py-5 rounded-md mb-9 mx-8 border border-light">
+    <section className="flex-1 px-7 py-5 rounded-md mb-9 mx-8 border border-light">
       {pet.notes}
     </section>
   );

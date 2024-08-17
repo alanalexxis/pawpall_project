@@ -2,19 +2,9 @@ import Image from "next/image";
 import { PlusCircledIcon } from "@radix-ui/react-icons";
 
 import { cn } from "@/lib/utils";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuSub,
-  ContextMenuSubContent,
-  ContextMenuSubTrigger,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
+import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
 
 import { Blog } from "@/content/article";
-import { playlists } from "../data/playlists";
 
 interface BlogArtworkProps extends React.HTMLAttributes<HTMLDivElement> {
   blog: Blog;
