@@ -15,6 +15,7 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
+import { es } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import { Plus } from "lucide-react";
 import React, { useState } from "react";
@@ -59,12 +60,17 @@ export function DialogDemo() {
                   variant="outline"
                   className="pl-3 text-left font-normal text-muted-foreground ml-1"
                 >
-                  {date ? format(date, "PPP") : <span>Pick a date</span>}
+                  {date ? (
+                    format(date, "PPP", { locale: es })
+                  ) : (
+                    <span>Pick a date</span>
+                  )}
                   <CalendarDaysIcon className="ml-2 h-4 w-4 opacity-50" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
+                  locale={es}
                   className="pointer-events-auto "
                   mode="single"
                   captionLayout="dropdown-buttons"
