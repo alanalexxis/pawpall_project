@@ -20,6 +20,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Plus } from "lucide-react";
 import React, { useState } from "react";
 import { format } from "date-fns";
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 export function DialogDemo() {
   const [date, setDate] = React.useState<Date | undefined>(new Date());
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -79,11 +80,24 @@ export function DialogDemo() {
                     setDate(e);
                     setIsCalendarOpen(false);
                   }}
-                  fromYear={1960}
-                  toYear={2030}
+                  fromYear={1999}
+                  toYear={2024}
                 />
               </PopoverContent>
             </Popover>
+          </div>
+          <div className="space-y-2">
+            <Label>Género de la mascota</Label>
+            <RadioGroup name="gender" className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="male" id="male" />
+                <Label htmlFor="male">Macho</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="female" id="female" />
+                <Label htmlFor="female">Hembra</Label>
+              </div>
+            </RadioGroup>
           </div>
         </div>
         <DialogFooter>
