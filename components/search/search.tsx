@@ -1,5 +1,5 @@
 "use client";
-
+import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { useForm } from "react-hook-form";
@@ -18,10 +18,8 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import {
@@ -30,26 +28,23 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { toast } from "@/components/ui/use-toast";
+import { useEffect, useState } from "react";
+import React from "react";
 
-const languages = [
-  { label: "English", value: "en" },
-  { label: "French", value: "fr" },
-  { label: "German", value: "de" },
-  { label: "Spanish", value: "es" },
-  { label: "Portuguese", value: "pt" },
-  { label: "Russian", value: "ru" },
-  { label: "Japanese", value: "ja" },
-  { label: "Korean", value: "ko" },
-  { label: "Chinese", value: "zh" },
-] as const;
-
+interface Raza {
+  id: number;
+  name: string;
+}
 const FormSchema = z.object({
-  language: z.string({
+  raza: z.string({
     required_error: "Please select a language.",
   }),
 });
 
 export function SearchBar() {
+  const [open, setOpen] = React.useState(false);
+  const supabase = createClient();
+  const [razas, setRazas] = useState<Raza[]>([]);
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   });
@@ -65,15 +60,29 @@ export function SearchBar() {
     });
   }
 
+  //obtenemos las empacadoras
+  useEffect(() => {
+    const fetchRazas = async () => {
+      const { data, error } = await supabase.from("breeds").select("*");
+      if (error) {
+        console.error(error);
+      } else {
+        setRazas(data);
+      }
+    };
+
+    fetchRazas();
+  }, []);
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
-          name="language"
+          name="raza"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <Popover>
+              <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
                   <FormControl>
                     <Button
@@ -85,9 +94,8 @@ export function SearchBar() {
                       )}
                     >
                       {field.value
-                        ? languages.find(
-                            (language) => language.value === field.value
-                          )?.label
+                        ? razas.find((raza) => raza.id === Number(field.value))
+                            ?.name
                         : "Seleccione una raza"}
                       <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
@@ -102,19 +110,20 @@ export function SearchBar() {
                     <CommandList>
                       <CommandEmpty>Raza no encontrada.</CommandEmpty>
                       <CommandGroup>
-                        {languages.map((language) => (
+                        {razas.map((raza) => (
                           <CommandItem
-                            value={language.label}
-                            key={language.value}
+                            value={raza.name}
+                            key={raza.id}
                             onSelect={() => {
-                              form.setValue("language", language.value);
+                              form.setValue("raza", raza.id.toString());
+                              setOpen(false);
                             }}
                           >
-                            {language.label}
+                            {raza.name}
                             <CheckIcon
                               className={cn(
                                 "ml-auto h-4 w-4",
-                                language.value === field.value
+                                raza.id === Number(field.value)
                                   ? "opacity-100"
                                   : "opacity-0"
                               )}
