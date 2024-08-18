@@ -18,14 +18,17 @@ function Hero() {
       <div className="container mx-auto px-4 max-w-4xl flex flex-col md:flex-row items-center justify-between pt-6">
         <div className="flex-1 text-center md:text-left mb-6 md:mb-0">
           <h1 className="text-5xl font-extrabold mb-4 leading-tight">
-            {selectedRaza?.name || "Golden Retriever"}
+            {selectedRaza?.name || "Cargando raza"}
           </h1>
           <p className="text-xl mb-4 text-gray-700">
             inteligente / amigable / devoto
           </p>
-          <Badge className="bg-yellow-300 text-black">CANADÁ</Badge>
+          <Badge className="bg-yellow-300 text-black">
+            {" "}
+            {selectedRaza?.country_of_origin?.toUpperCase() || "CARGANDO PAÍS"}
+          </Badge>
           <Badge className="bg-yellow-200 text-black ml-1">
-            GRUPO DEPORTIVO
+            {selectedRaza?.breed_group?.toUpperCase() || "CARGANDO GRUPO"}
           </Badge>
           <Badge className="bg-red-200 text-black">{popularidadText}</Badge>
         </div>

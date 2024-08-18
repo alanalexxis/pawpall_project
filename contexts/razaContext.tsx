@@ -3,8 +3,17 @@ import React, { createContext, useContext, useState, ReactNode } from "react";
 interface Raza {
   id: number;
   name: string;
-  popularity: string; // Añadido para manejar la popularidad
-  image_url: string; // Añadido para manejar la URL de la imagen
+  popularity: string;
+  image_url: string;
+  breed_group: string;
+  country_of_origin: string;
+  height_male: string;
+  height_female: string;
+  min_weight_male: string;
+  min_weight_female: string;
+  max_weight_male: string;
+  max_weight_female: string;
+  life_expectancy: string;
 }
 
 interface RazaContextType {

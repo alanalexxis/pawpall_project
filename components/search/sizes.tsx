@@ -1,7 +1,9 @@
 import React from "react";
 import { Card } from "../ui/card";
+import { useRaza } from "@/contexts/razaContext";
 
 const Size = () => {
+  const { selectedRaza } = useRaza();
   return (
     <Card className="p-8  rounded-lg w-full">
       <div className="flex flex-col lg:flex-row lg:items-center mb-2">
@@ -269,9 +271,14 @@ const Size = () => {
             </svg>
             <div>
               <p className="text-md font-semibold text-primary mb-2">MEDIDAS</p>
-              <p className="text-sm text-gray-400  ">23-24 inches (male)</p>
               <p className="text-sm text-gray-400  ">
-                21.5-22.5 inches (female)
+                {selectedRaza?.height_male?.toUpperCase() || "CARGANDO MEDIDAS"}{" "}
+                cm (macho)
+              </p>
+              <p className="text-sm text-gray-400  ">
+                {selectedRaza?.height_female?.toUpperCase() ||
+                  "CARGANDO MEDIDAS"}{" "}
+                cm (hembra)
               </p>
             </div>
           </Card>
@@ -325,8 +332,17 @@ const Size = () => {
             </svg>
             <div>
               <p className="text-md font-semibold text-primary mb-2">PESO</p>
-              <p className="text-sm text-gray-400  ">65-75 pounds (male)</p>
-              <p className="text-sm text-gray-400 ">55-65 pounds (female)</p>
+              <p className="text-sm text-gray-400">
+                {selectedRaza?.min_weight_male
+                  ? `${selectedRaza.min_weight_male.toUpperCase()}-${selectedRaza.max_weight_male?.toUpperCase()} kg (macho)`
+                  : "CARGANDO MEDIDAS"}
+              </p>
+
+              <p className="text-sm text-gray-400">
+                {selectedRaza?.min_weight_female
+                  ? `${selectedRaza.min_weight_female.toUpperCase()}-${selectedRaza.max_weight_female?.toUpperCase()} kg (hembra)`
+                  : "CARGANDO MEDIDAS"}
+              </p>
             </div>
           </Card>
 
@@ -433,7 +449,10 @@ const Size = () => {
               <p className="text-md font-semibold text-primary mb-2">
                 ESPERANZA DE VIDA
               </p>
-              <p className="text-sm text-gray-400 ">10-12 years</p>
+              <p className="text-sm text-gray-400 ">
+                {selectedRaza?.life_expectancy?.toUpperCase() ||
+                  "CARGANDO FECHA"}
+              </p>
             </div>
           </Card>
         </div>
