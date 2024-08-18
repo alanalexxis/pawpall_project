@@ -30,21 +30,22 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import { useEffect, useState } from "react";
 import React from "react";
-
+import { useRaza } from "@/contexts/razaContext"; // Importar el hook del contexto
 interface Raza {
   id: number;
   name: string;
+  popularity: string;
 }
 const FormSchema = z.object({
   raza: z.string({
     required_error: "Please select a language.",
   }),
 });
-
 export function SearchBar() {
   const [open, setOpen] = React.useState(false);
   const supabase = createClient();
   const [razas, setRazas] = useState<Raza[]>([]);
+  const { setSelectedRaza } = useRaza(); // Usar el hook del contexto
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   });
@@ -59,8 +60,7 @@ export function SearchBar() {
       ),
     });
   }
-
-  //obtenemos las empacadoras
+  //obtenemos las razas
   useEffect(() => {
     const fetchRazas = async () => {
       const { data, error } = await supabase.from("breeds").select("*");
@@ -116,6 +116,7 @@ export function SearchBar() {
                             key={raza.id}
                             onSelect={() => {
                               form.setValue("raza", raza.id.toString());
+                              setSelectedRaza(raza); // Actualizar el contexto con la raza completa
                               setOpen(false);
                             }}
                           >

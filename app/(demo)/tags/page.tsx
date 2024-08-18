@@ -10,6 +10,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import NutritionContent from "@/components/demo/nutrition-content";
 
 export default function TagsPage() {
   return (
@@ -33,7 +34,7 @@ export default function TagsPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <PlaceholderContent />
+      <NutritionContent />
     </ContentLayout>
   );
 }

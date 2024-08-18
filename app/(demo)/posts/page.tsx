@@ -8,8 +8,9 @@ import {
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator
+  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import CareGeneral from "@/components/care/general";
 
 export default function PostsPage() {
   return (
@@ -33,7 +34,7 @@ export default function PostsPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <PlaceholderContent />
+      <CareGeneral />
     </ContentLayout>
   );
 }
