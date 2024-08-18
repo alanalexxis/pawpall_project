@@ -21,7 +21,7 @@ function Hero() {
             {selectedRaza?.name || "Cargando raza"}
           </h1>
           <p className="text-xl mb-4 text-gray-700">
-            inteligente / amigable / devoto
+            {selectedRaza?.characteristics || "Cargando raza"}
           </p>
           <Badge className="bg-yellow-300 text-black">
             {" "}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRaza } from "@/contexts/razaContext";
 import {
   FaHeartbeat,
   FaCut,
@@ -14,10 +14,11 @@ import {
 } from "../ui/accordion";
 
 export default function Home() {
+  const { selectedRaza } = useRaza();
   return (
     <div className="max-w-5xl mx-auto my-8">
       <h1 className="text-2xl font-bold tracking-tight md:text-3xl text-primary mb-8 text-center">
-        ¿Qué esperar al cuidar un Chow Chow?
+        ¿Qué esperar al cuidar a un {selectedRaza?.name || "CARGANDO NOMBRE"}?
       </h1>
       <p className="mb-8 text-md">
         Ser dueño de un perro{" "}
@@ -36,12 +37,7 @@ export default function Home() {
           </AccordionTrigger>
           <AccordionContent className="p-4">
             <p className="text-gray-400 text-base">
-              Health issues for the Chow Chow may include eyelid entropion, hip
-              dysplasia, elbow dysplasia, allergies, and thyroid function. These
-              issues may be minimized by health screening, responsible breeding,
-              and regular health care and can be diagnosed and managed with
-              veterinary care. Extensive and detailed information on the breed's
-              health can be found on the website of the Chow Chow Club, Inc.
+              {selectedRaza?.health_description || "CARGANDO NOMBRE"}
             </p>
 
             <p className="mt-4 font-bold">
@@ -66,12 +62,7 @@ export default function Home() {
           </AccordionTrigger>
           <AccordionContent className="p-4">
             <p className="text-gray-400 text-base">
-              Health issues for the Chow Chow may include eyelid entropion, hip
-              dysplasia, elbow dysplasia, allergies, and thyroid function. These
-              issues may be minimized by health screening, responsible breeding,
-              and regular health care and can be diagnosed and managed with
-              veterinary care. Extensive and detailed information on the breed's
-              health can be found on the website of the Chow Chow Club, Inc.
+              {selectedRaza?.grooming_description || "CARGANDO NOMBRE"}
             </p>
           </AccordionContent>
         </AccordionItem>
@@ -85,12 +76,7 @@ export default function Home() {
           </AccordionTrigger>
           <AccordionContent className="p-4">
             <p className="text-gray-400 text-base">
-              Health issues for the Chow Chow may include eyelid entropion, hip
-              dysplasia, elbow dysplasia, allergies, and thyroid function. These
-              issues may be minimized by health screening, responsible breeding,
-              and regular health care and can be diagnosed and managed with
-              veterinary care. Extensive and detailed information on the breed's
-              health can be found on the website of the Chow Chow Club, Inc.
+              {selectedRaza?.exercise_description || "CARGANDO NOMBRE"}
             </p>
           </AccordionContent>
         </AccordionItem>
@@ -104,12 +90,7 @@ export default function Home() {
           </AccordionTrigger>
           <AccordionContent className="p-4">
             <p className="text-gray-400 text-base">
-              Health issues for the Chow Chow may include eyelid entropion, hip
-              dysplasia, elbow dysplasia, allergies, and thyroid function. These
-              issues may be minimized by health screening, responsible breeding,
-              and regular health care and can be diagnosed and managed with
-              veterinary care. Extensive and detailed information on the breed's
-              health can be found on the website of the Chow Chow Club, Inc.
+              {selectedRaza?.training_description || "CARGANDO NOMBRE"}
             </p>
           </AccordionContent>
         </AccordionItem>
@@ -123,12 +104,7 @@ export default function Home() {
           </AccordionTrigger>
           <AccordionContent className="p-4">
             <p className="text-gray-400 text-base">
-              Health issues for the Chow Chow may include eyelid entropion, hip
-              dysplasia, elbow dysplasia, allergies, and thyroid function. These
-              issues may be minimized by health screening, responsible breeding,
-              and regular health care and can be diagnosed and managed with
-              veterinary care. Extensive and detailed information on the breed's
-              health can be found on the website of the Chow Chow Club, Inc.
+              {selectedRaza?.nutrition_description || "CARGANDO NOMBRE"}
             </p>
           </AccordionContent>
         </AccordionItem>

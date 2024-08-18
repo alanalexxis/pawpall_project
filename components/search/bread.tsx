@@ -1,9 +1,9 @@
 // components/BreedStandard.js
 import React from "react";
-import { Badge } from "../ui/badge";
-import { Card, CardContent } from "../ui/card";
-import { ArrowRightIcon, PawPrintIcon } from "lucide-react";
-import Link from "next/link";
+import { Card } from "../ui/card";
+import { PawPrintIcon } from "lucide-react";
+import { useRaza } from "@/contexts/razaContext";
+
 import {
   Table,
   TableBody,
@@ -15,12 +15,13 @@ import {
 } from "@/components/ui/table";
 
 const BreedStandard = () => {
+  const { selectedRaza } = useRaza();
   return (
     <div className="flex flex-col md:flex-row p-4 gap-8">
       <Card className="w-full md:max-w-md p-6 bg-[conic-gradient(at_top,_var(--tw-gradient-stops))] from-yellow-200 via-emerald-200 to-yellow-200 text-card-foreground">
         <div className="flex flex-col items-center gap-6">
           <img
-            src="/labrador.jpg"
+            src={selectedRaza?.image_url || "/labrador.jpg"}
             alt="Golden Retriever"
             width={300}
             height={300}
@@ -28,12 +29,20 @@ const BreedStandard = () => {
             style={{ aspectRatio: "300/300", objectFit: "cover" }}
           />
           <h2 className="text-3xl font-bold">
-            El Golden Retriever fue reconocido como raza por el AKC en 1925
+            El {selectedRaza?.name || "CARGANDO NOMBRE"} fue reconocido como
+            raza por el AKC en{" "}
+            {selectedRaza?.recognized_date
+              ? new Date(selectedRaza.recognized_date).getFullYear()
+              : "CARGANDO FECHA"}
           </h2>
+
           <div className="flex items-center gap-2">
             <PawPrintIcon className="w-5 h-5 fill-black dark:fill-white" />
             <span className="text-sm font-medium">
-              Breed recognized in 1925
+              Breed recognized in{" "}
+              {selectedRaza?.recognized_date
+                ? new Date(selectedRaza.recognized_date).getFullYear()
+                : "CARGANDO FECHA"}
             </span>
           </div>
         </div>

@@ -2,8 +2,10 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Card } from "../ui/card";
+import { useRaza } from "@/contexts/razaContext";
 type Section = "ACERCA" | "HISTORIA";
 export default function About() {
+  const { selectedRaza } = useRaza();
   const [activeSection, setActiveSection] = useState<Section>("ACERCA");
 
   const sectionWidths: Record<Section, number> = {
@@ -34,15 +36,11 @@ export default function About() {
                 <div className="grid gap-8">
                   <div className="grid gap-4">
                     <h2 className="text-3xl font-bold tracking-tighter text-primary md:text-4xl lg:text-5xl">
-                      Acerca de la raza
+                      Acerca de la raza{" "}
+                      {selectedRaza?.name || "CARGANDO NOMBRE"}
                     </h2>
                     <p className="text-gray-600 md:text-xl lg:text-2xl leading-relaxed">
-                      El Siberian Husky, un perro de trineo compacto y con un
-                      pelaje espeso de tamaño mediano y gran resistencia, fue
-                      desarrollado para trabajar en manadas, tirando cargas
-                      ligeras a velocidades moderadas sobre vastas extensiones
-                      congeladas. Los Huskies son amigables, meticulosos y
-                      dignos.
+                      {selectedRaza?.about || "CARGANDO NOMBRE"}
                     </p>
                   </div>
                 </div>
@@ -67,18 +65,11 @@ export default function About() {
                 <div className="grid gap-8">
                   <div className="grid gap-4">
                     <h2 className="text-3xl font-bold tracking-tighter text-primary md:text-4xl lg:text-5xl">
-                      Historia de la raza
+                      Historia de la raza{" "}
+                      {selectedRaza?.name || "CARGANDO NOMBRE"}
                     </h2>
                     <p className="text-gray-600 md:text-xl lg:text-2xl leading-relaxed">
-                      La historia del Siberian Husky se remonta a las regiones
-                      frías y desoladas de Siberia, donde las tribus Chukchi
-                      dependían de estos perros para el transporte y la
-                      compañía. Los Huskies fueron criados para ser perros de
-                      trabajo resistentes y amigables, capaces de soportar duras
-                      condiciones climáticas y largas distancias. Con el tiempo,
-                      su habilidad y carácter les permitieron ganar popularidad
-                      en todo el mundo, tanto como perros de trabajo como
-                      mascotas familiares leales y cariñosas.
+                      {selectedRaza?.history || "CARGANDO NOMBRE"}
                     </p>
                   </div>
                 </div>

@@ -45,6 +45,15 @@ interface Raza {
   max_weight_male: string;
   max_weight_female: string;
   life_expectancy: string;
+  recognized_date: string;
+  about: string;
+  history: string;
+  health_description: string;
+  grooming_description: string;
+  exercise_description: string;
+  training_description: string;
+  nutrition_description: string;
+  characteristics: string;
 }
 const FormSchema = z.object({
   raza: z.string({
