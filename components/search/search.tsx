@@ -64,7 +64,8 @@ export function SearchBar() {
   const [open, setOpen] = React.useState(false);
   const supabase = createClient();
   const [razas, setRazas] = useState<Raza[]>([]);
-  const { setSelectedRaza } = useRaza(); // Usar el hook del contexto
+  const { setSelectedRaza, selectedRaza, setFacts } = useRaza(); // Usar el hook del contexto
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   });
@@ -79,7 +80,6 @@ export function SearchBar() {
       ),
     });
   }
-  //obtenemos las razas
   useEffect(() => {
     const fetchRazas = async () => {
       const { data, error } = await supabase.from("breeds").select("*");
@@ -93,6 +93,23 @@ export function SearchBar() {
     fetchRazas();
   }, []);
 
+  useEffect(() => {
+    const fetchFacts = async (breedId: number) => {
+      const { data, error } = await supabase
+        .from("curiosities")
+        .select("*")
+        .eq("breed_id", breedId);
+      if (error) {
+        console.error(error);
+      } else {
+        setFacts(data);
+      }
+    };
+
+    if (selectedRaza) {
+      fetchFacts(selectedRaza.id);
+    }
+  }, [selectedRaza]);
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

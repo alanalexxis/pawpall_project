@@ -24,10 +24,16 @@ interface Raza {
   nutrition_description: string;
   characteristics: string;
 }
-
+interface Fact {
+  id: number;
+  breed_id: number;
+  fact: string;
+}
 interface RazaContextType {
   selectedRaza: Raza | null;
   setSelectedRaza: (raza: Raza | null) => void;
+  facts: Fact[];
+  setFacts: (facts: Fact[]) => void;
 }
 
 const RazaContext = createContext<RazaContextType | undefined>(undefined);
@@ -36,9 +42,12 @@ export const RazaProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [selectedRaza, setSelectedRaza] = useState<Raza | null>(null);
+  const [facts, setFacts] = useState<Fact[]>([]);
 
   return (
-    <RazaContext.Provider value={{ selectedRaza, setSelectedRaza }}>
+    <RazaContext.Provider
+      value={{ selectedRaza, setSelectedRaza, facts, setFacts }}
+    >
       {children}
     </RazaContext.Provider>
   );
