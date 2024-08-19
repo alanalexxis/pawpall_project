@@ -55,6 +55,20 @@ interface Raza {
   training_description: string;
   nutrition_description: string;
   characteristics: string;
+  affectionate_with_family: number;
+  good_with_other_dogs: number;
+  good_with_small_children: number;
+  shedding: number;
+  grooming_frequency: number;
+  salivation_level: number;
+  open_to_strangers: number;
+  protective_natural_guard: number;
+  playfulness_level: number;
+  adaptability_level: number;
+  trainability_level: number;
+  barking_level: number;
+  energy_level: number;
+  mental_stimulation: number;
 }
 
 const FormSchema = z.object({

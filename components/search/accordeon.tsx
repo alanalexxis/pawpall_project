@@ -44,11 +44,11 @@ export default function Home() {
               Pruebas de salud recomendadas por el National Breed Club:
             </p>
             <ul className="list-disc list-inside mt-2 text-gray-400 text-base">
-              <li>Patella Evaluation</li>
-              <li>Hip Evaluation</li>
-              <li>Thyroid Evaluation</li>
-              <li>Elbow Evaluation</li>
-              <li>Ophthalmologist Evaluation</li>
+              <li>Evaluación de rótula</li>
+              <li>Evaluación de caderas</li>
+              <li>Evaluación de tiroides</li>
+              <li>Evaluación de codos</li>
+              <li>Evaluación oftalmológica</li>
             </ul>
           </AccordionContent>
         </AccordionItem>

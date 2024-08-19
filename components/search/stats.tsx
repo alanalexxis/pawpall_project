@@ -96,7 +96,11 @@ const Stadistics = () => {
                     {expandedInfo === "FAMILIAR_FAMILIAR" ? "-" : "+"}
                   </button>
                 </div>
-                {renderRating(3, "Independiente", "Muy cariñoso")}
+                {renderRating(
+                  selectedRaza?.affectionate_with_family ?? 0, // Proporciona un valor predeterminado si es undefined
+                  "Independiente",
+                  "Muy cariñoso"
+                )}
                 <AnimatePresence>
                   {expandedInfo === "FAMILIAR_FAMILIAR" && (
                     <motion.p
@@ -123,7 +127,11 @@ const Stadistics = () => {
                     {expandedInfo === "FAMILIAR_NINOS" ? "-" : "+"}
                   </button>
                 </div>
-                {renderRating(2, "No recomendado", "Bueno con niños pequeños")}
+                {renderRating(
+                  selectedRaza?.good_with_small_children ?? 0,
+                  "No recomendado",
+                  "Bueno con niños pequeños"
+                )}
                 <AnimatePresence>
                   {expandedInfo === "FAMILIAR_NINOS" && (
                     <motion.p
@@ -153,7 +161,11 @@ const Stadistics = () => {
                     {expandedInfo === "FAMILIAR_PERROS" ? "-" : "+"}
                   </button>
                 </div>
-                {renderRating(2, "No Recomendado", "Bueno con otros perros")}
+                {renderRating(
+                  selectedRaza?.good_with_other_dogs ?? 0,
+                  "No Recomendado",
+                  "Bueno con otros perros"
+                )}
                 <AnimatePresence>
                   {expandedInfo === "FAMILIAR_PERROS" && (
                     <motion.p
@@ -196,7 +208,11 @@ const Stadistics = () => {
                     {expandedInfo === "FISICO_PELO" ? "-" : "+"}
                   </button>
                 </div>
-                {renderRating(4, "Sin caída del pelo", "Pelo por todas partes")}
+                {renderRating(
+                  selectedRaza?.shedding ?? 0,
+                  "Sin caída del pelo",
+                  "Pelo por todas partes"
+                )}
                 <AnimatePresence>
                   {expandedInfo === "FISICO_PELO" && (
                     <motion.p
@@ -224,7 +240,11 @@ const Stadistics = () => {
                     {expandedInfo === "FISICO_CUIDADO" ? "-" : "+"}
                   </button>
                 </div>
-                {renderRating(3, "Mensual", "Diario")}
+                {renderRating(
+                  selectedRaza?.grooming_frequency ?? 0,
+                  "Mensual",
+                  "Diario"
+                )}
                 <AnimatePresence>
                   {expandedInfo === "FISICO_CUIDADO" && (
                     <motion.p
@@ -253,7 +273,7 @@ const Stadistics = () => {
                   </button>
                 </div>
                 {renderRating(
-                  1,
+                  selectedRaza?.salivation_level ?? 0,
                   "Menos propenso a babeo",
                   "Siempre tener una toalla"
                 )}
@@ -368,7 +388,11 @@ const Stadistics = () => {
                     {expandedInfo === "SOCIAL_APERTURA" ? "-" : "+"}
                   </button>
                 </div>
-                {renderRating(3, "Reservado", "Todos son mis mejores amigos")}
+                {renderRating(
+                  selectedRaza?.open_to_strangers ?? 0,
+                  "Reservado",
+                  "Todos son mis mejores amigos"
+                )}
                 <AnimatePresence>
                   {expandedInfo === "SOCIAL_APERTURA" && (
                     <motion.p
@@ -395,7 +419,11 @@ const Stadistics = () => {
                     {expandedInfo === "SOCIAL_JUEGO" ? "-" : "+"}
                   </button>
                 </div>
-                {renderRating(2, "Sólo cuando quieras jugar", "Sin parar")}
+                {renderRating(
+                  selectedRaza?.playfulness_level ?? 0,
+                  "Sólo cuando quieras jugar",
+                  "Sin parar"
+                )}
                 <AnimatePresence>
                   {expandedInfo === "SOCIAL_JUEGO" && (
                     <motion.p
@@ -425,7 +453,11 @@ const Stadistics = () => {
                     {expandedInfo === "SOCIAL_PROTECTOR" ? "-" : "+"}
                   </button>
                 </div>
-                {renderRating(2, "Lo mío es tuyo", "Vigilante")}
+                {renderRating(
+                  selectedRaza?.protective_natural_guard ?? 0,
+                  "Lo mío es tuyo",
+                  "Vigilante"
+                )}
                 <AnimatePresence>
                   {expandedInfo === "SOCIAL_PROTECTOR" && (
                     <motion.p
@@ -453,7 +485,11 @@ const Stadistics = () => {
                     {expandedInfo === "SOCIAL_ADAP" ? "-" : "+"}
                   </button>
                 </div>
-                {renderRating(4, "Vive para la rutina", "Altamente adaptable")}
+                {renderRating(
+                  selectedRaza?.adaptability_level ?? 0,
+                  "Vive para la rutina",
+                  "Altamente adaptable"
+                )}
                 <AnimatePresence>
                   {expandedInfo === "SOCIAL_ADAP" && (
                     <motion.p
@@ -493,7 +529,11 @@ const Stadistics = () => {
                     {expandedInfo === "PERSONALIDAD_ENTRE" ? "-" : "+"}
                   </button>
                 </div>
-                {renderRating(3, "Independiente", "Cooperativo")}
+                {renderRating(
+                  selectedRaza?.trainability_level ?? 0,
+                  "Independiente",
+                  "Cooperativo"
+                )}
                 <AnimatePresence>
                   {expandedInfo === "PERSONALIDAD_ENTRE" && (
                     <motion.p
@@ -520,7 +560,11 @@ const Stadistics = () => {
                     {expandedInfo === "PERSONALIDAD_ENERGIA" ? "-" : "+"}
                   </button>
                 </div>
-                {renderRating(2, "Amante del sofá", "Alta energía")}
+                {renderRating(
+                  selectedRaza?.energy_level ?? 0,
+                  "Amante del sofá",
+                  "Alta energía"
+                )}
                 <AnimatePresence>
                   {expandedInfo === "PERSONALIDAD_ENERGIA" && (
                     <motion.p
@@ -550,7 +594,11 @@ const Stadistics = () => {
                     {expandedInfo === "PERSONALIDAD_LADRIDO" ? "-" : "+"}
                   </button>
                 </div>
-                {renderRating(2, "Solo para alertar", "Muy hablador")}
+                {renderRating(
+                  selectedRaza?.barking_level ?? 0,
+                  "Solo para alertar",
+                  "Muy hablador"
+                )}
                 <AnimatePresence>
                   {expandedInfo === "PERSONALIDAD_LADRIDO" && (
                     <motion.p
@@ -579,7 +627,7 @@ const Stadistics = () => {
                   </button>
                 </div>
                 {renderRating(
-                  4,
+                  selectedRaza?.mental_stimulation ?? 0,
                   "Feliz de descansar",
                   "Necesita un trabajo o actividad"
                 )}
