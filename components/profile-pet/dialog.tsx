@@ -25,7 +25,7 @@ export function DialogDemo() {
   const [date, setDate] = React.useState<Date | undefined>(new Date());
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   return (
-    <Dialog defaultOpen>
+    <Dialog>
       <DialogTrigger
         asChild
         className="bg-primary  transition-all duration-200 shadow-lg hover:shadow-xl"

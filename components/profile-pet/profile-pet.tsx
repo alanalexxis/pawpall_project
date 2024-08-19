@@ -16,7 +16,6 @@ import {
   Activity,
   X,
 } from "lucide-react";
-import { Dialog } from "../ui/dialog";
 
 export default function ProfilePet() {
   const [searchTerm, setSearchTerm] = useState("");
