@@ -3,12 +3,23 @@ import React, { useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRaza } from "@/contexts/razaContext";
 
 type Section = "FAMILIAR" | "FISICO" | "SOCIAL" | "PERSONALIDAD";
 const Stadistics = () => {
   const [activeSection, setActiveSection] = useState<Section>("FAMILIAR");
   const [expandedInfo, setExpandedInfo] = useState<string | null>(null);
+  const { selectedRaza, coatLengths, coatTypes } = useRaza();
 
+  // Determina el coat_length_id del selectedRaza si está disponible
+  const coatLengthId = selectedRaza
+    ? coatLengths.find((cl) => cl.breed_id === selectedRaza.id)?.coat_length_id
+    : null;
+
+  // Determina el coat_type_id del selectedRaza si está disponible
+  const coatTypeId = selectedRaza
+    ? coatTypes.find((ct) => ct.breed_id === selectedRaza.id)?.coat_type_id
+    : null;
   const renderRating = (
     rating: number,
     leftLabel: string,
@@ -275,15 +286,15 @@ const Stadistics = () => {
                   </button>
                 </div>
                 <div className="grid grid-cols-3 gap-4 mb-6  ">
-                  {renderIconRating(false, "Áspero")}
-                  {renderIconRating(false, "Sin pelo")}
-                  {renderIconRating(false, "Liso")}
-                  {renderIconRating(false, "Rugoso")}
-                  {renderIconRating(true, "Doble")}
-                  {renderIconRating(false, "Rizado")}
-                  {renderIconRating(false, "Ondulado")}
-                  {renderIconRating(false, "Cordado")}
-                  {renderIconRating(false, "Sedoso")}
+                  {renderIconRating(coatTypeId === 1, "Áspero")}
+                  {renderIconRating(coatTypeId === 2, "Sin pelo")}
+                  {renderIconRating(coatTypeId === 3, "Liso")}
+                  {renderIconRating(coatTypeId === 4, "Rugoso")}
+                  {renderIconRating(coatTypeId === 5, "Doble")}
+                  {renderIconRating(coatTypeId === 6, "Rizado")}
+                  {renderIconRating(coatTypeId === 7, "Ondulado")}
+                  {renderIconRating(coatTypeId === 8, "Cordado")}
+                  {renderIconRating(coatTypeId === 9, "Sedoso")}
                 </div>
                 <AnimatePresence>
                   {expandedInfo === "FISICO_PELAJE" && (
@@ -314,9 +325,9 @@ const Stadistics = () => {
                   </button>
                 </div>
                 <div className="grid grid-cols-3 gap-4 mb-6">
-                  {renderIconRating(false, "Corto")}
-                  {renderIconRating(true, "Medio")}
-                  {renderIconRating(false, "Largo")}
+                  {renderIconRating(coatLengthId === 1, "Corto")}
+                  {renderIconRating(coatLengthId === 2, "Medio")}
+                  {renderIconRating(coatLengthId === 3, "Largo")}
                 </div>
                 <AnimatePresence>
                   {expandedInfo === "FISICO_LARGO" && (

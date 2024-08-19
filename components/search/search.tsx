@@ -31,6 +31,7 @@ import { toast } from "@/components/ui/use-toast";
 import { useEffect, useState } from "react";
 import React from "react";
 import { useRaza } from "@/contexts/razaContext"; // Importar el hook del contexto
+
 interface Raza {
   id: number;
   name: string;
@@ -55,16 +56,24 @@ interface Raza {
   nutrition_description: string;
   characteristics: string;
 }
+
 const FormSchema = z.object({
   raza: z.string({
-    required_error: "Please select a language.",
+    required_error: "Please select a breed.",
   }),
 });
+
 export function SearchBar() {
   const [open, setOpen] = React.useState(false);
   const supabase = createClient();
   const [razas, setRazas] = useState<Raza[]>([]);
-  const { setSelectedRaza, selectedRaza, setFacts } = useRaza(); // Usar el hook del contexto
+  const {
+    selectedRaza,
+    setSelectedRaza,
+    setFacts,
+    setCoatLengths,
+    setCoatTypes,
+  } = useRaza();
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -80,11 +89,12 @@ export function SearchBar() {
       ),
     });
   }
+
   useEffect(() => {
     const fetchRazas = async () => {
       const { data, error } = await supabase.from("breeds").select("*");
       if (error) {
-        console.error(error);
+        console.error("Error fetching breeds:", error);
       } else {
         setRazas(data);
       }
@@ -94,22 +104,52 @@ export function SearchBar() {
   }, []);
 
   useEffect(() => {
-    const fetchFacts = async (breedId: number) => {
-      const { data, error } = await supabase
-        .from("curiosities")
-        .select("*")
-        .eq("breed_id", breedId);
-      if (error) {
-        console.error(error);
-      } else {
-        setFacts(data);
+    const fetchFactsAndCoatData = async (breedId: number) => {
+      try {
+        // Fetch facts, coat lengths, and coat types in parallel
+        const [factsResponse, coatLengthsResponse, coatTypesResponse] =
+          await Promise.all([
+            supabase.from("curiosities").select("*").eq("breed_id", breedId),
+            supabase
+              .from("breed_coat_length")
+              .select("*")
+              .eq("breed_id", breedId),
+            supabase
+              .from("breed_coat_types")
+              .select("*")
+              .eq("breed_id", breedId),
+          ]);
+
+        if (factsResponse.error) {
+          console.error("Error fetching facts:", factsResponse.error);
+        } else {
+          setFacts(factsResponse.data);
+        }
+
+        if (coatLengthsResponse.error) {
+          console.error(
+            "Error fetching coat lengths:",
+            coatLengthsResponse.error
+          );
+        } else {
+          setCoatLengths(coatLengthsResponse.data);
+        }
+
+        if (coatTypesResponse.error) {
+          console.error("Error fetching coat types:", coatTypesResponse.error);
+        } else {
+          setCoatTypes(coatTypesResponse.data);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
       }
     };
 
     if (selectedRaza) {
-      fetchFacts(selectedRaza.id);
+      fetchFactsAndCoatData(selectedRaza.id);
     }
   }, [selectedRaza]);
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
