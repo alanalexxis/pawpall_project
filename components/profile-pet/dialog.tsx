@@ -21,6 +21,7 @@ import { Plus } from "lucide-react";
 import React, { useState } from "react";
 import { format } from "date-fns";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
+import { SearchBarPets } from "./search";
 export function DialogDemo() {
   const [date, setDate] = React.useState<Date | undefined>(new Date());
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -98,6 +99,10 @@ export function DialogDemo() {
                 <Label htmlFor="female">Hembra</Label>
               </div>
             </RadioGroup>
+          </div>
+
+          <div className="space-y-2  ">
+            <SearchBarPets />
           </div>
         </div>
         <DialogFooter>

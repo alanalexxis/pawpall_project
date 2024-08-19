@@ -1,10 +1,3 @@
-import Branding from "@/components/profile-pet/branding";
-import ContentBlock from "@/components/profile-pet/content-block";
-import PetButton from "@/components/profile-pet/pet-button";
-import PetDetails from "@/components/profile-pet/pet-details";
-import PetList from "@/components/profile-pet/pet-list";
-import SearchForm from "@/components/profile-pet/search-form";
-import Stats from "@/components/profile-pet/stats";
 import { Card, CardContent } from "../ui/card";
 import ProfilePet from "../profile-pet/profile-pet";
 
