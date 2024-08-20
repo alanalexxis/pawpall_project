@@ -37,17 +37,33 @@ export function getMenuList(pathname: string): Group[] {
           label: "Dashboard",
           active: pathname.includes("/dashboard"),
           icon: LayoutGrid,
-          submenus: [],
+          submenus: [
+            {
+              href: "/dashboard",
+              label: "Monitoreo de salud",
+              active: pathname === "/dashboard",
+            },
+            {
+              href: "/dashboard/nutrition",
+              label: "Nutrición",
+              active: pathname === "/dashboard/nutrition",
+            },
+            {
+              href: "/dashboard/grooming",
+              label: "Estética",
+              active: pathname === "/dashboard/grooming",
+            },
+          ],
         },
       ],
     },
     {
-      groupLabel: "Contents",
+      groupLabel: "Contenido",
       menus: [
         {
           href: "",
           label: "Posts",
-          active: pathname.includes("/posts"),
+          active: pathname.includes("/guides"),
           icon: SquarePen,
           submenus: [
             {

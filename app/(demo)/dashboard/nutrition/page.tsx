@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import PlaceholderContent from "@/components/demo/placeholder-content";
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import {
   Breadcrumb,
@@ -9,11 +10,11 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import CareGeneral from "@/components/care/general";
+import NutritionContent from "@/components/demo/nutrition-content";
 
-export default function DashboardPage() {
+export default function TagsPage() {
   return (
-    <ContentLayout title="Dashboard">
+    <ContentLayout title="Tags">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -23,11 +24,17 @@ export default function DashboardPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Dashboard</BreadcrumbPage>
+            <BreadcrumbLink asChild>
+              <Link href="/dashboard">Dashboard</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Nutrición</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <CareGeneral />
+      <NutritionContent />
     </ContentLayout>
   );
 }

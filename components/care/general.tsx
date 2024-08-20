@@ -28,7 +28,7 @@ export default function CareGeneral() {
 
   return (
     <div className="max-w-4xl mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Monitor de Salud de Mi Perro</h1>
+      <h1 className="text-3xl font-bold mb-6">Monitor de salud de</h1>
 
       <Card className="mb-6">
         <CardHeader>
@@ -72,6 +72,9 @@ export default function CareGeneral() {
               onChange={(e) => setFoodAmount(Number(e.target.value))}
               className="w-full"
             />
+            <Button variant="outline" className="w-full">
+              Administrar alimentación
+            </Button>
           </CardContent>
         </Card>
 
@@ -95,6 +98,9 @@ export default function CareGeneral() {
               onChange={(e) => setExerciseMinutes(Number(e.target.value))}
               className="w-full"
             />
+            <Button variant="outline" className="w-full">
+              Administrar ejercicio
+            </Button>
           </CardContent>
         </Card>
       </div>

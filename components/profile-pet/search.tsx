@@ -101,7 +101,7 @@ export function SearchBarPets() {
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
-                <PopoverContent className="w-[200px] p-0 pointer-events-auto ">
+                <PopoverContent className="w-[200px] p-0 pointer-events-auto">
                   <Command>
                     <CommandInput
                       placeholder="Buscar raza..."

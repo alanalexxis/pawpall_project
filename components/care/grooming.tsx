@@ -82,11 +82,11 @@ export default function Grooming() {
 
   return (
     <div className="max-w-6xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Monitor de Aseo Canino</h1>
+      <h1 className="text-2xl font-bold mb-4">Monitor de aseo canino</h1>
 
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Registrar Nueva Actividad</CardTitle>
+          <CardTitle>Registrar nueva actividad</CardTitle>
           <CardDescription>
             Añade una nueva actividad de aseo para tu perro
           </CardDescription>
