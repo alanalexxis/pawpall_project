@@ -1,4 +1,6 @@
+// components/SearchBar.tsx
 "use client";
+import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
@@ -28,9 +30,9 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { toast } from "@/components/ui/use-toast";
-import { useEffect, useState } from "react";
 import React from "react";
 import { useRaza } from "@/contexts/razaContext"; // Importar el hook del contexto
+import { Spinner } from "../ui/spinner";
 
 interface Raza {
   id: number;
@@ -79,6 +81,7 @@ const FormSchema = z.object({
 
 export function SearchBar() {
   const [open, setOpen] = React.useState(false);
+  const [loading, setLoading] = useState(false); // Estado de carga
   const supabase = createClient();
   const [razas, setRazas] = useState<Raza[]>([]);
   const {
@@ -106,7 +109,9 @@ export function SearchBar() {
 
   useEffect(() => {
     const fetchRazas = async () => {
+      setLoading(true); // Inicia el estado de carga
       const { data, error } = await supabase.from("breeds").select("*");
+      setLoading(false); // Finaliza el estado de carga
       if (error) {
         console.error("Error fetching breeds:", error);
       } else {
@@ -119,8 +124,8 @@ export function SearchBar() {
 
   useEffect(() => {
     const fetchFactsAndCoatData = async (breedId: number) => {
+      setLoading(true); // Inicia el estado de carga
       try {
-        // Fetch facts, coat lengths, and coat types in parallel
         const [factsResponse, coatLengthsResponse, coatTypesResponse] =
           await Promise.all([
             supabase.from("curiosities").select("*").eq("breed_id", breedId),
@@ -156,6 +161,8 @@ export function SearchBar() {
         }
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false); // Finaliza el estado de carga
       }
     };
 
@@ -232,6 +239,11 @@ export function SearchBar() {
           )}
         />
       </form>
+      {loading && (
+        <div className="fixed top-0 left-0 right-0 bottom-0 bg-white/80 dark:bg-black/80 bg-opacity-80 flex items-center justify-center z-50">
+          <Spinner size="medium" />
+        </div>
+      )}
     </Form>
   );
 }

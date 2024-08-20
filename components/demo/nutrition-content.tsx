@@ -1,6 +1,5 @@
 "use client";
 import { Card, CardContent } from "@/components/ui/card";
-
 import Nutrition from "../care/nutrition";
 
 export default function PlaceholderContent() {
