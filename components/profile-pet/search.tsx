@@ -25,7 +25,6 @@ import {
 import {
   Popover,
   PopoverContent,
-  PopoverPortal,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { toast } from "@/components/ui/use-toast";
@@ -102,8 +101,7 @@ export function SearchBarPets() {
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
-
-                <PopoverContent className="w-[200px] p-0 pointer-events-auto">
+                <PopoverContent className="w-[200px] p-0">
                   <Command>
                     <CommandInput
                       placeholder="Buscar raza..."
@@ -137,7 +135,6 @@ export function SearchBarPets() {
                   </Command>
                 </PopoverContent>
               </Popover>
-
               <FormMessage />
             </FormItem>
           )}

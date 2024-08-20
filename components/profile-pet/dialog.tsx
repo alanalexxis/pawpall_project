@@ -22,14 +22,18 @@ import React, { useState } from "react";
 import { format } from "date-fns";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { SearchBarPets } from "./search";
+
 export function DialogDemo() {
   const [date, setDate] = React.useState<Date | undefined>(new Date());
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [isOwner, setIsOwner] = useState(true); // Estado para saber si el usuario es el dueño
+  const [ownerName, setOwnerName] = useState(""); // Estado para el nombre del dueño
+
   return (
     <Dialog>
       <DialogTrigger
         asChild
-        className="bg-primary  transition-all duration-200 shadow-lg hover:shadow-xl"
+        className="bg-primary transition-all duration-200 shadow-lg hover:shadow-xl"
       >
         <Button variant="outline">
           <Plus className="h-5 w-5 mr-2" />
@@ -38,7 +42,7 @@ export function DialogDemo() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle className="">Añadir mascota</DialogTitle>
+          <DialogTitle>Añadir mascota</DialogTitle>
           <DialogDescription>
             Añade la información de tu mascota a continuación.
           </DialogDescription>
@@ -50,10 +54,34 @@ export function DialogDemo() {
               <Input id="name" placeholder="Ingrese un nombre" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="owner">Nombre del dueño</Label>
-              <Input id="owner" placeholder="Ingrese un nombre" />
+              <Label htmlFor="owner">¿Eres el dueño?</Label>
+              <RadioGroup
+                name="isOwner"
+                onValueChange={(value) => setIsOwner(value === "true")}
+                defaultValue="true"
+              >
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem value="true" id="owner-yes" />
+                  <Label htmlFor="owner-yes">Sí</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem value="false" id="owner-no" />
+                  <Label htmlFor="owner-no">No</Label>
+                </div>
+              </RadioGroup>
             </div>
           </div>
+          {!isOwner && (
+            <div className="space-y-2">
+              <Label htmlFor="ownerName">Nombre del dueño</Label>
+              <Input
+                id="ownerName"
+                placeholder="Ingrese el nombre del dueño"
+                value={ownerName}
+                onChange={(e) => setOwnerName(e.target.value)}
+              />
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="dob">Fecha de nacimiento</Label>
             <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
@@ -65,15 +93,15 @@ export function DialogDemo() {
                   {date ? (
                     format(date, "PPP", { locale: es })
                   ) : (
-                    <span>Pick a date</span>
+                    <span>Selecciona una fecha</span>
                   )}
                   <CalendarDaysIcon className="ml-2 h-4 w-4 opacity-50" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
+                  disabled={(day) => day > new Date()}
                   locale={es}
-                  className="pointer-events-auto "
                   mode="single"
                   captionLayout="dropdown-buttons"
                   selected={date}
@@ -100,13 +128,12 @@ export function DialogDemo() {
               </div>
             </RadioGroup>
           </div>
-
-          <div className="space-y-2  ">
+          <div className="space-y-2">
             <SearchBarPets />
           </div>
         </div>
         <DialogFooter>
-          <Button type="submit">Create Project</Button>
+          <Button type="submit">Crear Proyecto</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
