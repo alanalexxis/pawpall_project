@@ -25,6 +25,7 @@ import {
 import {
   Popover,
   PopoverContent,
+  PopoverPortal,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { toast } from "@/components/ui/use-toast";
@@ -101,39 +102,41 @@ export function SearchBarPets() {
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
-                <PopoverContent className="w-[200px] p-0 pointer-events-auto">
-                  <Command>
-                    <CommandInput
-                      placeholder="Buscar raza..."
-                      className="h-9"
-                    />
-                    <CommandList>
-                      <CommandEmpty>Raza no encontrada.</CommandEmpty>
-                      <CommandGroup>
-                        {razas.map((raza) => (
-                          <CommandItem
-                            value={raza.name}
-                            key={raza.id}
-                            onSelect={() => {
-                              form.setValue("raza", raza.id.toString());
-                              setOpen(false);
-                            }}
-                          >
-                            {raza.name}
-                            <CheckIcon
-                              className={cn(
-                                "ml-auto h-4 w-4",
-                                raza.id === Number(field.value)
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              )}
-                            />
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
+                <PopoverPortal>
+                  <PopoverContent className="w-[200px] p-0 pointer-events-auto">
+                    <Command>
+                      <CommandInput
+                        placeholder="Buscar raza..."
+                        className="h-9"
+                      />
+                      <CommandList>
+                        <CommandEmpty>Raza no encontrada.</CommandEmpty>
+                        <CommandGroup>
+                          {razas.map((raza) => (
+                            <CommandItem
+                              value={raza.name}
+                              key={raza.id}
+                              onSelect={() => {
+                                form.setValue("raza", raza.id.toString());
+                                setOpen(false);
+                              }}
+                            >
+                              {raza.name}
+                              <CheckIcon
+                                className={cn(
+                                  "ml-auto h-4 w-4",
+                                  raza.id === Number(field.value)
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </PopoverPortal>
               </Popover>
 
               <FormMessage />
