@@ -61,34 +61,16 @@ export function getMenuList(pathname: string): Group[] {
       groupLabel: "Contenido",
       menus: [
         {
-          href: "",
-          label: "Posts",
-          active: pathname.includes("/guides"),
-          icon: SquarePen,
-          submenus: [
-            {
-              href: "/posts",
-              label: "All Posts",
-              active: pathname === "/posts",
-            },
-            {
-              href: "/posts/new",
-              label: "New Post",
-              active: pathname === "/posts/new",
-            },
-          ],
-        },
-        {
           href: "/guides",
           label: "Guías",
           active: pathname.includes("/guides"),
-          icon: Bookmark,
+          icon: SquarePen,
           submenus: [],
         },
         {
-          href: "/tags",
-          label: "Tags",
-          active: pathname.includes("/tags"),
+          href: "/breeds",
+          label: "Razas",
+          active: pathname.includes("/breeds"),
           icon: Tag,
           submenus: [],
         },
