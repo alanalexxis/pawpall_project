@@ -16,6 +16,7 @@ import {
   Activity,
   X,
 } from "lucide-react";
+import { differenceInYears, differenceInMonths } from "date-fns";
 import { createClient } from "@/utils/supabase/client";
 export default function ProfilePet() {
   const supabase = createClient();
@@ -25,22 +26,87 @@ export default function ProfilePet() {
 
   useEffect(() => {
     async function fetchPets() {
-      const { data, error } = await supabase.from("pets").select("*");
+      // Obtener los datos de las mascotas
+      const { data: petsData, error: petsError } = await supabase
+        .from("pets")
+        .select("*");
 
-      if (error) {
-        console.error("Error fetching pets:", error);
+      if (petsError) {
+        console.error("Error fetching pets:", petsError);
         return;
       }
 
-      const petsWithImages = data.map((pet) => {
-        const { data: imageUrlData } = supabase.storage
-          .from("image_upload")
-          .getPublicUrl(pet.image_url);
+      // Procesar cada mascota para obtener detalles adicionales
+      const petsWithDetails = await Promise.all(
+        petsData.map(async (pet) => {
+          let ownerName = pet.owner_name;
+          let location = pet.location;
+          let breedName = "";
+          let age = "";
 
-        return { ...pet, image_url: imageUrlData.publicUrl };
-      });
+          // Si no hay owner_name o location, obtener datos desde la tabla de perfiles
+          if (!ownerName || !location) {
+            const { data: profileData, error: profileError } = await supabase
+              .from("profiles")
+              .select("full_name, city")
+              .eq("id", pet.profile_id)
+              .single();
 
-      setPets(petsWithImages);
+            if (profileError) {
+              console.error("Error fetching profile:", profileError);
+            } else {
+              if (!ownerName) {
+                ownerName = profileData.full_name;
+              }
+              if (!location) {
+                location = profileData.city;
+              }
+            }
+          }
+
+          // Obtener el nombre de la raza utilizando el breed_id
+          const { data: breedData, error: breedError } = await supabase
+            .from("breeds")
+            .select("name")
+            .eq("id", pet.breed_id)
+            .single();
+
+          if (breedError) {
+            console.error("Error fetching breed:", breedError);
+          } else {
+            breedName = breedData.name;
+          }
+
+          // Calcular la edad en años y meses
+          const birthdate = new Date(pet.birthdate);
+          const years = differenceInYears(new Date(), birthdate);
+          const months = differenceInMonths(new Date(), birthdate) % 12;
+
+          // Manejar el caso singular/plural para "año"
+          const yearText = years === 1 ? "año" : "años";
+          const monthText = months === 1 ? "mes" : "meses";
+
+          age = `${years} ${yearText}${
+            months > 0 ? ` y ${months} ${monthText}` : ""
+          }`;
+
+          // Obtener la URL pública de la imagen
+          const { data: imageUrlData } = supabase.storage
+            .from("image_upload")
+            .getPublicUrl(pet.image_url);
+
+          return {
+            ...pet,
+            owner_name: ownerName,
+            location: location,
+            breed: breedName,
+            age: age, // Añadir la edad calculada al objeto
+            image_url: imageUrlData.publicUrl,
+          };
+        })
+      );
+
+      setPets(petsWithDetails);
     }
 
     fetchPets();
@@ -49,7 +115,7 @@ export default function ProfilePet() {
   const filteredPets = pets.filter(
     (pet) =>
       pet.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      pet.owner.toLowerCase().includes(searchTerm.toLowerCase())
+      pet.owner_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
   const { data } = supabase.storage
     .from("image_upload")
@@ -132,13 +198,15 @@ export default function ProfilePet() {
                   <div className="flex items-center mb-4">
                     <Avatar className="h-10 w-10 mr-3">
                       <AvatarImage
-                        src={`https://api.dicebear.com/6.x/initials/svg?seed=${pet.owner}`}
-                        alt={pet.owner}
+                        src={`https://api.dicebear.com/6.x/initials/svg?seed=${pet.owner_name}`}
+                        alt={pet.owner_name}
                       />
                       <AvatarFallback>{pet.owner_name[0]}</AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-medium text-gray-700">{pet.owner}</p>
+                      <p className="font-medium text-gray-700">
+                        {pet.owner_name}
+                      </p>
                       <p className="text-sm text-gray-500">{pet.location}</p>
                     </div>
                   </div>
@@ -147,30 +215,28 @@ export default function ProfilePet() {
                       <Heart className="h-4 w-4 text-pink-500 mr-2" />
                       <div>
                         <dt className="sr-only">Type and Breed</dt>
-                        <dd>
-                          {pet.type} - {pet.breed}
-                        </dd>
+                        <dd>{pet.breed}</dd>
                       </div>
                     </div>
                     <div className="flex items-center">
                       <Calendar className="h-4 w-4 text-blue-500 mr-2" />
                       <div>
                         <dt className="sr-only">Age</dt>
-                        <dd>{pet.age} years old</dd>
+                        <dd>{pet.age} de edad</dd>
                       </div>
                     </div>
                     <div className="flex items-center">
                       <MapPin className="h-4 w-4 text-green-500 mr-2" />
                       <div>
                         <dt className="sr-only">Next Appointment</dt>
-                        <dd>Next visit: {pet.nextAppointment}</dd>
+                        <dd>Próxima visita: {pet.nextAppointment}</dd>
                       </div>
                     </div>
                     <div className="flex items-center">
                       <Activity className="h-4 w-4 text-yellow-500 mr-2" />
                       <div>
                         <dt className="sr-only">Health Status</dt>
-                        <dd>Salud: {pet.health}</dd>
+                        <dd>Salud: Buena {pet.health}</dd>
                       </div>
                     </div>
                   </dl>
