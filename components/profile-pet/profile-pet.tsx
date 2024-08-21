@@ -277,7 +277,7 @@ export default function ProfilePet() {
             >
               <div className="relative">
                 <img
-                  src={selectedPet.image}
+                  src={selectedPet.image_url}
                   alt={selectedPet.name}
                   className="w-full h-64 object-cover"
                 />
@@ -292,33 +292,35 @@ export default function ProfilePet() {
               <div className="p-6">
                 <h2 className="text-3xl font-bold mb-4">{selectedPet.name}</h2>
                 <p className="text-gray-600 mb-4">
-                  {selectedPet.breed} • {selectedPet.age} years old
+                  {selectedPet.breed} • {selectedPet.age} de edad
                 </p>
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   <div>
-                    <h3 className="font-semibold text-gray-700">Owner</h3>
-                    <p>{selectedPet.owner}</p>
+                    <h3 className="font-semibold text-gray-700">
+                      Dueño de la mascota
+                    </h3>
+                    <p>{selectedPet.owner_name}</p>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-700">Location</h3>
+                    <h3 className="font-semibold text-gray-700">Ciudad</h3>
                     <p>{selectedPet.location}</p>
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-700">
-                      Next Appointment
+                      Próxima visita
                     </h3>
                     <p>{selectedPet.nextAppointment}</p>
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-700">
-                      Health Status
+                      Estado de salud
                     </h3>
-                    <p>{selectedPet.health}</p>
+                    <p>Buena</p>
                   </div>
                 </div>
                 <div className="flex justify-end">
-                  <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white transition-all duration-200">
-                    View Full Profile
+                  <Button className="bg-primary transition-all duration-200">
+                    Ver perfil completo
                   </Button>
                 </div>
               </div>
