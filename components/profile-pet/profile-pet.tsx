@@ -43,12 +43,13 @@ export default function ProfilePet() {
           let location = pet.location;
           let breedName = "";
           let age = "";
+          let avatarUrl = "";
 
           // Si no hay owner_name o location, obtener datos desde la tabla de perfiles
           if (!ownerName || !location) {
             const { data: profileData, error: profileError } = await supabase
               .from("profiles")
-              .select("full_name, city")
+              .select("full_name, city, avatar_url")
               .eq("id", pet.profile_id)
               .single();
 
@@ -61,6 +62,7 @@ export default function ProfilePet() {
               if (!location) {
                 location = profileData.city;
               }
+              avatarUrl = profileData.avatar_url; // Guardar el avatar_url
             }
           }
 
@@ -100,8 +102,9 @@ export default function ProfilePet() {
             owner_name: ownerName,
             location: location,
             breed: breedName,
-            age: age, // Añadir la edad calculada al objeto
+            age: age,
             image_url: imageUrlData.publicUrl,
+            avatar_url: avatarUrl || pet.avatar_url, // Añadir avatar_url al objeto
           };
         })
       );
@@ -197,10 +200,7 @@ export default function ProfilePet() {
                 <CardContent className="pt-6">
                   <div className="flex items-center mb-4">
                     <Avatar className="h-10 w-10 mr-3">
-                      <AvatarImage
-                        src={`https://api.dicebear.com/6.x/initials/svg?seed=${pet.owner_name}`}
-                        alt={pet.owner_name}
-                      />
+                      <AvatarImage src={pet.avatar_url} alt={pet.owner_name} />
                       <AvatarFallback>{pet.owner_name[0]}</AvatarFallback>
                     </Avatar>
                     <div>
