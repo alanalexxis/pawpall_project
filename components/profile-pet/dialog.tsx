@@ -22,6 +22,7 @@ import React, { useState } from "react";
 import { format } from "date-fns";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { SearchBarPets } from "./search";
+import Dropzone from "./dropzone";
 
 export function DialogDemo() {
   const [date, setDate] = React.useState<Date | undefined>(new Date());
@@ -131,9 +132,13 @@ export function DialogDemo() {
           <div className="space-y-2">
             <SearchBarPets />
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="name">Foto de la mascota</Label>
+            <Dropzone />
+          </div>
         </div>
         <DialogFooter>
-          <Button type="submit">Crear Proyecto</Button>
+          <Button type="submit">Agregar mascota</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
