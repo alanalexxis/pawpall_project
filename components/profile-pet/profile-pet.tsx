@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,62 +16,44 @@ import {
   Activity,
   X,
 } from "lucide-react";
-
+import { createClient } from "@/utils/supabase/client";
 export default function ProfilePet() {
+  const supabase = createClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPet, setSelectedPet] = useState(null);
+  const [pets, setPets] = useState([]);
 
-  const pets = [
-    {
-      id: 1,
-      name: "Buddy",
-      image:
-        "https://aqfnqcvvjjgxnhbqgxvg.supabase.co/storage/v1/object/public/images/golden-retriever.jpg",
-      owner: "John Doe",
-      age: 3,
-      type: "Dog",
-      breed: "Golden Retriever",
-      location: "New York",
-      nextAppointment: "2023-07-15",
-      health: "Excellent",
-      tags: ["friendly", "active"],
-    },
-    {
-      id: 2,
-      name: "Molly",
-      image:
-        "https://aqfnqcvvjjgxnhbqgxvg.supabase.co/storage/v1/object/public/images/siamese-cat.jpg",
-      owner: "Jane Smith",
-      age: 2,
-      type: "Cat",
-      breed: "Siamese",
-      location: "Los Angeles",
-      nextAppointment: "2023-07-20",
-      health: "Good",
-      tags: ["quiet", "indoor"],
-    },
-    {
-      id: 3,
-      name: "Rocky",
-      image:
-        "https://aqfnqcvvjjgxnhbqgxvg.supabase.co/storage/v1/object/public/images/german-shepherd.jpg",
-      owner: "Mike Johnson",
-      age: 4,
-      type: "Dog",
-      breed: "German Shepherd",
-      location: "Chicago",
-      nextAppointment: "2023-07-18",
-      health: "Fair",
-      tags: ["protective", "energetic"],
-    },
-  ];
+  useEffect(() => {
+    async function fetchPets() {
+      const { data, error } = await supabase.from("pets").select("*");
+
+      if (error) {
+        console.error("Error fetching pets:", error);
+        return;
+      }
+
+      const petsWithImages = data.map((pet) => {
+        const { data: imageUrlData } = supabase.storage
+          .from("image_upload")
+          .getPublicUrl(pet.image_url);
+
+        return { ...pet, image_url: imageUrlData.publicUrl };
+      });
+
+      setPets(petsWithImages);
+    }
+
+    fetchPets();
+  }, []);
 
   const filteredPets = pets.filter(
     (pet) =>
       pet.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       pet.owner.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
+  const { data } = supabase.storage
+    .from("image_upload")
+    .getPublicUrl("folder/avatar1.png");
   return (
     <div className="min-h-screen  p-8">
       <div className="max-w-7xl mx-auto">
@@ -137,7 +119,7 @@ export default function ProfilePet() {
               >
                 <div className="relative h-48 overflow-hidden">
                   <img
-                    src={pet.image}
+                    src={pet.image_url}
                     alt={pet.name}
                     className="w-full h-full object-cover"
                   />
@@ -153,7 +135,7 @@ export default function ProfilePet() {
                         src={`https://api.dicebear.com/6.x/initials/svg?seed=${pet.owner}`}
                         alt={pet.owner}
                       />
-                      <AvatarFallback>{pet.owner[0]}</AvatarFallback>
+                      <AvatarFallback>{pet.owner_name[0]}</AvatarFallback>
                     </Avatar>
                     <div>
                       <p className="font-medium text-gray-700">{pet.owner}</p>
@@ -197,9 +179,9 @@ export default function ProfilePet() {
                       <Badge
                         key={index}
                         variant="secondary"
-                        className="bg-yellow-200  "
+                        className="bg-yellow-200"
                       >
-                        {tag}
+                        {tag.text}
                       </Badge>
                     ))}
                   </div>
