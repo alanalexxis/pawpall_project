@@ -110,6 +110,7 @@ const Dropzone = ({
 }: DropzoneProps) => {
   // Constants:
   const dropzone = useDropzone({
+    accept: { "image/*": [] }, // Solo acepta imágenes
     ...props,
     onDrop(acceptedFiles, fileRejections, event) {
       if (props.onDrop) props.onDrop(acceptedFiles, fileRejections, event);
@@ -119,10 +120,10 @@ const Dropzone = ({
           ...acceptedFiles,
         ]);
         if (fileRejections.length > 0) {
-          let _errorMessage = `Could not upload ${fileRejections[0].file.name}`;
+          let _errorMessage = `No se pudo cargar ${fileRejections[0].file.name}`;
           if (fileRejections.length > 1)
             _errorMessage =
-              _errorMessage + `, and ${fileRejections.length - 1} other files.`;
+              _errorMessage + `, y ${fileRejections.length - 1} archivos más.`;
           setErrorMessage(_errorMessage);
         } else {
           setErrorMessage("");
@@ -158,16 +159,16 @@ const Dropzone = ({
           children(dropzone)
         ) : dropzone.isDragAccept ? (
           <div className="text-sm font-medium">
-            ¡Arrastra y suelta tus archivos aquí!
+            ¡Arrastra y suelta tus imágenes aquí!
           </div>
         ) : (
           <div className="flex items-center flex-col gap-1.5">
             <div className="flex items-center flex-row gap-0.5 text-sm font-medium">
-              <Upload className="mr-2 h-4 w-4" /> Subir foto
+              <Upload className="mr-2 h-4 w-4" /> Subir imagen
             </div>
             {props.maxSize && (
               <div className="text-xs text-gray-400 font-medium">
-                Max. file size: {(props.maxSize / (1024 * 1024)).toFixed(2)} MB
+                Tamaño máximo: {(props.maxSize / (1024 * 1024)).toFixed(2)} MB
               </div>
             )}
           </div>
@@ -189,11 +190,7 @@ const Dropzone = ({
                 className="flex justify-between items-center flex-row w-full h-16 mt-2 px-4 border-solid border-2 border-gray-200 rounded-lg shadow-sm"
               >
                 <div className="flex items-center flex-row gap-4 h-full">
-                  {fileUploaded.type === "application/pdf" ? (
-                    <PDF className="text-rose-700 w-6 h-6" />
-                  ) : (
-                    <Image className="text-rose-700 w-6 h-6" />
-                  )}
+                  <Image className="text-rose-700 w-6 h-6" />
                   <div className="flex flex-col gap-0">
                     <div className="text-[0.85rem] font-medium leading-snug">
                       {truncate(
@@ -222,5 +219,4 @@ const Dropzone = ({
   );
 };
 
-// Exports:
 export default Dropzone;
