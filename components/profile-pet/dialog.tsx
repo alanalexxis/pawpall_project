@@ -1,3 +1,4 @@
+import { createClient } from "@/utils/supabase/client";
 import {
   Dialog,
   DialogTrigger,
@@ -23,15 +24,113 @@ import { format } from "date-fns";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { SearchBarPets } from "./search";
 import Dropzone from "./dropzone";
+import { Tag, TagInput } from "emblor";
+import { Textarea } from "../ui/textarea";
+import { useUser } from "@/contexts/userContext";
+import { z } from "zod";
+import { toast } from "../ui/use-toast";
+
+// Define el esquema de validación con Zod
+const petSchema = z.object({
+  petName: z.string().min(1, "El nombre de la mascota es obligatorio"),
+  isOwner: z.boolean(),
+  description: z.string().min(1, "Introduce una descripción de tu mascota"),
+  ownerName: z
+    .string()
+    .optional()
+    .refine(
+      (value) => !value || value.trim().length > 0,
+      "El nombre del dueño es obligatorio si no eres el dueño"
+    ),
+  date: z.date().optional(),
+  gender: z.enum(["Male", "Female"], {
+    required_error: "Género es obligatorio",
+  }), // Agrega validación para el género
+  razaId: z.string().optional(), // Agrega validación para el ID de la raza
+  tags: z.array(z.object({ id: z.string(), text: z.string() })).optional(), // Asegúrate de que 'tags' esté definido aquí
+});
 
 export function DialogDemo() {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const supabase = createClient();
+  const { user } = useUser();
   const [date, setDate] = React.useState<Date | undefined>(new Date());
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isOwner, setIsOwner] = useState(true); // Estado para saber si el usuario es el dueño
   const [ownerName, setOwnerName] = useState(""); // Estado para el nombre del dueño
+  const [description, setDescription] = useState(""); // Estado para el nombre del dueño
+  const [tags, setTags] = React.useState<Tag[]>([]);
+  const [activeTagIndex, setActiveTagIndex] = React.useState<number | null>(
+    null
+  );
+  const [selectedRazaId, setSelectedRazaId] = useState<string | null>(null);
+  const [gender, setGender] = useState(""); // Valor predeterminado "male" o "female"
+  const [petName, setPetName] = useState(""); // Estado para el nombre de la mascota
+  const [imagePath, setImagePath] = useState<string | null>(null);
+
+  const handleFileUpload = async (filePath: string) => {
+    setImagePath(filePath);
+  };
+
+  const handleSubmit = async () => {
+    const result = petSchema.safeParse({
+      petName,
+      isOwner,
+      ownerName,
+      date,
+      gender,
+      description,
+      razaId: selectedRazaId, // Incluye el ID de la raza seleccionada
+      profile_id: user.id, // Incluye el ID del usuario
+      tags: tagsJson, // Include tags in the data
+    });
+
+    if (!result.success) {
+      // Muestra los errores al usuario
+      const errors = result.error.format();
+      alert(`Error: ${JSON.stringify(errors)}`);
+      return;
+    }
+
+    const { data, error } = await supabase.from("pets").insert([
+      {
+        name: result.data.petName,
+        owner_name: result.data.ownerName,
+        birthdate: result.data.date,
+        gender: result.data.gender, // Agrega el género en la inserción
+        description: result.data.description,
+        breed_id: result.data.razaId, // Agrega el ID de la raza en la inserción
+        profile_id: user.id, // Incluye el ID del usuario
+        tags: result.data.tags, // Insert the tags JSON directly
+        image_url: imagePath, // Usa la ruta de la imagen subida
+      },
+    ]);
+
+    if (error) {
+      console.error("Error al agregar mascota:", error);
+      alert("Hubo un problema al agregar la mascota.");
+    } else {
+      toast({
+        title: "¡Éxito!",
+        description: "Información guardada con éxito.",
+      });
+      setPetName(""); // Limpiar el estado después de la inserción
+      setDate(undefined); // Limpiar la fecha después de la inserción
+      setSelectedRazaId(null); // Limpiar la selección de raza después de la inserción
+      setGender(""); // Limpiar el género después de la inserción
+      setTags([]);
+      setImagePath(null); // Limpiar la ruta de la imagen después de la inserción
+      setDescription(""); // Limpiar la descripción después de la inserción
+      setIsDialogOpen(false); // Cierra el diálogo después de mostrar el toast
+    }
+  };
+
+  // Convert the tags to a JSON structure
+  const tagsJson = tags.map((tag) => ({ id: tag.id, text: tag.text }));
 
   return (
-    <Dialog>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger
         asChild
         className="bg-primary transition-all duration-200 shadow-lg hover:shadow-xl"
@@ -48,11 +147,17 @@ export function DialogDemo() {
             Añade la información de tu mascota a continuación.
           </DialogDescription>
         </DialogHeader>
+
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">Nombre de la mascota</Label>
-              <Input id="name" placeholder="Ingrese un nombre" />
+              <Input
+                id="name"
+                placeholder="Ingrese un nombre"
+                value={petName}
+                onChange={(e) => setPetName(e.target.value)}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="owner">¿Eres el dueño?</Label>
@@ -118,27 +223,57 @@ export function DialogDemo() {
           </div>
           <div className="space-y-2">
             <Label>Género de la mascota</Label>
-            <RadioGroup name="gender" className="flex items-center gap-4">
+            <RadioGroup
+              name="gender"
+              value={gender}
+              onValueChange={(value) => setGender(value)}
+              className="flex items-center gap-4"
+            >
               <div className="flex items-center gap-2">
-                <RadioGroupItem value="male" id="male" />
-                <Label htmlFor="male">Macho</Label>
+                <RadioGroupItem value="Male" id="male" />
+                <Label htmlFor="Male">Macho</Label>
               </div>
               <div className="flex items-center gap-2">
-                <RadioGroupItem value="female" id="female" />
-                <Label htmlFor="female">Hembra</Label>
+                <RadioGroupItem value="Female" id="female" />
+                <Label htmlFor="Female">Hembra</Label>
               </div>
             </RadioGroup>
           </div>
           <div className="space-y-2">
-            <SearchBarPets />
+            <SearchBarPets
+              onRazaSelect={(razaId) => setSelectedRazaId(razaId)}
+            />{" "}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="name">Detalla a tu mascota</Label>
+            <Textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Añade una descripcion de tu mascota."
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="name">Añade tags a tu mascota</Label>
+            <TagInput
+              placeholder="Añade una etiqueta"
+              tags={tags}
+              setTags={(newTags) => {
+                setTags(newTags);
+              }}
+              activeTagIndex={activeTagIndex}
+              setActiveTagIndex={setActiveTagIndex}
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="name">Foto de la mascota</Label>
-            <Dropzone />
+            <Dropzone onFileUpload={handleFileUpload} />
           </div>
         </div>
         <DialogFooter>
-          <Button type="submit">Agregar mascota</Button>
+          <Button type="button" onClick={handleSubmit}>
+            Agregar mascota
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

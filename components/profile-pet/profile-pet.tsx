@@ -16,7 +16,6 @@ import {
   Activity,
   X,
 } from "lucide-react";
-import { SearchBarPets } from "./search";
 
 export default function ProfilePet() {
   const [searchTerm, setSearchTerm] = useState("");

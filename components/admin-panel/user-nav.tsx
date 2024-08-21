@@ -27,7 +27,7 @@ import { createClient } from "@/utils/supabase/client";
 export function UserNav() {
   const { user, setUser } = useUser();
   const router = useRouter();
-
+  const supabase = createClient();
   const handleSignout = async () => {
     const supabase = createClient();
     const { error } = await supabase.auth.signOut();
@@ -39,6 +39,9 @@ export function UserNav() {
     }
     return true;
   };
+  const { data } = supabase.storage
+    .from("image_upload")
+    .getPublicUrl("public/car.jpg");
 
   return (
     <DropdownMenu>
@@ -85,6 +88,9 @@ export function UserNav() {
             </p>
             <p className="text-xs leading-none text-muted-foreground">
               {user?.user_metadata?.email ?? "user@example.com"}
+            </p>
+            <p className="text-xs leading-none text-muted-foreground">
+              {data.publicUrl}
             </p>
           </div>
         </DropdownMenuLabel>

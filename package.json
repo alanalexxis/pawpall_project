@@ -42,6 +42,7 @@
     "cmdk": "^1.0.0",
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.1.8",
+    "emblor": "^1.4.4",
     "framer-motion": "^11.0.10",
     "gsap": "^3.12.5",
     "html-react-parser": "^5.1.12",

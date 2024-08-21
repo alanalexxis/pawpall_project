@@ -1,4 +1,3 @@
-"use client";
 import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
@@ -41,7 +40,11 @@ const FormSchema = z.object({
   }),
 });
 
-export function SearchBarPets() {
+interface SearchBarPetsProps {
+  onRazaSelect: (razaId: string) => void;
+}
+
+export function SearchBarPets({ onRazaSelect }: SearchBarPetsProps) {
   const [open, setOpen] = useState(false);
   const supabase = createClient();
   const [razas, setRazas] = useState<Raza[]>([]);
@@ -116,6 +119,7 @@ export function SearchBarPets() {
                             key={raza.id}
                             onSelect={() => {
                               form.setValue("raza", raza.id.toString());
+                              onRazaSelect(raza.id.toString()); // Pasar el ID al componente padre
                               setOpen(false);
                             }}
                           >
