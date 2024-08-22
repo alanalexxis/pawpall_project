@@ -30,7 +30,7 @@ export default function PetsPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Tags</BreadcrumbPage>
+            <BreadcrumbPage>Aseo</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

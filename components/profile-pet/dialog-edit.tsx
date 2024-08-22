@@ -119,6 +119,7 @@ export function DialogEdit({ pet }) {
         breed_id: result.data.razaId,
         profile_id: user.id,
         tags: result.data.tags,
+        image_url: imagePath,
       })
       .eq("id", pet.id);
 

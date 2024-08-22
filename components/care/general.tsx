@@ -20,6 +20,7 @@ import {
   Pill,
   Calendar,
 } from "lucide-react";
+import Link from "next/link";
 
 export default function CareGeneral() {
   const [weight, setWeight] = useState(15);
@@ -28,18 +29,18 @@ export default function CareGeneral() {
 
   return (
     <div className="max-w-4xl mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Monitor de salud de</h1>
+      <h1 className="text-3xl font-bold mb-6">Monitor de salud de Teddy</h1>
 
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center">
             <PawPrint className="mr-2" />
-            Resumen de Salud
+            Resumen de salud
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex justify-between items-center mb-4">
-            <span>Estado General:</span>
+            <span>Estado general:</span>
             <Badge variant="outline" className="bg-green-100 text-green-800">
               Saludable
             </Badge>
@@ -61,7 +62,7 @@ export default function CareGeneral() {
           </CardHeader>
           <CardContent>
             <div className="flex justify-between items-center mb-2">
-              <span>Cantidad Diaria:</span>
+              <span>Cantidad diaria:</span>
               <span>{foodAmount}g</span>
             </div>
             <Input
@@ -72,9 +73,11 @@ export default function CareGeneral() {
               onChange={(e) => setFoodAmount(Number(e.target.value))}
               className="w-full"
             />
-            <Button variant="outline" className="w-full">
-              Administrar alimentación
-            </Button>
+            <Link href="/dashboard/nutrition">
+              <Button variant="outline" className="w-full">
+                Administrar alimentación
+              </Button>
+            </Link>
           </CardContent>
         </Card>
 
@@ -82,12 +85,12 @@ export default function CareGeneral() {
           <CardHeader>
             <CardTitle className="flex items-center">
               <Activity className="mr-2" />
-              Ejercicio
+              Paseos
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex justify-between items-center mb-2">
-              <span>Minutos Diarios:</span>
+              <span>Minutos diarios:</span>
               <span>{exerciseMinutes} min</span>
             </div>
             <Input
@@ -98,9 +101,11 @@ export default function CareGeneral() {
               onChange={(e) => setExerciseMinutes(Number(e.target.value))}
               className="w-full"
             />
-            <Button variant="outline" className="w-full">
-              Administrar ejercicio
-            </Button>
+            <Link href="/dashboard/walk">
+              <Button variant="outline" className="w-full">
+                Administrar ejercicio
+              </Button>
+            </Link>
           </CardContent>
         </Card>
       </div>
@@ -109,12 +114,12 @@ export default function CareGeneral() {
         <CardHeader>
           <CardTitle className="flex items-center">
             <Weight className="mr-2" />
-            Control de Peso
+            Control de peso
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex justify-between items-center mb-4">
-            <span>Peso Actual:</span>
+            <span>Peso actual:</span>
             <span className="text-2xl font-bold">{weight} kg</span>
           </div>
           <div className="h-40 bg-muted rounded-md flex items-end">
@@ -169,9 +174,11 @@ export default function CareGeneral() {
             </ul>
           </CardContent>
           <CardFooter>
-            <Button variant="outline" className="w-full">
-              Agregar Medicamento
-            </Button>
+            <Link href="/dashboard/medical">
+              <Button variant="outline" className="w-96">
+                Administrar medicamentos
+              </Button>
+            </Link>
           </CardFooter>
         </Card>
 
@@ -179,13 +186,13 @@ export default function CareGeneral() {
           <CardHeader>
             <CardTitle className="flex items-center">
               <Calendar className="mr-2" />
-              Próximas Citas
+              Próximas citas
             </CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
               <li className="flex justify-between items-center">
-                <span>Revisión General</span>
+                <span>Revisión general</span>
                 <Badge variant="outline">15 de Julio</Badge>
               </li>
               <li className="flex justify-between items-center">
@@ -196,7 +203,7 @@ export default function CareGeneral() {
           </CardContent>
           <CardFooter>
             <Button variant="outline" className="w-full">
-              Agendar Nueva Cita
+              Agendar nueva cita
             </Button>
           </CardFooter>
         </Card>

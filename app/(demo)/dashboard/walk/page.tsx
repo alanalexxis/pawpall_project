@@ -30,7 +30,7 @@ export default function TagsPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Sueño</BreadcrumbPage>
+            <BreadcrumbPage>Paseos</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

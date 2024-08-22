@@ -6,6 +6,7 @@ import {
   SquarePen,
   LayoutGrid,
   LucideIcon,
+  BookA,
 } from "lucide-react";
 
 type Submenu = {
@@ -78,6 +79,18 @@ export function getMenuList(pathname: string): Group[] {
       ],
     },
     {
+      groupLabel: "Mis mascotas",
+      menus: [
+        {
+          href: "/pets",
+          label: "Mis mascotas",
+          active: pathname.includes("/pets"),
+          icon: Dog,
+          submenus: [],
+        },
+      ],
+    },
+    {
       groupLabel: "Contenido",
       menus: [
         {
@@ -91,21 +104,14 @@ export function getMenuList(pathname: string): Group[] {
           href: "/breeds",
           label: "Razas",
           active: pathname.includes("/breeds"),
-          icon: Dog,
+          icon: BookA,
           submenus: [],
         },
       ],
     },
     {
-      groupLabel: "Settings",
+      groupLabel: "Ajustes",
       menus: [
-        {
-          href: "/users",
-          label: "Users",
-          active: pathname.includes("/users"),
-          icon: Users,
-          submenus: [],
-        },
         {
           href: "/profile",
           label: "Perfil",

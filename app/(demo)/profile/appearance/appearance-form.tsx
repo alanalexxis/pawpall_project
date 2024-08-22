@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useTheme } from "next-themes"; // Asegúrate de que esta importación sea correcta para tu proyecto
-import { Button, buttonVariants } from "@/components/ui/button";
+import { useTheme } from "next-themes";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -19,26 +19,28 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "@/components/ui/use-toast";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/utils/supabase/client";
 
 const appearanceFormSchema = z.object({
+  id: z.string().optional(),
+  profile_id: z.string().optional(),
   theme: z.enum(["light", "dark"], {
     required_error: "Por favor, selecciona un tema.",
   }),
-  font: z.optional(
-    z.enum(["inter"], { message: "Por favor, selecciona una fuente." })
-  ),
+  font: z.enum(["inter"]).optional(),
 });
 
 type AppearanceFormValues = z.infer<typeof appearanceFormSchema>;
 
-// Esto puede provenir de tu base de datos o API.
 const defaultValues: Partial<AppearanceFormValues> = {
   theme: "light",
 };
 
 export function AppearanceForm() {
+  const supabase = createClient();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const form = useForm<AppearanceFormValues>({
     resolver: zodResolver(appearanceFormSchema),
     defaultValues,
@@ -46,19 +48,60 @@ export function AppearanceForm() {
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+
+    const fetchUser = async () => {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+
+      if (error) {
+        console.error("Error fetching user:", error.message);
+        return;
+      }
+
+      setUserId(user?.id || null);
+    };
+
+    fetchUser();
+  }, [supabase]);
 
   if (!mounted) return null;
 
-  function onSubmit(data: AppearanceFormValues) {
-    toast({
-      title: "Perfil actualizado",
-      description: "Tus datos se han actualizado correctamente.",
-    });
+  async function onSubmit(data: AppearanceFormValues) {
+    console.log("Data antes de enviar:", data);
+    console.log("Usuario ID:", userId);
 
-    // Cambia el tema cuando el formulario se envía
+    if (!userId) {
+      toast({
+        title: "Error",
+        description: "No se pudo identificar al usuario.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (data.theme !== theme) {
       setTheme(data.theme);
+    }
+
+    const { error } = await supabase.from("appearance_preferences").upsert({
+      profile_id: userId,
+      theme: data.theme,
+    });
+
+    if (error) {
+      console.error("Error saving theme:", error.message);
+      toast({
+        title: "Error",
+        description: "Hubo un problema al guardar las preferencias.",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Preferencias guardadas",
+        description: "Tus preferencias han sido actualizadas correctamente.",
+      });
     }
   }
 
@@ -74,10 +117,7 @@ export function AppearanceForm() {
               <div className="relative w-max">
                 <FormControl>
                   <select
-                    className={cn(
-                      buttonVariants({ variant: "outline" }),
-                      "w-[200px] appearance-none font-normal"
-                    )}
+                    className={cn("w-[200px] appearance-none font-normal")}
                     {...field}
                   >
                     <option value="inter">Inter</option>

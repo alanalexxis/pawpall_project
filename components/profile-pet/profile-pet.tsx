@@ -21,6 +21,7 @@ import { Trash } from "lucide-react"; // Importa el icono de basura
 import { differenceInYears, differenceInMonths } from "date-fns";
 import { createClient } from "@/utils/supabase/client";
 import { DialogEdit } from "./dialog-edit";
+import Link from "next/link";
 export default function ProfilePet() {
   const supabase = createClient();
   const [searchTerm, setSearchTerm] = useState("");
@@ -367,9 +368,11 @@ export default function ProfilePet() {
                   </div>
                 </div>
                 <div className="flex justify-end">
-                  <Button className="bg-primary transition-all duration-200">
-                    Ver perfil completo
-                  </Button>
+                  <Link href="/dashboard/">
+                    <Button className="bg-primary transition-all duration-200">
+                      Ver seguimiento completo
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </motion.div>

@@ -157,9 +157,9 @@ export default function Medical() {
   return (
     <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
-        <CardTitle>Historial médico de {dogInfo.name}</CardTitle>
+        <CardTitle>Historial médico de Teddy</CardTitle>
         <CardDescription>
-          Raza: {dogInfo.breed} | Edad: {dogInfo.age} años | Peso actual:{" "}
+          Raza: Chow Chow | Edad: {dogInfo.age} años | Peso actual:{" "}
           {dogInfo.weight} kg
         </CardDescription>
       </CardHeader>
