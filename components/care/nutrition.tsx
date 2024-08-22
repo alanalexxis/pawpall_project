@@ -28,9 +28,6 @@ import {
   ReferenceLine,
 } from "recharts";
 import { DialogNutrition } from "./dialog-nutrition";
-import { Slider } from "@/components/ui/slider";
-import { Progress } from "@/components/ui/progress";
-import { PlusCircle } from "lucide-react";
 
 export default function Nutrition() {
   const [weight, setWeight] = useState(10);
