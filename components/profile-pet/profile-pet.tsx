@@ -15,15 +15,17 @@ import {
   MapPin,
   Activity,
   X,
+  Edit,
 } from "lucide-react";
 import { differenceInYears, differenceInMonths } from "date-fns";
 import { createClient } from "@/utils/supabase/client";
+import { DialogEdit } from "./dialog-edit";
 export default function ProfilePet() {
   const supabase = createClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPet, setSelectedPet] = useState(null);
   const [pets, setPets] = useState([]);
-
+  const [isDialogOpen, setIsDialogOpen] = useState(false); // Estado para controlar la apertura del diálogo
   useEffect(() => {
     async function fetchPets() {
       // Obtener los datos de las mascotas
@@ -197,6 +199,15 @@ export default function ProfilePet() {
                     {pet.name}
                   </h3>
                 </div>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation(); // Evitar la propagación del clic
+                    // Aquí puedes manejar la lógica de editar
+                  }}
+                >
+                  <DialogEdit pet={selectedPet} />
+                </button>
                 <CardContent className="pt-6">
                   <div className="flex items-center mb-4">
                     <Avatar className="h-10 w-10 mr-3">
@@ -316,6 +327,12 @@ export default function ProfilePet() {
                       Estado de salud
                     </h3>
                     <p>Buena</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-700">
+                      Descripción de la mascota
+                    </h3>
+                    <p>{selectedPet.description}</p>
                   </div>
                 </div>
                 <div className="flex justify-end">
