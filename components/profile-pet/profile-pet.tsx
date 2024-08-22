@@ -17,6 +17,7 @@ import {
   X,
   Edit,
 } from "lucide-react";
+import { Trash } from "lucide-react"; // Importa el icono de basura
 import { differenceInYears, differenceInMonths } from "date-fns";
 import { createClient } from "@/utils/supabase/client";
 import { DialogEdit } from "./dialog-edit";
@@ -24,8 +25,10 @@ export default function ProfilePet() {
   const supabase = createClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPet, setSelectedPet] = useState(null);
+  const [selectedPett, setSelectedPett] = useState(null);
   const [pets, setPets] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false); // Estado para controlar la apertura del diálogo
+  const [isPetsUpdated, setIsPetsUpdated] = useState(false);
   useEffect(() => {
     async function fetchPets() {
       // Obtener los datos de las mascotas
@@ -115,7 +118,8 @@ export default function ProfilePet() {
     }
 
     fetchPets();
-  }, []);
+    setIsPetsUpdated(false); // Resetea el estado de actualización
+  }, [isPetsUpdated]); // Ejecuta useEffect cuando isPetsUpdated cambie
 
   const filteredPets = pets.filter(
     (pet) =>
@@ -125,6 +129,21 @@ export default function ProfilePet() {
   const { data } = supabase.storage
     .from("image_upload")
     .getPublicUrl("folder/avatar1.png");
+  async function handleDeletePet(petId) {
+    // Confirmar la eliminación
+    if (window.confirm("¿Estás seguro de que quieres eliminar esta mascota?")) {
+      const { error } = await supabase.from("pets").delete().eq("id", petId);
+
+      if (error) {
+        console.error("Error deleting pet:", error);
+        alert("Error al eliminar la mascota.");
+      } else {
+        // Actualizar el estado local para eliminar la mascota de la lista
+        setPets(pets.filter((pet) => pet.id !== petId));
+        alert("Mascota eliminada con éxito.");
+      }
+    }
+  }
   return (
     <div className="min-h-screen  p-8">
       <div className="max-w-7xl mx-auto">
@@ -145,7 +164,7 @@ export default function ProfilePet() {
             >
               {filteredPets.length} mascotas
             </Badge>
-            <DialogDemo />
+            <DialogDemo onPetAdded={() => setIsPetsUpdated(true)} />
           </div>
         </div>
 
@@ -186,7 +205,10 @@ export default function ProfilePet() {
             >
               <Card
                 className="overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 cursor-pointer bg-white/80 backdrop-blur-sm"
-                onClick={() => setSelectedPet(pet)}
+                onClick={() => {
+                  setSelectedPet(pet);
+                  setSelectedPett(pet);
+                }}
               >
                 <div className="relative h-48 overflow-hidden">
                   <img
@@ -198,15 +220,24 @@ export default function ProfilePet() {
                   <h3 className="absolute bottom-4 left-4 text-2xl font-bold text-white">
                     {pet.name}
                   </h3>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation(); // Evitar la propagación del clic
+                      handleDeletePet(pet.id); // Llamar a la función para eliminar la mascota
+                    }}
+                    className="absolute bottom-28 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600"
+                  >
+                    <Trash className="h-4 w-4" />
+                  </button>
                 </div>
 
                 <button
                   onClick={(e) => {
                     e.stopPropagation(); // Evitar la propagación del clic
-                    // Aquí puedes manejar la lógica de editar
+                    setSelectedPett(pet); // Establece la mascota seleccionada
                   }}
                 >
-                  <DialogEdit pet={selectedPet} />
+                  <DialogEdit pet={selectedPett} />
                 </button>
                 <CardContent className="pt-6">
                   <div className="flex items-center mb-4">

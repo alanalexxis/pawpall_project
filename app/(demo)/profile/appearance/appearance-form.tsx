@@ -1,11 +1,10 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronDownIcon } from "@radix-ui/react-icons";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-
-import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes"; // Asegúrate de que esta importación sea correcta para tu proyecto
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Form,
@@ -18,15 +17,16 @@ import {
 } from "@/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "@/components/ui/use-toast";
+import { ChevronDownIcon } from "@radix-ui/react-icons";
+import { cn } from "@/lib/utils";
 
 const appearanceFormSchema = z.object({
   theme: z.enum(["light", "dark"], {
     required_error: "Por favor, selecciona un tema.",
   }),
-  font: z.enum(["inter", "manrope", "system"], {
-    invalid_type_error: "Selecciona una fuente",
-    required_error: "Por favor, selecciona una fuente.",
-  }),
+  font: z.optional(
+    z.enum(["inter"], { message: "Por favor, selecciona una fuente." })
+  ),
 });
 
 type AppearanceFormValues = z.infer<typeof appearanceFormSchema>;
@@ -37,20 +37,29 @@ const defaultValues: Partial<AppearanceFormValues> = {
 };
 
 export function AppearanceForm() {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const form = useForm<AppearanceFormValues>({
     resolver: zodResolver(appearanceFormSchema),
     defaultValues,
   });
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
   function onSubmit(data: AppearanceFormValues) {
     toast({
-      title: "Has enviado los siguientes valores:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
+      title: "Perfil actualizado",
+      description: "Tus datos se han actualizado correctamente.",
     });
+
+    // Cambia el tema cuando el formulario se envía
+    if (data.theme !== theme) {
+      setTheme(data.theme);
+    }
   }
 
   return (
@@ -72,8 +81,6 @@ export function AppearanceForm() {
                     {...field}
                   >
                     <option value="inter">Inter</option>
-                    <option value="manrope">Manrope</option>
-                    <option value="system">Sistema</option>
                   </select>
                 </FormControl>
                 <ChevronDownIcon className="absolute right-3 top-2.5 h-4 w-4 opacity-50" />

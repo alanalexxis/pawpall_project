@@ -29,6 +29,8 @@ import { Textarea } from "../ui/textarea";
 import { useUser } from "@/contexts/userContext";
 import { z } from "zod";
 import { toast } from "../ui/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 
 // Define el esquema de validación con Zod
 const petSchema = z.object({
@@ -49,8 +51,7 @@ const petSchema = z.object({
   razaId: z.string().optional(), // Agrega validación para el ID de la raza
   tags: z.array(z.object({ id: z.string(), text: z.string() })).optional(), // Asegúrate de que 'tags' esté definido aquí
 });
-
-export function DialogDemo() {
+export function DialogDemo({ onPetAdded }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const supabase = createClient();
@@ -68,7 +69,8 @@ export function DialogDemo() {
   const [gender, setGender] = useState(""); // Valor predeterminado "male" o "female"
   const [petName, setPetName] = useState(""); // Estado para el nombre de la mascota
   const [imagePath, setImagePath] = useState<string | null>(null);
-
+  const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<string | null>(null);
   const handleFileUpload = async (filePath: string) => {
     setImagePath(filePath);
   };
@@ -88,8 +90,8 @@ export function DialogDemo() {
 
     if (!result.success) {
       // Muestra los errores al usuario
-      const errors = result.error.format();
-      alert(`Error: ${JSON.stringify(errors)}`);
+      const firstError = result.error.errors[0].message;
+      setError(firstError);
       return;
     }
 
@@ -108,13 +110,17 @@ export function DialogDemo() {
     ]);
 
     if (error) {
-      console.error("Error al agregar mascota:", error);
-      alert("Hubo un problema al agregar la mascota.");
+      toast({
+        variant: "destructive",
+        title: "¡Ups! Algo salió mal.",
+        description: "Hubo un problema con tu solicitud.",
+      });
     } else {
       toast({
         title: "¡Éxito!",
         description: "Información guardada con éxito.",
       });
+      onPetAdded(); // Notificar que se ha agregado una nueva mascota
       setPetName(""); // Limpiar el estado después de la inserción
       setDate(undefined); // Limpiar la fecha después de la inserción
       setSelectedRazaId(null); // Limpiar la selección de raza después de la inserción
@@ -123,6 +129,7 @@ export function DialogDemo() {
       setImagePath(null); // Limpiar la ruta de la imagen después de la inserción
       setDescription(""); // Limpiar la descripción después de la inserción
       setIsDialogOpen(false); // Cierra el diálogo después de mostrar el toast
+      setIsOwner(true);
     }
   };
 
@@ -147,6 +154,13 @@ export function DialogDemo() {
             Añade la información de tu mascota a continuación.
           </DialogDescription>
         </DialogHeader>
+        {error && (
+          <Alert variant="destructive">
+            <ExclamationTriangleIcon className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-2 gap-4">

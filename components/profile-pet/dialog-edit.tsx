@@ -84,8 +84,12 @@ export function DialogEdit({ pet }) {
   const handleFileUpload = async (filePath: string) => {
     setImagePath(filePath);
   };
-
   const handleSubmit = async () => {
+    if (!pet) {
+      console.error("No se ha proporcionado una mascota para editar.");
+      return;
+    }
+
     const result = petSchema.safeParse({
       petName,
       isOwner,
@@ -93,13 +97,12 @@ export function DialogEdit({ pet }) {
       date,
       gender,
       description,
-      razaId: selectedRazaId, // Incluye el ID de la raza seleccionada
-      profile_id: user.id, // Incluye el ID del usuario
-      tags: tagsJson, // Include tags in the data
+      razaId: selectedRazaId,
+      profile_id: user.id,
+      tags: tagsJson,
     });
 
     if (!result.success) {
-      // Muestra los errores al usuario
       const errors = result.error.format();
       alert(`Error: ${JSON.stringify(errors)}`);
       return;
@@ -111,12 +114,11 @@ export function DialogEdit({ pet }) {
         name: result.data.petName,
         owner_name: result.data.ownerName,
         birthdate: result.data.date,
-        gender: result.data.gender, // Agrega el género en la inserción
+        gender: result.data.gender,
         description: result.data.description,
-        breed_id: result.data.razaId, // Agrega el ID de la raza en la inserción
-        profile_id: user.id, // Incluye el ID del usuario
-        tags: result.data.tags, // Insert the tags JSON directly
-        image_url: imagePath, // Usa la ruta de la imagen subida
+        breed_id: result.data.razaId,
+        profile_id: user.id,
+        tags: result.data.tags,
       })
       .eq("id", pet.id);
 
@@ -128,10 +130,9 @@ export function DialogEdit({ pet }) {
         title: "¡Éxito!",
         description: "Información actualizada con éxito.",
       });
-      setIsDialogOpen(false); // Cierra el diálogo después de mostrar el toast
+      setIsDialogOpen(false);
     }
   };
-
   // Convert the tags to a JSON structure
   const tagsJson = tags.map((tag) => ({ id: tag.id, text: tag.text }));
 
@@ -141,10 +142,7 @@ export function DialogEdit({ pet }) {
         asChild
         className="bg-primary transition-all duration-200 shadow-lg hover:shadow-xl"
       >
-        <button
-          className="absolute top-2 right-2 p-2 rounded-full bg-white shadow-lg hover:bg-gray-200"
-          onClick={(e) => e.stopPropagation()} // Evita la propagación del evento
-        >
+        <button className="absolute top-2 right-2 p-2 rounded-full bg-white shadow-lg hover:bg-gray-200">
           <Edit className="h-4 w-4 text-gray-600" />
         </button>
       </DialogTrigger>

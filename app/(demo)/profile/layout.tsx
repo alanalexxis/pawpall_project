@@ -28,10 +28,6 @@ const sidebarNavItems = [
     href: "/profile",
   },
   {
-    title: "Cuenta",
-    href: "/profile/account",
-  },
-  {
     title: "Apariencia",
     href: "/profile/appearance",
   },
