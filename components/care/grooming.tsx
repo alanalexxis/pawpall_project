@@ -95,7 +95,7 @@ export default function Grooming() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="activity-type">Tipo de Actividad</Label>
+                <Label htmlFor="activity-type">Tipo de actividad</Label>
                 <Select
                   onValueChange={(value) =>
                     setNewActivity({ ...newActivity, type: value })
@@ -124,7 +124,7 @@ export default function Grooming() {
                 />
               </div>
             </div>
-            <Button type="submit">Registrar Actividad</Button>
+            <Button type="submit">Registrar actividad</Button>
           </form>
         </CardContent>
       </Card>
@@ -132,7 +132,7 @@ export default function Grooming() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <Card>
           <CardHeader>
-            <CardTitle>Resumen de Aseo</CardTitle>
+            <CardTitle>Resumen de aseo</CardTitle>
             <CardDescription>
               Estado actual de las actividades de aseo
             </CardDescription>
@@ -166,7 +166,7 @@ export default function Grooming() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Actividades Recientes</CardTitle>
+            <CardTitle>Actividades recientes</CardTitle>
             <CardDescription>Últimas 5 actividades registradas</CardDescription>
           </CardHeader>
           <CardContent>
@@ -187,7 +187,7 @@ export default function Grooming() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Frecuencia de Actividades</CardTitle>
+            <CardTitle>Frecuencia de actividades</CardTitle>
             <CardDescription>
               Número total de cada tipo de actividad
             </CardDescription>
@@ -208,7 +208,7 @@ export default function Grooming() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Tendencia de Actividades</CardTitle>
+            <CardTitle>Tendencia de actividades</CardTitle>
             <CardDescription>
               Actividades de aseo a lo largo del tiempo
             </CardDescription>
