@@ -63,6 +63,11 @@ export function getMenuList(pathname: string): Group[] {
               label: "Emociones",
               active: pathname === "/dashboard/emotions",
             },
+            {
+              href: "/dashboard/medical",
+              label: "Historial médico",
+              active: pathname === "/dashboard/medical",
+            },
           ],
         },
       ],
