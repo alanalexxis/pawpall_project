@@ -10,6 +10,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import CareGeneral from "@/components/care/general";
+import Appointment from "@/components/appointments/appointment";
 
 export default function DashboardPage() {
   return (

@@ -21,6 +21,7 @@ import {
   Calendar,
 } from "lucide-react";
 import Link from "next/link";
+import Appointment from "../appointments/appointment";
 
 export default function CareGeneral() {
   const [weight, setWeight] = useState(15);
@@ -202,9 +203,7 @@ export default function CareGeneral() {
             </ul>
           </CardContent>
           <CardFooter>
-            <Button variant="outline" className="w-full">
-              Agendar nueva cita
-            </Button>
+            <Appointment />
           </CardFooter>
         </Card>
       </div>
