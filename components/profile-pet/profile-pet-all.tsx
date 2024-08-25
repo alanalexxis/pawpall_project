@@ -22,7 +22,6 @@ import { differenceInYears, differenceInMonths } from "date-fns";
 import { createClient } from "@/utils/supabase/client";
 import { DialogEdit } from "./dialog-edit";
 import Link from "next/link";
-
 export default function ProfilePet() {
   const supabase = createClient();
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,27 +30,12 @@ export default function ProfilePet() {
   const [pets, setPets] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false); // Estado para controlar la apertura del diálogo
   const [isPetsUpdated, setIsPetsUpdated] = useState(false);
-
   useEffect(() => {
     async function fetchPets() {
-      // Obtener el usuario autenticado
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-
-      if (userError) {
-        console.error("Error fetching user:", userError);
-        return;
-      }
-
-      const profileId = user.id; // Obtener el ID del perfil del usuario
-
-      // Obtener los datos de las mascotas para el usuario autenticado
+      // Obtener los datos de las mascotas
       const { data: petsData, error: petsError } = await supabase
         .from("pets")
-        .select("*")
-        .eq("profile_id", profileId); // Filtrar por profile_id
+        .select("*");
 
       if (petsError) {
         console.error("Error fetching pets:", petsError);
@@ -143,7 +127,9 @@ export default function ProfilePet() {
       pet.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       pet.owner_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
+  const { data } = supabase.storage
+    .from("image_upload")
+    .getPublicUrl("folder/avatar1.png");
   async function handleDeletePet(petId) {
     // Confirmar la eliminación
     if (window.confirm("¿Estás seguro de que quieres eliminar esta mascota?")) {
