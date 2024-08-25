@@ -25,7 +25,7 @@ import {
 
 export default function Medical() {
   const [dogInfo, setDogInfo] = useState({
-    name: "Max",
+    name: "Teddy",
     breed: "Labrador",
     age: 5,
     weight: 30,
@@ -65,7 +65,7 @@ export default function Medical() {
       { date: "2023-05-01", weight: 30 },
     ],
     notes:
-      "Max tiene tendencia a comer muy rápido. Considerar usar un comedero lento.",
+      " tiene tendencia a comer muy rápido. Considerar usar un comedero lento.",
   });
 
   const [newItem, setNewItem] = useState("");
