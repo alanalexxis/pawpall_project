@@ -22,6 +22,17 @@ import { differenceInYears, differenceInMonths } from "date-fns";
 import { createClient } from "@/utils/supabase/client";
 import { DialogEdit } from "./dialog-edit";
 import Link from "next/link";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function ProfilePet() {
   const supabase = createClient();
@@ -29,7 +40,6 @@ export default function ProfilePet() {
   const [selectedPet, setSelectedPet] = useState(null);
   const [selectedPett, setSelectedPett] = useState(null);
   const [pets, setPets] = useState([]);
-  const [isDialogOpen, setIsDialogOpen] = useState(false); // Estado para controlar la apertura del diálogo
   const [isPetsUpdated, setIsPetsUpdated] = useState(false);
 
   useEffect(() => {
@@ -143,22 +153,27 @@ export default function ProfilePet() {
       pet.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       pet.owner_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  const [petToDelete, setPetToDelete] = useState(null);
 
-  async function handleDeletePet(petId) {
-    // Confirmar la eliminación
-    if (window.confirm("¿Estás seguro de que quieres eliminar esta mascota?")) {
-      const { error } = await supabase.from("pets").delete().eq("id", petId);
+  async function handleDeletePet() {
+    if (petToDelete) {
+      const { error } = await supabase
+        .from("pets")
+        .delete()
+        .eq("id", petToDelete.id);
 
       if (error) {
         console.error("Error deleting pet:", error);
         alert("Error al eliminar la mascota.");
       } else {
         // Actualizar el estado local para eliminar la mascota de la lista
-        setPets(pets.filter((pet) => pet.id !== petId));
+        setPets(pets.filter((pet) => pet.id !== petToDelete.id));
         alert("Mascota eliminada con éxito.");
+        setPetToDelete(null); // Restablece el estado
       }
     }
   }
+
   return (
     <div className="min-h-screen  p-8">
       <div className="max-w-7xl mx-auto">
@@ -237,8 +252,8 @@ export default function ProfilePet() {
                   </h3>
                   <button
                     onClick={(e) => {
-                      e.stopPropagation(); // Evitar la propagación del clic
-                      handleDeletePet(pet.id); // Llamar a la función para eliminar la mascota
+                      e.stopPropagation();
+                      setPetToDelete(pet);
                     }}
                     className="absolute bottom-28 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600"
                   >
@@ -313,6 +328,28 @@ export default function ProfilePet() {
             </motion.div>
           ))}
         </motion.div>
+        <AlertDialog
+          open={!!petToDelete} // Si petToDelete es no nulo, abrir el modal
+          onOpenChange={(open) => !open && setPetToDelete(null)} // Cerrar el modal si el usuario lo cierra manualmente
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>¿Estás absolutamente seguro?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta acción no se puede deshacer. Esto eliminará permanentemente
+                la mascota de nuestros servidores.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setPetToDelete(null)}>
+                Cancelar
+              </AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeletePet}>
+                Eliminar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       <AnimatePresence>
