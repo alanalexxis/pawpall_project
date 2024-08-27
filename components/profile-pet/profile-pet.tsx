@@ -33,6 +33,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { toast } from "../ui/use-toast";
 
 export default function ProfilePet() {
   const supabase = createClient();
@@ -168,7 +169,10 @@ export default function ProfilePet() {
       } else {
         // Actualizar el estado local para eliminar la mascota de la lista
         setPets(pets.filter((pet) => pet.id !== petToDelete.id));
-        alert("Mascota eliminada con éxito.");
+        toast({
+          title: "¡Éxito!",
+          description: "Información eliminada con éxito.",
+        });
         setPetToDelete(null); // Restablece el estado
       }
     }
