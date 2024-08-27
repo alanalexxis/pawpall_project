@@ -16,7 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { BathIcon, ScissorsIcon, BoneIcon } from "lucide-react";
+import { BathIcon, ScissorsIcon, BoneIcon, Dog } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -29,6 +29,8 @@ import {
   Line,
   ResponsiveContainer,
 } from "recharts";
+import { useSelectedPet } from "@/contexts/selectedPetContext";
+import { motion } from "framer-motion";
 
 export default function Grooming() {
   const [activities, setActivities] = useState([
@@ -79,160 +81,171 @@ export default function Grooming() {
       a.month.localeCompare(b.month)
     );
   }, [activities]);
-
+  const { selectedPet } = useSelectedPet();
   return (
-    <div className="max-w-6xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Monitor de aseo canino</h1>
-
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Registrar nueva actividad</CardTitle>
-          <CardDescription>
-            Añade una nueva actividad de aseo para tu perro
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="activity-type">Tipo de actividad</Label>
-                <Select
-                  onValueChange={(value) =>
-                    setNewActivity({ ...newActivity, type: value })
-                  }
-                  value={newActivity.type}
-                >
-                  <SelectTrigger id="activity-type">
-                    <SelectValue placeholder="Selecciona una actividad" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Baño">Baño</SelectItem>
-                    <SelectItem value="Cepillado">Cepillado</SelectItem>
-                    <SelectItem value="Corte de uñas">Corte de uñas</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="activity-date">Fecha</Label>
-                <Input
-                  id="activity-date"
-                  type="date"
-                  value={newActivity.date}
-                  onChange={(e) =>
-                    setNewActivity({ ...newActivity, date: e.target.value })
-                  }
-                />
-              </div>
-            </div>
-            <Button type="submit">Registrar actividad</Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Resumen de aseo</CardTitle>
-            <CardDescription>
-              Estado actual de las actividades de aseo
+    <div className="w-full max-w-4xl mx-auto space-y-6 p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Card className="mb-6">
+          <CardHeader className="bg-primary text-primary-foreground">
+            <CardTitle className="text-2xl flex items-center gap-2">
+              <Dog className="w-6 h-6" />
+              Monitoreo de aseo de {selectedPet?.name || "Ninguna"}
+            </CardTitle>
+            <CardDescription className="text-primary-foreground/80">
+              Mantén a tu perro limpio y bien cuidado.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <BathIcon className="mr-2" />
-                  <span>Último baño</span>
+          <CardContent className="p-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="activity-type">Tipo de actividad</Label>
+                  <Select
+                    onValueChange={(value) =>
+                      setNewActivity({ ...newActivity, type: value })
+                    }
+                    value={newActivity.type}
+                  >
+                    <SelectTrigger id="activity-type">
+                      <SelectValue placeholder="Selecciona una actividad" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Baño">Baño</SelectItem>
+                      <SelectItem value="Cepillado">Cepillado</SelectItem>
+                      <SelectItem value="Corte de uñas">
+                        Corte de uñas
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <span>{getLastActivityDate("Baño")}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <BoneIcon className="mr-2" />
-                  <span>Último cepillado</span>
+                <div className="space-y-2">
+                  <Label htmlFor="activity-date">Fecha</Label>
+                  <Input
+                    id="activity-date"
+                    type="date"
+                    value={newActivity.date}
+                    onChange={(e) =>
+                      setNewActivity({ ...newActivity, date: e.target.value })
+                    }
+                  />
                 </div>
-                <span>{getLastActivityDate("Cepillado")}</span>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <ScissorsIcon className="mr-2" />
-                  <span>Último corte de uñas</span>
-                </div>
-                <span>{getLastActivityDate("Corte de uñas")}</span>
-              </div>
-            </div>
+              <Button type="submit">Registrar actividad</Button>
+            </form>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Actividades recientes</CardTitle>
-            <CardDescription>Últimas 5 actividades registradas</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              {activities.slice(0, 5).map((activity, index) => (
-                <li key={index} className="flex justify-between items-center">
-                  <span>{activity.type}</span>
-                  <span className="text-sm text-muted-foreground">
-                    {activity.date}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Resumen de aseo</CardTitle>
+              <CardDescription>
+                Estado actual de las actividades de aseo
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <BathIcon className="mr-2" />
+                    <span>Último baño</span>
+                  </div>
+                  <span>{getLastActivityDate("Baño")}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <BoneIcon className="mr-2" />
+                    <span>Último cepillado</span>
+                  </div>
+                  <span>{getLastActivityDate("Cepillado")}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <ScissorsIcon className="mr-2" />
+                    <span>Último corte de uñas</span>
+                  </div>
+                  <span>{getLastActivityDate("Corte de uñas")}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Frecuencia de actividades</CardTitle>
-            <CardDescription>
-              Número total de cada tipo de actividad
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={barChartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="type" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="count" fill="#8884d8" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Actividades recientes</CardTitle>
+              <CardDescription>
+                Últimas 5 actividades registradas
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2">
+                {activities.slice(0, 5).map((activity, index) => (
+                  <li key={index} className="flex justify-between items-center">
+                    <span>{activity.type}</span>
+                    <span className="text-sm text-muted-foreground">
+                      {activity.date}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Tendencia de actividades</CardTitle>
-            <CardDescription>
-              Actividades de aseo a lo largo del tiempo
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={lineChartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="Baño" stroke="#8884d8" />
-                <Line type="monotone" dataKey="Cepillado" stroke="#82ca9d" />
-                <Line
-                  type="monotone"
-                  dataKey="Corte de uñas"
-                  stroke="#ffc658"
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Frecuencia de actividades</CardTitle>
+              <CardDescription>
+                Número total de cada tipo de actividad
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={barChartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="type" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="count" fill="#8884d8" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Tendencia de actividades</CardTitle>
+              <CardDescription>
+                Actividades de aseo a lo largo del tiempo
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={lineChartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="Baño" stroke="#8884d8" />
+                  <Line type="monotone" dataKey="Cepillado" stroke="#82ca9d" />
+                  <Line
+                    type="monotone"
+                    dataKey="Corte de uñas"
+                    stroke="#ffc658"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+      </motion.div>
     </div>
   );
 }

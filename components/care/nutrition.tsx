@@ -28,16 +28,19 @@ import {
   ReferenceLine,
 } from "recharts";
 import { DialogNutrition } from "./dialog-nutrition";
+import { useSelectedPet } from "@/contexts/selectedPetContext";
+import { motion } from "framer-motion";
+import { Dog, Activity, Droplet, Scale, Target, Calendar } from "lucide-react";
 
 export default function Nutrition() {
   const [weight, setWeight] = useState(10);
   const [targetWeight, setTargetWeight] = useState(10);
   const [foodAmount, setFoodAmount] = useState(200);
-  const [activityLevel, setActivityLevel] = useState("Moderado");
+  const [activityLevel, setActivityLevel] = useState("moderate");
   const [foodType, setFoodType] = useState("dry");
   const [age, setAge] = useState(3);
 
-  // Datos simulados para el gráfico de peso
+  // Simulated weight data
   const weightData = [
     { date: "1 May", weight: 9.8 },
     { date: "8 May", weight: 9.9 },
@@ -47,14 +50,14 @@ export default function Nutrition() {
   ];
 
   const calculateRecommendedFood = () => {
-    const baseAmount = weight * 20; // 20g por kg de peso como base
+    const baseAmount = weight * 20;
     const activityMultiplier = {
       low: 0.8,
       moderate: 1,
       high: 1.2,
     };
     const ageMultiplier = age < 1 ? 1.2 : age > 7 ? 0.9 : 1;
-    const foodTypeMultiplier = foodType === "wet" ? 3 : 1; // La comida húmeda suele requerir más cantidad
+    const foodTypeMultiplier = foodType === "wet" ? 3 : 1;
 
     return Math.round(
       baseAmount *
@@ -97,10 +100,12 @@ export default function Nutrition() {
 
     return recommendations;
   };
+
   const [feedingLogs, setFeedingLogs] = useState([
     { time: "08:00", amount: 100 },
     { time: "18:00", amount: 100 },
   ]);
+
   const addFeedingLog = () => {
     const now = new Date();
     const time = now.toLocaleTimeString([], {
@@ -110,149 +115,222 @@ export default function Nutrition() {
     const newLog = { time, amount: foodAmount / 2 };
     setFeedingLogs([newLog, ...feedingLogs]);
   };
+
+  const { selectedPet } = useSelectedPet();
+
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-4 p-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>Monitoreo de nutrición canina</CardTitle>
-          <CardDescription>Mantén a tu perro saludable y feliz</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <h3 className="text-lg font-semibold mb-2">Resumen</h3>
-              <p>Peso actual: {weight} kg</p>
-              <p>Peso objetivo: {targetWeight} kg</p>
-              <p>Alimento diario recomendado: {foodAmount} g</p>
-              <p>Nivel de actividad: {activityLevel}</p>
-              <p>Tipo de alimento: {foodType === "dry" ? "Seco" : "Húmedo"}</p>
-              <p>Edad: {age} años</p>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-2">Gráfico de peso</h3>
-              <ResponsiveContainer width="100%" height={200}>
-                <LineChart data={weightData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis domain={["dataMin - 0.5", "dataMax + 0.5"]} />
-                  <Tooltip />
-                  <ReferenceLine
-                    y={targetWeight}
-                    stroke="red"
-                    strokeDasharray="3 3"
-                  />
-                  <Line type="monotone" dataKey="weight" stroke="#8884d8" />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Registro de alimentación</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {feedingLogs.map((log, index) => (
-              <div
-                key={index}
-                className="flex justify-between items-center py-2 border-b"
-              >
-                <span className="text-sm font-medium">{log.time}</span>
-                <span className="text-sm text-muted-foreground">
-                  {log.amount}g
-                </span>
+    <div className="w-full max-w-4xl mx-auto space-y-6 p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-primary text-primary-foreground">
+            <CardTitle className="text-2xl flex items-center gap-2">
+              <Dog className="w-6 h-6" />
+              Monitoreo de nutrición de {selectedPet?.name || "Ninguna"}
+            </CardTitle>
+            <CardDescription className="text-primary-foreground/80">
+              Mantén a tu perro saludable y feliz.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold mb-4">Resumen</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-center gap-2">
+                    <Scale className="w-5 h-5 text-primary" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Peso actual
+                      </p>
+                      <p className="font-medium">{weight} kg</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Target className="w-5 h-5 text-primary" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Peso recomendado
+                      </p>
+                      <p className="font-medium">{targetWeight} kg</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Droplet className="w-5 h-5 text-primary" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Alimento recomendado
+                      </p>
+                      <p className="font-medium">{foodAmount} g</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Activity className="w-5 h-5 text-primary" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Actividad recomendada
+                      </p>
+                      <p className="font-medium capitalize">{activityLevel}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
-            ))}
-          </div>
-        </CardContent>
-        <CardFooter>
-          <DialogNutrition />
-        </CardFooter>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Ajustes</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="grid w-full max-w-sm items-center gap-1.5">
-              <Label htmlFor="weight">Peso actual (kg)</Label>
-              <Input
-                type="number"
-                id="weight"
-                value={weight}
-                onChange={(e) => setWeight(parseFloat(e.target.value))}
-              />
+              <div>
+                <h3 className="text-xl font-semibold mb-4">Gráfico de peso</h3>
+                <ResponsiveContainer width="100%" height={200}>
+                  <LineChart data={weightData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis domain={["dataMin - 0.5", "dataMax + 0.5"]} />
+                    <Tooltip />
+                    <ReferenceLine
+                      y={targetWeight}
+                      stroke="red"
+                      strokeDasharray="3 3"
+                    />
+                    <Line type="monotone" dataKey="weight" stroke="#8884d8" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </div>
+          </CardContent>
+        </Card>
+      </motion.div>
 
-            <div className="grid w-full max-w-sm items-center gap-1.5">
-              <Label htmlFor="targetWeight">Peso objetivo (kg)</Label>
-              <Input
-                type="number"
-                id="targetWeight"
-                value={targetWeight}
-                onChange={(e) => setTargetWeight(parseFloat(e.target.value))}
-              />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="w-5 h-5" />
+              Registro de alimentación
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2 max-h-48 overflow-y-auto">
+              {feedingLogs.map((log, index) => (
+                <div
+                  key={index}
+                  className="flex justify-between items-center py-2 border-b"
+                >
+                  <span className="text-sm font-medium">{log.time}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {log.amount}g
+                  </span>
+                </div>
+              ))}
             </div>
+          </CardContent>
+          <CardFooter>
+            <DialogNutrition />
+          </CardFooter>
+        </Card>
+      </motion.div>
 
-            <div className="grid w-full max-w-sm items-center gap-1.5">
-              <Label htmlFor="age">Edad (años)</Label>
-              <Input
-                type="number"
-                id="age"
-                value={age}
-                onChange={(e) => setAge(parseInt(e.target.value))}
-              />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle>Ajustes</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="weight">Peso actual (kg)</Label>
+                <Input
+                  type="number"
+                  id="weight"
+                  value={weight}
+                  onChange={(e) => setWeight(parseFloat(e.target.value))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="targetWeight">Peso objetivo (kg)</Label>
+                <Input
+                  type="number"
+                  id="targetWeight"
+                  value={targetWeight}
+                  onChange={(e) => setTargetWeight(parseFloat(e.target.value))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="age">Edad (años)</Label>
+                <Input
+                  type="number"
+                  id="age"
+                  value={age}
+                  onChange={(e) => setAge(parseInt(e.target.value))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="activity">Nivel de actividad</Label>
+                <Select value={activityLevel} onValueChange={setActivityLevel}>
+                  <SelectTrigger id="activity">
+                    <SelectValue placeholder="Selecciona el nivel de actividad" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Bajo</SelectItem>
+                    <SelectItem value="moderate">Moderado</SelectItem>
+                    <SelectItem value="high">Alto</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="foodType">Tipo de alimento</Label>
+                <Select value={foodType} onValueChange={setFoodType}>
+                  <SelectTrigger id="foodType">
+                    <SelectValue placeholder="Selecciona el tipo de alimento" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="dry">Seco</SelectItem>
+                    <SelectItem value="wet">Húmedo</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
+          </CardContent>
+        </Card>
+      </motion.div>
 
-            <div className="grid w-full max-w-sm items-center gap-1.5">
-              <Label htmlFor="activity">Nivel de actividad</Label>
-              <Select value={activityLevel} onValueChange={setActivityLevel}>
-                <SelectTrigger id="activity">
-                  <SelectValue placeholder="Selecciona el nivel de actividad" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Bajo</SelectItem>
-                  <SelectItem value="moderate">Moderado</SelectItem>
-                  <SelectItem value="high">Alto</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid w-full max-w-sm items-center gap-1.5">
-              <Label htmlFor="foodType">Tipo de alimento</Label>
-              <Select value={foodType} onValueChange={setFoodType}>
-                <SelectTrigger id="foodType">
-                  <SelectValue placeholder="Selecciona el tipo de alimento" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="dry">Seco</SelectItem>
-                  <SelectItem value="wet">Húmedo</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Recomendaciones</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>
-            Basado en el peso actual, objetivo y nivel de actividad de tu perro:
-          </p>
-          <ul className="list-disc list-inside mt-2">
-            {getRecommendations().map((recommendation, index) => (
-              <li key={index}>{recommendation}</li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.6 }}
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="w-5 h-5" />
+              Recomendaciones
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-4">
+              Basado en el peso actual, objetivo y nivel de actividad de tu
+              perro:
+            </p>
+            <ul className="space-y-2">
+              {getRecommendations().map((recommendation, index) => (
+                <li key={index} className="flex items-start gap-2">
+                  <div className="mt-1 bg-primary rounded-full p-1">
+                    <Activity className="w-4 h-4 text-primary-foreground" />
+                  </div>
+                  <span>{recommendation}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   );
 }

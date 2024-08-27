@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle, Edit, Trash2 } from "lucide-react";
+import { AlertCircle, Dog, Edit, Trash2 } from "lucide-react";
 import {
   LineChart,
   Line,
@@ -22,6 +22,8 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { useSelectedPet } from "@/contexts/selectedPetContext";
+import { motion } from "framer-motion";
 
 export default function Medical() {
   const [dogInfo, setDogInfo] = useState({
@@ -153,128 +155,143 @@ export default function Medical() {
       </ul>
     </ScrollArea>
   );
-
+  const { selectedPet } = useSelectedPet();
   return (
     <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader>
-        <CardTitle>Historial médico de Teddy</CardTitle>
-        <CardDescription>
-          Raza: Chow Chow | Edad: {dogInfo.age} años | Peso actual:{" "}
-          {dogInfo.weight} kg
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="vacunas" className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="vacunas">Vacunas</TabsTrigger>
-            <TabsTrigger value="medicamentos">Medicamentos</TabsTrigger>
-            <TabsTrigger value="alergias">Alergias</TabsTrigger>
-            <TabsTrigger value="enfermedades">Enfermedades</TabsTrigger>
-            <TabsTrigger value="citas">Citas</TabsTrigger>
-            <TabsTrigger value="weight">Peso</TabsTrigger>
-          </TabsList>
-          {Object.entries(medicalRecords).map(([category, items]) => {
-            if (category === "weightHistory" || category === "notes")
-              return null;
-            return (
-              <TabsContent key={category} value={category}>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>
-                      {category.charAt(0).toUpperCase() + category.slice(1)}
-                    </CardTitle>
-                    <CardDescription>
-                      Historial de {category} de {dogInfo.name}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {renderList(category, items)}
-                    <div className="flex space-x-2">
-                      <div className="grid w-full max-w-sm items-center gap-1.5">
-                        <Label htmlFor={`new-${category}`}>
-                          Nuevo {category.slice(0, -1)}
-                        </Label>
-                        <Input
-                          type="text"
-                          id={`new-${category}`}
-                          value={newItem}
-                          onChange={(e) => setNewItem(e.target.value)}
-                          placeholder={`Agregar nueva ${category.slice(
-                            0,
-                            -1
-                          )}...`}
-                        />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Card>
+          <CardHeader className="bg-primary text-primary-foreground">
+            <CardTitle className="text-2xl flex items-center gap-2">
+              <Dog className="w-6 h-6" />
+              Historial médico de {selectedPet?.name || "Ninguna"}
+            </CardTitle>
+            <CardDescription className="text-primary-foreground/80">
+              Raza: Chow Chow | Edad: {dogInfo.age} años | Peso actual:{" "}
+              {dogInfo.weight} kg
+            </CardDescription>
+          </CardHeader>
+        </Card>
+        <CardContent className="p-6">
+          <Tabs defaultValue="vacunas" className="w-full">
+            <TabsList className="grid w-full grid-cols-6">
+              <TabsTrigger value="vacunas">Vacunas</TabsTrigger>
+              <TabsTrigger value="medicamentos">Medicamentos</TabsTrigger>
+              <TabsTrigger value="alergias">Alergias</TabsTrigger>
+              <TabsTrigger value="enfermedades">Enfermedades</TabsTrigger>
+              <TabsTrigger value="citas">Citas</TabsTrigger>
+              <TabsTrigger value="weight">Peso</TabsTrigger>
+            </TabsList>
+            {Object.entries(medicalRecords).map(([category, items]) => {
+              if (category === "weightHistory" || category === "notes")
+                return null;
+              return (
+                <TabsContent key={category} value={category}>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>
+                        {category.charAt(0).toUpperCase() + category.slice(1)}
+                      </CardTitle>
+                      <CardDescription>
+                        Historial de {category} de {dogInfo.name}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {renderList(category, items)}
+                      <div className="flex space-x-2">
+                        <div className="grid w-full max-w-sm items-center gap-1.5">
+                          <Label htmlFor={`new-${category}`}>
+                            Nuevo {category.slice(0, -1)}
+                          </Label>
+                          <Input
+                            type="text"
+                            id={`new-${category}`}
+                            value={newItem}
+                            onChange={(e) => setNewItem(e.target.value)}
+                            placeholder={`Agregar nueva ${category.slice(
+                              0,
+                              -1
+                            )}...`}
+                          />
+                        </div>
+                        <Button
+                          className="mt-auto"
+                          onClick={() => addItem(category)}
+                        >
+                          Agregar
+                        </Button>
                       </div>
-                      <Button
-                        className="mt-auto"
-                        onClick={() => addItem(category)}
-                      >
-                        Agregar
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            );
-          })}
-          <TabsContent value="weight">
-            <Card>
-              <CardHeader>
-                <CardTitle>Historial de peso</CardTitle>
-                <CardDescription>
-                  Seguimiento del peso de {dogInfo.name}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[300px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={medicalRecords.weightHistory}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
-                      <Tooltip />
-                      <Line type="monotone" dataKey="weight" stroke="#8884d8" />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>Notas generales</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Textarea
-              value={medicalRecords.notes}
-              onChange={(e) =>
-                setMedicalRecords((prev) => ({
-                  ...prev,
-                  notes: e.target.value,
-                }))
-              }
-              placeholder="Agregar notas o observaciones generales..."
-            />
-          </CardContent>
-        </Card>
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>Información del veterinario</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>
-              <strong>Nombre:</strong> {vetInfo.name}
-            </p>
-            <p>
-              <strong>Teléfono:</strong> {vetInfo.phone}
-            </p>
-            <p>
-              <strong>Email:</strong> {vetInfo.email}
-            </p>
-          </CardContent>
-        </Card>
-      </CardContent>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              );
+            })}
+            <TabsContent value="weight">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Historial de peso</CardTitle>
+                  <CardDescription>
+                    Seguimiento del peso de {dogInfo.name}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[300px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={medicalRecords.weightHistory}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" />
+                        <YAxis />
+                        <Tooltip />
+                        <Line
+                          type="monotone"
+                          dataKey="weight"
+                          stroke="#8884d8"
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>Notas generales</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Textarea
+                value={medicalRecords.notes}
+                onChange={(e) =>
+                  setMedicalRecords((prev) => ({
+                    ...prev,
+                    notes: e.target.value,
+                  }))
+                }
+                placeholder="Agregar notas o observaciones generales..."
+              />
+            </CardContent>
+          </Card>
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>Información del veterinario</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>
+                <strong>Nombre:</strong> {vetInfo.name}
+              </p>
+              <p>
+                <strong>Teléfono:</strong> {vetInfo.phone}
+              </p>
+              <p>
+                <strong>Email:</strong> {vetInfo.email}
+              </p>
+            </CardContent>
+          </Card>
+        </CardContent>
+      </motion.div>
     </Card>
   );
 }
