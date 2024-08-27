@@ -129,73 +129,88 @@ export default function Nutrition() {
           <CardHeader className="bg-primary text-primary-foreground">
             <CardTitle className="text-2xl flex items-center gap-2">
               <Dog className="w-6 h-6" />
-              Monitoreo de nutrición de {selectedPet?.name || "Ninguna"}
+              {selectedPet
+                ? `Monitoreo de nutrición de ${selectedPet.name}`
+                : "Monitoreo de nutrición"}
             </CardTitle>
             <CardDescription className="text-primary-foreground/80">
               Mantén a tu perro saludable y feliz.
             </CardDescription>
           </CardHeader>
           <CardContent className="p-6">
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="space-y-4">
-                <h3 className="text-xl font-semibold mb-4">Resumen</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex items-center gap-2">
-                    <Scale className="w-5 h-5 text-primary" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        Peso actual
-                      </p>
-                      <p className="font-medium">{weight} kg</p>
+            {!selectedPet ? (
+              <p className="text-center text-gray-500">
+                Por favor, selecciona una mascota para ver los detalles de
+                nutrición.
+              </p>
+            ) : (
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold mb-4">Resumen</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex items-center gap-2">
+                      <Scale className="w-5 h-5 text-primary" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">
+                          Peso actual
+                        </p>
+                        <p className="font-medium">
+                          {selectedPet?.weight || "Ninguna"} kg
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Target className="w-5 h-5 text-primary" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        Peso recomendado
-                      </p>
-                      <p className="font-medium">{targetWeight} kg</p>
+                    <div className="flex items-center gap-2">
+                      <Target className="w-5 h-5 text-primary" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">
+                          Peso recomendado
+                        </p>
+                        <p className="font-medium">{targetWeight} kg</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Droplet className="w-5 h-5 text-primary" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        Alimento recomendado
-                      </p>
-                      <p className="font-medium">{foodAmount} g</p>
+                    <div className="flex items-center gap-2">
+                      <Droplet className="w-5 h-5 text-primary" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">
+                          Alimento recomendado
+                        </p>
+                        <p className="font-medium">{foodAmount} g</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Activity className="w-5 h-5 text-primary" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        Actividad recomendada
-                      </p>
-                      <p className="font-medium capitalize">{activityLevel}</p>
+                    <div className="flex items-center gap-2">
+                      <Activity className="w-5 h-5 text-primary" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">
+                          Actividad recomendada
+                        </p>
+                        <p className="font-medium capitalize">
+                          {activityLevel}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
+                <div>
+                  <h3 className="text-xl font-semibold mb-4">
+                    Gráfico de peso
+                  </h3>
+                  <ResponsiveContainer width="100%" height={200}>
+                    <LineChart data={weightData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis domain={["dataMin - 0.5", "dataMax + 0.5"]} />
+                      <Tooltip />
+                      <ReferenceLine
+                        y={targetWeight}
+                        stroke="red"
+                        strokeDasharray="3 3"
+                      />
+                      <Line type="monotone" dataKey="weight" stroke="#8884d8" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
-              <div>
-                <h3 className="text-xl font-semibold mb-4">Gráfico de peso</h3>
-                <ResponsiveContainer width="100%" height={200}>
-                  <LineChart data={weightData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis domain={["dataMin - 0.5", "dataMax + 0.5"]} />
-                    <Tooltip />
-                    <ReferenceLine
-                      y={targetWeight}
-                      stroke="red"
-                      strokeDasharray="3 3"
-                    />
-                    <Line type="monotone" dataKey="weight" stroke="#8884d8" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
+            )}
           </CardContent>
         </Card>
       </motion.div>
@@ -205,32 +220,35 @@ export default function Nutrition() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
       >
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="w-5 h-5" />
-              Registro de alimentación
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2 max-h-48 overflow-y-auto">
-              {feedingLogs.map((log, index) => (
-                <div
-                  key={index}
-                  className="flex justify-between items-center py-2 border-b"
-                >
-                  <span className="text-sm font-medium">{log.time}</span>
-                  <span className="text-sm text-muted-foreground">
-                    {log.amount}g
-                  </span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-          <CardFooter>
-            <DialogNutrition />
-          </CardFooter>
-        </Card>
+        {" "}
+        {selectedPet && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="w-5 h-5" />
+                Registro de alimentación
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {feedingLogs.map((log, index) => (
+                  <div
+                    key={index}
+                    className="flex justify-between items-center py-2 border-b"
+                  >
+                    <span className="text-sm font-medium">{log.time}</span>
+                    <span className="text-sm text-muted-foreground">
+                      {log.amount}g
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+            <CardFooter>
+              <DialogNutrition />
+            </CardFooter>
+          </Card>
+        )}
       </motion.div>
 
       <motion.div
@@ -238,98 +256,106 @@ export default function Nutrition() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.4 }}
       >
-        <Card>
-          <CardHeader>
-            <CardTitle>Ajustes</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="weight">Peso actual (kg)</Label>
-                <Input
-                  type="number"
-                  id="weight"
-                  value={weight}
-                  onChange={(e) => setWeight(parseFloat(e.target.value))}
-                />
+        {selectedPet && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Ajustes</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="weight">Peso actual (kg)</Label>
+                  <Input
+                    type="number"
+                    id="weight"
+                    value={weight}
+                    onChange={(e) => setWeight(parseFloat(e.target.value))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="targetWeight">Peso objetivo (kg)</Label>
+                  <Input
+                    type="number"
+                    id="targetWeight"
+                    value={targetWeight}
+                    onChange={(e) =>
+                      setTargetWeight(parseFloat(e.target.value))
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="age">Edad (años)</Label>
+                  <Input
+                    type="number"
+                    id="age"
+                    value={age}
+                    onChange={(e) => setAge(parseInt(e.target.value))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="activity">Nivel de actividad</Label>
+                  <Select
+                    value={activityLevel}
+                    onValueChange={setActivityLevel}
+                  >
+                    <SelectTrigger id="activity">
+                      <SelectValue placeholder="Selecciona el nivel de actividad" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Bajo</SelectItem>
+                      <SelectItem value="moderate">Moderado</SelectItem>
+                      <SelectItem value="high">Alto</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="foodType">Tipo de alimento</Label>
+                  <Select value={foodType} onValueChange={setFoodType}>
+                    <SelectTrigger id="foodType">
+                      <SelectValue placeholder="Selecciona el tipo de alimento" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="dry">Seco</SelectItem>
+                      <SelectItem value="wet">Húmedo</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="targetWeight">Peso objetivo (kg)</Label>
-                <Input
-                  type="number"
-                  id="targetWeight"
-                  value={targetWeight}
-                  onChange={(e) => setTargetWeight(parseFloat(e.target.value))}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="age">Edad (años)</Label>
-                <Input
-                  type="number"
-                  id="age"
-                  value={age}
-                  onChange={(e) => setAge(parseInt(e.target.value))}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="activity">Nivel de actividad</Label>
-                <Select value={activityLevel} onValueChange={setActivityLevel}>
-                  <SelectTrigger id="activity">
-                    <SelectValue placeholder="Selecciona el nivel de actividad" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="low">Bajo</SelectItem>
-                    <SelectItem value="moderate">Moderado</SelectItem>
-                    <SelectItem value="high">Alto</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="foodType">Tipo de alimento</Label>
-                <Select value={foodType} onValueChange={setFoodType}>
-                  <SelectTrigger id="foodType">
-                    <SelectValue placeholder="Selecciona el tipo de alimento" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="dry">Seco</SelectItem>
-                    <SelectItem value="wet">Húmedo</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
       </motion.div>
-
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.6 }}
       >
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="w-5 h-5" />
-              Recomendaciones
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="mb-4">
-              Basado en el peso actual, objetivo y nivel de actividad de tu
-              perro:
-            </p>
-            <ul className="space-y-2">
-              {getRecommendations().map((recommendation, index) => (
-                <li key={index} className="flex items-start gap-2">
-                  <div className="mt-1 bg-primary rounded-full p-1">
-                    <Activity className="w-4 h-4 text-primary-foreground" />
-                  </div>
-                  <span>{recommendation}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
+        {selectedPet && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="w-5 h-5" />
+                Recomendaciones
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">
+                Basado en el peso actual, objetivo y nivel de actividad de tu
+                perro:
+              </p>
+              <ul className="space-y-2">
+                {getRecommendations().map((recommendation, index) => (
+                  <li key={index} className="flex items-start gap-2">
+                    <div className="mt-1 bg-primary rounded-full p-1">
+                      <Activity className="w-4 h-4 text-primary-foreground" />
+                    </div>
+                    <span>{recommendation}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        )}
       </motion.div>
     </div>
   );

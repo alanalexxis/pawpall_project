@@ -167,11 +167,14 @@ export default function Medical() {
           <CardHeader className="bg-primary text-primary-foreground">
             <CardTitle className="text-2xl flex items-center gap-2">
               <Dog className="w-6 h-6" />
-              Historial médico de {selectedPet?.name || "Ninguna"}
+              {selectedPet
+                ? `Historial médico de ${selectedPet.name}`
+                : "Historial médico"}
             </CardTitle>
             <CardDescription className="text-primary-foreground/80">
-              Raza: Chow Chow | Edad: {dogInfo.age} años | Peso actual:{" "}
-              {dogInfo.weight} kg
+              {selectedPet
+                ? `Raza: Chow Chow | Edad: ${dogInfo.age} años | Peso actual: ${dogInfo.weight} kg`
+                : " Mantén a tu perro saludable y feliz."}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -190,106 +193,147 @@ export default function Medical() {
                 return null;
               return (
                 <TabsContent key={category} value={category}>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>
-                        {category.charAt(0).toUpperCase() + category.slice(1)}
-                      </CardTitle>
-                      <CardDescription>
-                        Historial de {category} de {dogInfo.name}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {renderList(category, items)}
-                      <div className="flex space-x-2">
-                        <div className="grid w-full max-w-sm items-center gap-1.5">
-                          <Label htmlFor={`new-${category}`}>
-                            Nuevo {category.slice(0, -1)}
-                          </Label>
-                          <Input
-                            type="text"
-                            id={`new-${category}`}
-                            value={newItem}
-                            onChange={(e) => setNewItem(e.target.value)}
-                            placeholder={`Agregar nueva ${category.slice(
-                              0,
-                              -1
-                            )}...`}
-                          />
-                        </div>
-                        <Button
-                          className="mt-auto"
-                          onClick={() => addItem(category)}
-                        >
-                          Agregar
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                  >
+                    <Card>
+                      {!selectedPet ? (
+                        <p className="text-center text-gray-500">
+                          Por favor, selecciona una mascota para ver los
+                          detalles.
+                        </p>
+                      ) : (
+                        <>
+                          <CardHeader>
+                            <CardTitle>
+                              {category.charAt(0).toUpperCase() +
+                                category.slice(1)}
+                            </CardTitle>
+                            <CardDescription>
+                              Historial de {category} de {dogInfo.name}
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent className="space-y-4">
+                            {renderList(category, items)}
+                            <div className="flex space-x-2">
+                              <div className="grid w-full max-w-sm items-center gap-1.5">
+                                <Label htmlFor={`new-${category}`}>
+                                  Nuevo {category.slice(0, -1)}
+                                </Label>
+                                <Input
+                                  type="text"
+                                  id={`new-${category}`}
+                                  value={newItem}
+                                  onChange={(e) => setNewItem(e.target.value)}
+                                  placeholder={`Agregar nueva ${category.slice(
+                                    0,
+                                    -1
+                                  )}...`}
+                                />
+                              </div>
+                              <Button
+                                className="mt-auto"
+                                onClick={() => addItem(category)}
+                              >
+                                Agregar
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </>
+                      )}
+                    </Card>
+                  </motion.div>
                 </TabsContent>
               );
             })}
             <TabsContent value="weight">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Historial de peso</CardTitle>
-                  <CardDescription>
-                    Seguimiento del peso de {dogInfo.name}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-[300px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={medicalRecords.weightHistory}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="date" />
-                        <YAxis />
-                        <Tooltip />
-                        <Line
-                          type="monotone"
-                          dataKey="weight"
-                          stroke="#8884d8"
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-                </CardContent>
-              </Card>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                {" "}
+                {selectedPet && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Historial de peso</CardTitle>
+                      <CardDescription>
+                        Seguimiento del peso de {dogInfo.name}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="h-[300px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={medicalRecords.weightHistory}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="date" />
+                            <YAxis />
+                            <Tooltip />
+                            <Line
+                              type="monotone"
+                              dataKey="weight"
+                              stroke="#8884d8"
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </motion.div>
             </TabsContent>
           </Tabs>
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle>Notas generales</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Textarea
-                value={medicalRecords.notes}
-                onChange={(e) =>
-                  setMedicalRecords((prev) => ({
-                    ...prev,
-                    notes: e.target.value,
-                  }))
-                }
-                placeholder="Agregar notas o observaciones generales..."
-              />
-            </CardContent>
-          </Card>
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle>Información del veterinario</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>
-                <strong>Nombre:</strong> {vetInfo.name}
-              </p>
-              <p>
-                <strong>Teléfono:</strong> {vetInfo.phone}
-              </p>
-              <p>
-                <strong>Email:</strong> {vetInfo.email}
-              </p>
-            </CardContent>
-          </Card>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            {selectedPet && (
+              <Card className="mt-6">
+                <CardHeader>
+                  <CardTitle>Notas generales</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Textarea
+                    value={medicalRecords.notes}
+                    onChange={(e) =>
+                      setMedicalRecords((prev) => ({
+                        ...prev,
+                        notes: e.target.value,
+                      }))
+                    }
+                    placeholder="Agregar notas o observaciones generales..."
+                  />
+                </CardContent>
+              </Card>
+            )}
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+          >
+            {selectedPet && (
+              <Card className="mt-6">
+                <CardHeader>
+                  <CardTitle>Información del veterinario</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p>
+                    <strong>Nombre:</strong> {vetInfo.name}
+                  </p>
+                  <p>
+                    <strong>Teléfono:</strong> {vetInfo.phone}
+                  </p>
+                  <p>
+                    <strong>Email:</strong> {vetInfo.email}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </motion.div>
         </CardContent>
       </motion.div>
     </Card>
