@@ -22,15 +22,18 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Appointment from "../appointments/appointment";
+import { useSelectedPet } from "@/contexts/selectedPetContext";
 
 export default function CareGeneral() {
   const [weight, setWeight] = useState(15);
   const [foodAmount, setFoodAmount] = useState(200);
   const [exerciseMinutes, setExerciseMinutes] = useState(30);
-
+  const { selectedPet } = useSelectedPet();
   return (
     <div className="max-w-4xl mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Monitor de salud de</h1>
+      <h1 className="text-3xl font-bold mb-6">
+        Monitor de salud de {selectedPet?.name || "Ninguna"}
+      </h1>
 
       <Card className="mb-6">
         <CardHeader>

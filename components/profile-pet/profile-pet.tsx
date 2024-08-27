@@ -22,6 +22,7 @@ import { differenceInYears, differenceInMonths } from "date-fns";
 import { createClient } from "@/utils/supabase/client";
 import { DialogEdit } from "./dialog-edit";
 import Link from "next/link";
+import { useSelectedPet } from "@/contexts/selectedPetContext";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,9 +37,10 @@ import {
 import { toast } from "../ui/use-toast";
 
 export default function ProfilePet() {
+  const { selectedPet, setSelectedPet } = useSelectedPet();
   const supabase = createClient();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedPet, setSelectedPet] = useState(null);
+
   const [selectedPett, setSelectedPett] = useState(null);
   const [pets, setPets] = useState([]);
   const [isPetsUpdated, setIsPetsUpdated] = useState(false);

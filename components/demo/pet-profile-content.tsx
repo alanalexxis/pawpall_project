@@ -1,7 +1,7 @@
 import { Card, CardContent } from "../ui/card";
 import ProfilePet from "../profile-pet/profile-pet";
 
-export default async function PetPro() {
+export default function PetPro() {
   return (
     <Card className="rounded-lg border-none mt-6">
       <CardContent className="p-6">

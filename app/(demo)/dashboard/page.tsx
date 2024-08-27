@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 
 import { ContentLayout } from "@/components/admin-panel/content-layout";
@@ -10,7 +11,6 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import CareGeneral from "@/components/care/general";
-import Appointment from "@/components/appointments/appointment";
 
 export default function DashboardPage() {
   return (
