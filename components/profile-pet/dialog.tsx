@@ -50,6 +50,7 @@ const petSchema = z.object({
   }), // Agrega validación para el género
   razaId: z.string().optional(), // Agrega validación para el ID de la raza
   tags: z.array(z.object({ id: z.string(), text: z.string() })).optional(), // Asegúrate de que 'tags' esté definido aquí
+  weight: z.number().min(0, "El peso debe ser un número positivo"), // Agrega validación para el peso
 });
 export function DialogDemo({ onPetAdded }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -67,7 +68,8 @@ export function DialogDemo({ onPetAdded }) {
   );
   const [selectedRazaId, setSelectedRazaId] = useState<string | null>(null);
   const [gender, setGender] = useState(""); // Valor predeterminado "male" o "female"
-  const [petName, setPetName] = useState(""); // Estado para el nombre de la mascota
+  const [petName, setPetName] = useState("");
+  const [petWeight, setPetWeight] = useState(0); // Estado para el nombre de la mascota
   const [imagePath, setImagePath] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<string | null>(null);
@@ -86,6 +88,7 @@ export function DialogDemo({ onPetAdded }) {
       razaId: selectedRazaId, // Incluye el ID de la raza seleccionada
       profile_id: user.id, // Incluye el ID del usuario
       tags: tagsJson, // Include tags in the data
+      weight: petWeight, // Incluye el peso aquí
     });
 
     if (!result.success) {
@@ -106,6 +109,7 @@ export function DialogDemo({ onPetAdded }) {
         profile_id: user.id, // Incluye el ID del usuario
         tags: result.data.tags, // Insert the tags JSON directly
         image_url: imagePath, // Usa la ruta de la imagen subida
+        weight: result.data.weight, // Agrega el peso en la inserción
       },
     ]);
 
@@ -130,6 +134,7 @@ export function DialogDemo({ onPetAdded }) {
       setDescription(""); // Limpiar la descripción después de la inserción
       setIsDialogOpen(false); // Cierra el diálogo después de mostrar el toast
       setIsOwner(true);
+      setPetWeight(0);
     }
   };
 
@@ -265,6 +270,24 @@ export function DialogDemo({ onPetAdded }) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Añade una descripcion de tu mascota."
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="weight">Peso de la mascota</Label>
+            <Input
+              id="weight"
+              type="number"
+              placeholder="Ingrese un peso"
+              value={petWeight}
+              onChange={(e) => {
+                // Convierte el valor de entrada a número antes de actualizar el estado
+                const value = parseFloat(e.target.value);
+                if (!isNaN(value)) {
+                  setPetWeight(value);
+                }
+              }}
+              min="0" // Opcional: Asegura que el valor sea un número positivo
+              step="0.1" // Opcional: Permite valores decimales
             />
           </div>
           <div className="space-y-2">

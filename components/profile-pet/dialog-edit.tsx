@@ -66,7 +66,7 @@ export function DialogEdit({ pet }) {
   const [gender, setGender] = useState(""); // Valor predeterminado "male" o "female"
   const [petName, setPetName] = useState(""); // Estado para el nombre de la mascota
   const [imagePath, setImagePath] = useState<string | null>(null);
-
+  const [petWeight, setPetWeight] = useState(0);
   useEffect(() => {
     if (pet) {
       setPetName(pet.name);
@@ -78,6 +78,7 @@ export function DialogEdit({ pet }) {
       setSelectedRazaId(pet.breed_id);
       setTags(pet.tags || []);
       setImagePath(pet.image_url || null);
+      setPetWeight(pet.weight); // Incluye el peso en el estado local
     }
   }, [pet]);
 
@@ -100,6 +101,7 @@ export function DialogEdit({ pet }) {
       razaId: selectedRazaId,
       profile_id: user.id,
       tags: tagsJson,
+      weight: petWeight, // Incluye el peso aquí
     });
 
     if (!result.success) {
@@ -120,6 +122,7 @@ export function DialogEdit({ pet }) {
         profile_id: user.id,
         tags: result.data.tags,
         image_url: imagePath,
+        weight: result.data.weight, // Agrega el peso en la inserción
       })
       .eq("id", pet.id);
 
@@ -258,6 +261,24 @@ export function DialogEdit({ pet }) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Añade una descripcion de tu mascota."
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="weight">Peso de la mascota</Label>
+            <Input
+              id="weight"
+              type="number"
+              placeholder="Ingrese un peso"
+              value={petWeight}
+              onChange={(e) => {
+                // Convierte el valor de entrada a número antes de actualizar el estado
+                const value = parseFloat(e.target.value);
+                if (!isNaN(value)) {
+                  setPetWeight(value);
+                }
+              }}
+              min="0" // Opcional: Asegura que el valor sea un número positivo
+              step="0.1" // Opcional: Permite valores decimales
             />
           </div>
           <div className="space-y-2">
