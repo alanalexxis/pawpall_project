@@ -32,6 +32,8 @@ import {
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
+import { TimePickerDemo } from "./time-picker";
+import { es } from "date-fns/locale";
 
 const formSchema = z.object({
   petName: z.string().min(2, {
@@ -85,7 +87,7 @@ export default function Appointment() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Programar Nueva Cita</DialogTitle>
+          <DialogTitle>Programar nueva cita</DialogTitle>
           <DialogDescription>
             Complete el formulario para programar una nueva cita veterinaria.
           </DialogDescription>
@@ -120,46 +122,46 @@ export default function Appointment() {
             />
             <FormField
               control={form.control}
-              name="date"
+              name="dateTime"
               render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Fecha de la cita</FormLabel>
+                <FormItem>
+                  <FormLabel>Seleccione una fecha</FormLabel>
                   <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
+                    <FormControl>
+                      <PopoverTrigger asChild>
                         <Button
-                          variant={"outline"}
+                          variant="outline"
                           className={cn(
-                            "w-full pl-3 text-left font-normal",
+                            "w-full justify-start text-left font-normal",
                             !field.value && "text-muted-foreground"
                           )}
                         >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+
                           {field.value ? (
-                            format(field.value, "PPP")
+                            format(field.value, "PPP HH:mm:ss", { locale: es })
                           ) : (
-                            <span>Seleccione una fecha</span>
+                            <span>Selecciona una fecha</span>
                           )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+                      </PopoverTrigger>
+                    </FormControl>
+                    <PopoverContent className="w-auto p-0">
                       <Calendar
                         mode="single"
                         selected={field.value}
                         onSelect={field.onChange}
-                        disabled={(date) =>
-                          date < new Date() ||
-                          date >
-                            new Date(
-                              new Date().setMonth(new Date().getMonth() + 2)
-                            )
-                        }
                         initialFocus
+                        locale={es}
                       />
+                      <div className="p-3 border-t border-border">
+                        <TimePickerDemo
+                          setDate={field.onChange}
+                          date={field.value}
+                        />
+                      </div>
                     </PopoverContent>
                   </Popover>
-                  <FormMessage />
                 </FormItem>
               )}
             />
