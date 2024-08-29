@@ -45,7 +45,6 @@ import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 export default function Nutrition() {
   const [weight, setWeight] = useState(10);
   const [targetWeight, setTargetWeight] = useState(10);
-  const [foodAmount, setFoodAmount] = useState(200);
 
   const [foodType, setFoodType] = useState("dry");
   const [age, setAge] = useState(3);
@@ -58,24 +57,6 @@ export default function Nutrition() {
     { date: "22 May", weight: 10.1 },
     { date: "29 May", weight: 10 },
   ];
-
-  const calculateRecommendedFood = () => {
-    const baseAmount = weight * 20;
-    const activityMultiplier = {
-      low: 0.8,
-      moderate: 1,
-      high: 1.2,
-    };
-    const ageMultiplier = age < 1 ? 1.2 : age > 7 ? 0.9 : 1;
-    const foodTypeMultiplier = foodType === "wet" ? 3 : 1;
-
-    return Math.round(
-      baseAmount *
-        activityMultiplier[activityLevel] *
-        ageMultiplier *
-        foodTypeMultiplier
-    );
-  };
 
   const getWeightStatus = () => {
     const diff = weight - targetWeight;
@@ -222,6 +203,44 @@ export default function Nutrition() {
         idealWeight.maxWeightCurrent
       )
     : null;
+
+  const calculateFoodAmount = (selectedPet, idealWeight) => {
+    if (!selectedPet) return null;
+
+    const { weight, birthdate } = selectedPet;
+
+    // Paso 1: Calcula la edad en meses
+    const birthDate = new Date(birthdate);
+    const currentDate = new Date();
+    const ageInMonths =
+      (currentDate.getFullYear() - birthDate.getFullYear()) * 12 +
+      currentDate.getMonth() -
+      birthDate.getMonth();
+
+    // Paso 2: Determina el porcentaje basado en la edad
+    const foodPercentage = ageInMonths < 12 ? 0.05 : 0.03; // 5% para cachorros menores de 12 meses, 3% para adultos
+
+    // Paso 3: Calcula la cantidad base de comida en gramos
+    const baseFoodAmount = weight * foodPercentage * 1000; // Convertir de kg a gramos
+
+    // Paso 4: Ajusta la cantidad de comida basada en el peso en relación al peso ideal
+    const { minWeightCurrent, maxWeightCurrent } = idealWeight;
+    let adjustedFoodAmount = baseFoodAmount;
+
+    if (weight < minWeightCurrent) {
+      // Aumentar la cantidad si está por debajo del peso ideal
+      adjustedFoodAmount *= 1.2; // Ajusta el factor según necesidad
+    } else if (weight > maxWeightCurrent) {
+      // Reducir la cantidad si está por encima del peso ideal
+      adjustedFoodAmount *= 0.7; // Ajusta el factor según necesidad
+    }
+
+    // Retorna la cantidad ajustada en gramos, redondeado a dos decimales
+    return adjustedFoodAmount.toFixed(2);
+  };
+
+  const foodAmount = calculateFoodAmount(selectedPet, idealWeight);
+
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 p-4">
       <motion.div
@@ -302,8 +321,8 @@ export default function Nutrition() {
                           Peso recomendado
                         </p>
                         <p className="font-medium">
-                          {idealWeight.minWeightCurrent.toFixed(2)} kg y{" "}
-                          {idealWeight.maxWeightCurrent.toFixed(2)} kg
+                          {idealWeight.minWeightCurrent} kg y{" "}
+                          {idealWeight.maxWeightCurrent} kg
                         </p>
                       </div>
                     </div>
@@ -314,7 +333,7 @@ export default function Nutrition() {
                         <p className="text-sm text-muted-foreground">
                           Alimento recomendado
                         </p>
-                        <p className="font-medium"> g</p>
+                        <p className="font-medium"> {foodAmount} gramos</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
