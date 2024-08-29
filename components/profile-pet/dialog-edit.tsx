@@ -253,7 +253,8 @@ export function DialogEdit({ pet }) {
           <div className="space-y-2">
             <SearchBarPets
               onRazaSelect={(razaId) => setSelectedRazaId(razaId)}
-            />{" "}
+              selectedRazaId={selectedRazaId} // Asegúrate de pasar el valor correcto
+            />
           </div>
 
           <div className="space-y-2">

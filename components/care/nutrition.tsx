@@ -205,13 +205,13 @@ export default function Nutrition() {
     maxWeightCurrent
   ) => {
     if (weight < minWeightCurrent) {
-      return "bajo";
+      return "Bajo";
     } else if (weight >= minWeightCurrent && weight <= maxWeightCurrent) {
-      return "normal";
+      return "Normal";
     } else if (weight > maxWeightCurrent && weight <= maxWeightCurrent * 1.2) {
-      return "alto";
+      return "Alto";
     } else {
-      return "muy alto";
+      return "Muy alto";
     }
   };
 
