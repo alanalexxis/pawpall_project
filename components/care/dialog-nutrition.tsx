@@ -67,10 +67,7 @@ export const DialogNutrition = ({ feedingLogs, setFeedingLogs }) => {
         // Formatear los registros para el componente
         const formattedLogs = updatedLogs.map((log) => ({
           id: log.id,
-          time: new Date(log.created_at).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
+          time: new Date(log.created_at), // Convierte la cadena a un objeto Date
           amount: log.food_amount,
           type: log.food_type,
         }));
@@ -122,6 +119,15 @@ export const DialogNutrition = ({ feedingLogs, setFeedingLogs }) => {
                     <SelectLabel>Tipo de alimentación</SelectLabel>
                     <SelectItem value="Seca">Seca</SelectItem>
                     <SelectItem value="Húmeda">Húmeda</SelectItem>
+                    <SelectItem value="Semi-Húmeda">Semi-Húmeda</SelectItem>
+                    <SelectItem value="Natural">Natural</SelectItem>
+                    <SelectItem value="Carne">Carne</SelectItem>
+                    <SelectItem value="Pescado">Pescado</SelectItem>
+                    <SelectItem value="Pollo">Pollo</SelectItem>
+                    <SelectItem value="Grano">Grano</SelectItem>
+                    <SelectItem value="Vegetal">Vegetal</SelectItem>
+                    <SelectItem value="Fruta">Fruta</SelectItem>
+                    <SelectItem value="Suplemento">Suplemento</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>

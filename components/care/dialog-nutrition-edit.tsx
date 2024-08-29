@@ -85,10 +85,7 @@ export const DialogNutritionEdit = ({
       } else {
         const formattedLogs = updatedLogs.map((log) => ({
           id: log.id,
-          time: new Date(log.created_at).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
+          time: new Date(log.created_at), // Convierte la cadena a un objeto Date
           amount: log.food_amount,
           type: log.food_type,
         }));

@@ -7,15 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   LineChart,
   Line,
@@ -56,11 +47,10 @@ import {
 } from "../ui/alert-dialog";
 import { toast } from "../ui/use-toast";
 import { DialogNutritionEdit } from "./dialog-nutrition-edit";
-
+import { Progress } from "@/components/ui/progress";
 export default function Nutrition() {
   const supabase = createClient();
   const [feedingLogs, setFeedingLogs] = useState([]);
-  const [weight, setWeight] = useState(10);
   const [targetWeight, setTargetWeight] = useState(10);
   const [isAlertOpen, setIsAlertOpen] = useState(false); // Estado para el modal
   const [selectedLog, setSelectedLog] = useState(null);
@@ -76,6 +66,7 @@ export default function Nutrition() {
   ];
 
   const { selectedPet } = useSelectedPet();
+
   const calculateIdealWeight = (selectedPet) => {
     if (!selectedPet) return null; // Verifica si selectedPet está definido
     const {
@@ -254,10 +245,7 @@ export default function Nutrition() {
     } else {
       const formattedLogs = data.map((log) => ({
         id: log.id,
-        time: new Date(log.created_at).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
+        time: new Date(log.created_at), // Convierte la cadena a un objeto Date
         amount: log.food_amount,
         type: log.food_type,
       }));
@@ -323,6 +311,25 @@ export default function Nutrition() {
   const handleEditClick = (log) => {
     setEditLog(log);
   };
+
+  // Calcula la cantidad de alimento recomendada para hoy
+  const calculateRecommendedFoodAmount = (selectedPet) => {
+    if (!selectedPet || !idealWeight) return 0;
+
+    const foodAmount = calculateFoodAmount(selectedPet, idealWeight);
+    return parseFloat(foodAmount); // Asegúrate de que sea un número
+  };
+
+  // Calcula la suma del alimento dado hoy
+  const getTodaysFoodTotal = () => {
+    const today = new Date().toLocaleDateString();
+    return feedingLogs
+      .filter((log) => new Date(log.time).toLocaleDateString() === today)
+      .reduce((total, log) => total + parseFloat(log.amount), 0);
+  };
+
+  const recommendedFoodAmount = calculateRecommendedFoodAmount(selectedPet);
+  const todaysFoodTotal = getTodaysFoodTotal();
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 p-4">
@@ -502,7 +509,14 @@ export default function Nutrition() {
                     key={index}
                     className="flex justify-between items-center py-2 border-b"
                   >
-                    <span className="text-sm font-medium">{log.time}</span>
+                    <span className="text-sm font-medium">
+                      {log.time instanceof Date
+                        ? log.time.toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : "Hora no disponible"}
+                    </span>
                     <span className="text-sm text-muted-foreground">
                       {log.type}: {log.amount}g
                     </span>
@@ -513,11 +527,10 @@ export default function Nutrition() {
                       >
                         <Edit className="h-4 w-4 " />
                       </button>
-
                       <button
                         onClick={() => {
                           setSelectedLog(log);
-                          setIsAlertOpen(true); // Abre el modal
+                          setIsAlertOpen(true);
                         }}
                         className="text-red-500 hover:text-red-700 text-sm flex items-center"
                       >
@@ -527,6 +540,39 @@ export default function Nutrition() {
                   </div>
                 ))}
               </div>
+              <div className="mt-4 flex justify-between items-center border-t pt-2">
+                <span className="font-medium text-md">
+                  Alimento recomendado: {recommendedFoodAmount.toFixed(2)}g
+                </span>
+                <span
+                  className={`font-medium text-md ${
+                    todaysFoodTotal > recommendedFoodAmount
+                      ? "text-red-500"
+                      : "text-primary"
+                  }`}
+                >
+                  Total dado hoy: {todaysFoodTotal.toFixed(2)}g
+                </span>
+              </div>
+              <div className="flex justify-between items-center mt-6">
+                <span className="text-sm font-medium">
+                  Progreso de alimentación
+                </span>
+                <span className="text-sm font-medium">
+                  {Math.min(
+                    (todaysFoodTotal / recommendedFoodAmount) * 100,
+                    100
+                  ).toFixed(0)}
+                  %
+                </span>
+              </div>
+              <Progress
+                value={Math.min(
+                  (todaysFoodTotal / recommendedFoodAmount) * 100,
+                  100
+                )}
+                className="w-full"
+              />
             </CardContent>
             <CardFooter>
               <DialogNutrition
