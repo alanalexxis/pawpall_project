@@ -142,6 +142,15 @@ export const DialogNutritionEdit = ({
                     <SelectLabel>Tipo de alimentación</SelectLabel>
                     <SelectItem value="Seca">Seca</SelectItem>
                     <SelectItem value="Húmeda">Húmeda</SelectItem>
+                    <SelectItem value="Semi-Húmeda">Semi-Húmeda</SelectItem>
+                    <SelectItem value="Natural">Natural</SelectItem>
+                    <SelectItem value="Carne">Carne</SelectItem>
+                    <SelectItem value="Pescado">Pescado</SelectItem>
+                    <SelectItem value="Pollo">Pollo</SelectItem>
+                    <SelectItem value="Grano">Grano</SelectItem>
+                    <SelectItem value="Vegetal">Vegetal</SelectItem>
+                    <SelectItem value="Fruta">Fruta</SelectItem>
+                    <SelectItem value="Suplemento">Suplemento</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>

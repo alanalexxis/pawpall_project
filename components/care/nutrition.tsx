@@ -31,6 +31,8 @@ import {
   RocketIcon,
   Trash,
   Edit,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
@@ -48,6 +50,8 @@ import {
 import { toast } from "../ui/use-toast";
 import { DialogNutritionEdit } from "./dialog-nutrition-edit";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
 export default function Nutrition() {
   const supabase = createClient();
   const [feedingLogs, setFeedingLogs] = useState([]);
@@ -56,6 +60,9 @@ export default function Nutrition() {
   const [selectedLog, setSelectedLog] = useState(null);
   const [editLog, setEditLog] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [today, setToday] = useState("");
+
+  const [selectedDate, setSelectedDate] = useState(new Date());
   // Simulated weight data
   const weightData = [
     { date: "1 May", weight: 9.8 },
@@ -331,6 +338,38 @@ export default function Nutrition() {
   const recommendedFoodAmount = calculateRecommendedFoodAmount(selectedPet);
   const todaysFoodTotal = getTodaysFoodTotal();
 
+  useEffect(() => {
+    // Inicializa la fecha seleccionada en la fecha de hoy
+    const today = new Date();
+    setSelectedDate(today);
+  }, []);
+
+  // Formatear la fecha seleccionada
+  const formattedDate = selectedDate.toLocaleDateString("es-ES", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+
+  // Filtrar los registros para mostrar solo los que coincidan con la fecha seleccionada
+  const filteredLogs = feedingLogs.filter((log) => {
+    const logDate = new Date(log.time).toLocaleDateString("es-ES", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+    return logDate === formattedDate;
+  });
+
+  // Función para cambiar la fecha seleccionada
+  const handleDateChange = (days) => {
+    setSelectedDate((prevDate) => {
+      const newDate = new Date(prevDate);
+      newDate.setDate(newDate.getDate() + days);
+      return newDate;
+    });
+  };
+
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 p-4">
       <motion.div
@@ -500,11 +539,28 @@ export default function Nutrition() {
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="w-5 h-5" />
                 Registro de alimentación
+                <Badge className="text-sm">{formattedDate}</Badge>
+                <div className="flex gap-2 ml-auto">
+                  <Button
+                    onClick={() => handleDateChange(-1)}
+                    className="text-xs flex items-center"
+                    variant={"outline"}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    onClick={() => handleDateChange(1)}
+                    className="text-xs flex items-center"
+                    variant={"outline"}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2 max-h-48 overflow-y-auto">
-                {feedingLogs.map((log, index) => (
+                {filteredLogs.map((log, index) => (
                   <div
                     key={index}
                     className="flex justify-between items-center py-2 border-b"
