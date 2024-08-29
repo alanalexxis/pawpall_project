@@ -240,7 +240,31 @@ export default function Nutrition() {
   };
 
   const foodAmount = calculateFoodAmount(selectedPet, idealWeight);
+  const calculateMealsPerDay = (birthdate) => {
+    if (!birthdate) return null;
 
+    // Paso 1: Calcula la edad en meses
+    const birthDate = new Date(birthdate);
+    const currentDate = new Date();
+    const ageInMonths =
+      (currentDate.getFullYear() - birthDate.getFullYear()) * 12 +
+      currentDate.getMonth() -
+      birthDate.getMonth();
+
+    // Paso 2: Determina la frecuencia de comidas basada en la edad
+    if (ageInMonths < 4) {
+      return 4; // Cachorros de 0-4 meses necesitan 4 comidas al día
+    } else if (ageInMonths < 6) {
+      return 3; // Cachorros de 4-6 meses necesitan 3 comidas al día
+    } else if (ageInMonths < 12) {
+      return 2; // Cachorros de 6-12 meses necesitan 2-3 comidas al día, pero usaremos 2 para simplificar
+    } else {
+      return 2; // Perros adultos necesitan 2 comidas al día
+    }
+  };
+  const mealsPerDay = selectedPet
+    ? calculateMealsPerDay(selectedPet.birthdate)
+    : null;
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 p-4">
       <motion.div
@@ -351,7 +375,7 @@ export default function Nutrition() {
                         <p className="text-sm text-muted-foreground">
                           Comidas diarias recomendadas
                         </p>
-                        <p className="font-medium">3</p>
+                        <p className="font-medium">{mealsPerDay}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
