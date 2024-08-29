@@ -7,7 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -30,7 +29,18 @@ import {
 import { DialogNutrition } from "./dialog-nutrition";
 import { useSelectedPet } from "@/contexts/selectedPetContext";
 import { motion } from "framer-motion";
-import { Dog, Activity, Droplet, Scale, Target, Calendar } from "lucide-react";
+import {
+  Dog,
+  Activity,
+  Droplet,
+  Scale,
+  Target,
+  Calendar,
+  Cookie,
+  RocketIcon,
+} from "lucide-react";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
 export default function Nutrition() {
   const [weight, setWeight] = useState(10);
@@ -115,8 +125,83 @@ export default function Nutrition() {
     const newLog = { time, amount: foodAmount / 2 };
     setFeedingLogs([newLog, ...feedingLogs]);
   };
-
   const { selectedPet } = useSelectedPet();
+  const calculateIdealWeight = (selectedPet) => {
+    const {
+      birthdate,
+      weight,
+      min_weight_male,
+      max_weight_male,
+      min_weight_female,
+      max_weight_female,
+      gender,
+    } = selectedPet;
+
+    // Paso 1: Calcula la edad en meses
+    const birthDate = new Date(birthdate);
+    const currentDate = new Date();
+    const ageInMonths =
+      (currentDate.getFullYear() - birthDate.getFullYear()) * 12 +
+      currentDate.getMonth() -
+      birthDate.getMonth();
+
+    // Determina el rango de peso adulto basado en el sexo del perro
+    let minWeightAdult, maxWeightAdult;
+
+    if (gender === "Male") {
+      minWeightAdult = min_weight_male;
+      maxWeightAdult = max_weight_male;
+    } else if (gender === "Female") {
+      minWeightAdult = min_weight_female;
+      maxWeightAdult = max_weight_female;
+    } else {
+      throw new Error("Género no especificado o no válido.");
+    }
+
+    // Paso 2: Verifica si el perro ha alcanzado la madurez
+    const isAdult = ageInMonths >= 12;
+
+    // Si es adulto, usa el peso ideal adulto directamente
+    if (isAdult) {
+      return {
+        minWeightCurrent: minWeightAdult,
+        maxWeightCurrent: maxWeightAdult,
+        currentWeight: weight,
+        ageInMonths,
+      };
+    }
+
+    let weightFactorMin, weightFactorMax;
+    if (ageInMonths <= 2) {
+      weightFactorMin = 0.2;
+      weightFactorMax = 0.25;
+    } else if (ageInMonths <= 4) {
+      weightFactorMin = 0.4;
+      weightFactorMax = 0.5;
+    } else if (ageInMonths <= 6) {
+      weightFactorMin = 0.6;
+      weightFactorMax = 0.7;
+    } else if (ageInMonths <= 9) {
+      weightFactorMin = 0.75;
+      weightFactorMax = 0.9;
+    } else {
+      weightFactorMin = 0.9;
+      weightFactorMax = 1.0;
+    }
+
+    // Paso 4: Calcula el peso ideal actual
+    const minWeightCurrent = minWeightAdult * weightFactorMin;
+    const maxWeightCurrent = maxWeightAdult * weightFactorMax;
+
+    return {
+      minWeightCurrent,
+      maxWeightCurrent,
+      currentWeight: weight,
+      ageInMonths,
+    };
+  };
+
+  const idealWeight = calculateIdealWeight(selectedPet);
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 p-4">
@@ -146,6 +231,38 @@ export default function Nutrition() {
             ) : (
               <div className="grid gap-6 md:grid-cols-2">
                 <div className="space-y-4">
+                  <div className="mt-4">
+                    {selectedPet.weight < idealWeight.minWeightCurrent ? (
+                      <Alert variant="destructive">
+                        <ExclamationTriangleIcon className="h-4 w-4" />
+                        <AlertTitle>Alerta</AlertTitle>
+                        <AlertDescription>
+                          Tu mascota está por debajo del peso recomendado.
+                          Considera ajustar su dieta o consultar con un
+                          veterinario.
+                        </AlertDescription>
+                      </Alert>
+                    ) : selectedPet.weight > idealWeight.maxWeightCurrent ? (
+                      <Alert variant="destructive">
+                        <ExclamationTriangleIcon className="h-4 w-4" />
+                        <AlertTitle>Alerta</AlertTitle>
+                        <AlertDescription>
+                          Tu mascota está por encima del peso recomendado.
+                          Considera ajustar su dieta o consultar con un
+                          veterinario.
+                        </AlertDescription>
+                      </Alert>
+                    ) : (
+                      <Alert>
+                        <RocketIcon className="h-4 w-4" />
+                        <AlertTitle>Enhorabuena!</AlertTitle>
+                        <AlertDescription>
+                          El peso de tu mascota está dentro del rango
+                          recomendado.
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </div>
                   <h3 className="text-xl font-semibold mb-4">Resumen</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex items-center gap-2">
@@ -165,9 +282,13 @@ export default function Nutrition() {
                         <p className="text-sm text-muted-foreground">
                           Peso recomendado
                         </p>
-                        <p className="font-medium">{targetWeight} kg</p>
+                        <p className="font-medium">
+                          {idealWeight.minWeightCurrent}kg y{" "}
+                          {idealWeight.maxWeightCurrent}kg
+                        </p>
                       </div>
                     </div>
+
                     <div className="flex items-center gap-2">
                       <Droplet className="w-5 h-5 text-primary" />
                       <div>
@@ -185,6 +306,27 @@ export default function Nutrition() {
                         </p>
                         <p className="font-medium capitalize">
                           {activityLevel}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Cookie className="w-5 h-5 text-primary" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">
+                          Comidas diarias recomendadas
+                        </p>
+                        <p className="font-medium">3</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Cookie className="w-5 h-5 text-primary" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">
+                          Edad en meses
+                        </p>
+                        <p className="font-medium">
+                          {" "}
+                          {idealWeight.ageInMonths} meses
                         </p>
                       </div>
                     </div>
@@ -209,6 +351,10 @@ export default function Nutrition() {
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
+                <blockquote className="text-xs">
+                  *El cálculo del peso incluye factores basados en la edad en
+                  meses, el género y el peso adulto promedio de la raza.
+                </blockquote>
               </div>
             )}
           </CardContent>

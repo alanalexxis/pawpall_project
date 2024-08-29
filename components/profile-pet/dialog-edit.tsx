@@ -48,6 +48,7 @@ const petSchema = z.object({
   }), // Agrega validación para el género
   razaId: z.string().optional(), // Agrega validación para el ID de la raza
   tags: z.array(z.object({ id: z.string(), text: z.string() })).optional(), // Asegúrate de que 'tags' esté definido aquí
+  weight: z.number().min(0, "El peso debe ser un número positivo"), // Agrega validación para el peso
 });
 
 export function DialogEdit({ pet }) {

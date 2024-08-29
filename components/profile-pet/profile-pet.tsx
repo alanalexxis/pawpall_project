@@ -79,7 +79,10 @@ export default function ProfilePet() {
           let breedName = "";
           let age = "";
           let avatarUrl = "";
-
+          let min_weight_male = "";
+          let min_weight_female = "";
+          let max_weight_male = "";
+          let max_weight_female = "";
           // Si no hay owner_name o location, obtener datos desde la tabla de perfiles
           if (!ownerName || !location) {
             const { data: profileData, error: profileError } = await supabase
@@ -104,7 +107,7 @@ export default function ProfilePet() {
           // Obtener el nombre de la raza utilizando el breed_id
           const { data: breedData, error: breedError } = await supabase
             .from("breeds")
-            .select("name")
+            .select("*")
             .eq("id", pet.breed_id)
             .single();
 
@@ -112,6 +115,10 @@ export default function ProfilePet() {
             console.error("Error fetching breed:", breedError);
           } else {
             breedName = breedData.name;
+            min_weight_male = breedData.min_weight_male;
+            min_weight_female = breedData.min_weight_female;
+            max_weight_male = breedData.max_weight_male;
+            max_weight_female = breedData.max_weight_female;
           }
 
           // Calcular la edad en años y meses
@@ -140,6 +147,10 @@ export default function ProfilePet() {
             age: age,
             image_url: imageUrlData.publicUrl,
             avatar_url: avatarUrl || pet.avatar_url, // Añadir avatar_url al objeto
+            min_weight_male: min_weight_male,
+            min_weight_female: min_weight_female,
+            max_weight_male: max_weight_male,
+            max_weight_female: max_weight_female,
           };
         })
       );

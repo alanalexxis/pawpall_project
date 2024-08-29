@@ -12,7 +12,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Bar } from "react-chartjs-2";
+import { Bar, Line, Radar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -21,6 +21,9 @@ import {
   Title,
   Tooltip,
   Legend,
+  PointElement,
+  LineElement,
+  RadialLinearScale,
 } from "chart.js";
 
 ChartJS.register(
@@ -29,8 +32,12 @@ ChartJS.register(
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  PointElement,
+  LineElement,
+  RadialLinearScale
 );
+
 import {
   PawPrint,
   Utensils,
@@ -43,7 +50,17 @@ import {
   TrendingUp,
   MapPin,
   Apple,
+  Dog,
+  Droplet,
+  Scissors,
+  BarChart,
+  Bath,
+  Heart,
+  Moon,
+  Sun,
+  Zap,
 } from "lucide-react";
+
 import Link from "next/link";
 import Appointment from "../appointments/appointment";
 import { useSelectedPet } from "@/contexts/selectedPetContext";
@@ -64,7 +81,6 @@ const weeklyActivity = [
   { day: "D", km: 2.7 },
 ];
 export default function CareGeneral() {
-  const [weight, setWeight] = useState(15);
   const [foodAmount, setFoodAmount] = useState(200);
   const [exerciseMinutes, setExerciseMinutes] = useState(30);
   const { selectedPet } = useSelectedPet();
@@ -170,6 +186,130 @@ export default function CareGeneral() {
         },
       },
     },
+  };
+
+  ///
+  const [weight, setWeight] = useState(70);
+  const [weightData, setWeightData] = useState([]);
+
+  useEffect(() => {
+    // Generate sample data for the last 12 months
+    const sampleData = Array.from({ length: 12 }, () =>
+      Math.floor(Math.random() * (80 - 60 + 1) + 60)
+    );
+    setWeightData(sampleData);
+  }, []);
+
+  const handleWeightSubmit = (e) => {
+    e.preventDefault();
+    setWeightData([...weightData.slice(1), weight]);
+  };
+
+  const chartDataWeight = {
+    labels: Array.from({ length: 12 }, (_, i) => {
+      const date = new Date();
+      date.setMonth(date.getMonth() - (11 - i));
+      return date.toLocaleString("default", { month: "short" });
+    }),
+    datasets: [
+      {
+        label: "Peso (kg)",
+        data: weightData,
+        fill: false,
+        borderColor: "rgb(34, 197, 94)", // Tailwind green-500
+        tension: 0.1,
+      },
+    ],
+  };
+
+  const chartOptionsWeight = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        mode: "index",
+        intersect: false,
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: false,
+        title: {
+          display: true,
+          text: "Peso (kg)",
+        },
+      },
+    },
+  };
+
+  const optionsSleep = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "top" as const,
+      },
+      title: {
+        display: true,
+        text: "Horas de sueño por día",
+      },
+    },
+  };
+
+  const labels = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+
+  const dataSleep = {
+    labels,
+    datasets: [
+      {
+        label: "Horas de sueño",
+        data: [12, 13, 14, 11, 13, 15, 14],
+        backgroundColor: "rgba(136, 132, 216, 0.5)",
+      },
+    ],
+  };
+  const optionsEmotions = {
+    responsive: true,
+    scales: {
+      r: {
+        angleLines: {
+          display: false,
+        },
+        suggestedMin: 0,
+        suggestedMax: 10,
+      },
+    },
+    plugins: {
+      legend: {
+        position: "top" as const,
+      },
+      title: {
+        display: true,
+        text: "Emociones del perro promedio",
+      },
+    },
+  };
+
+  const dataEmotions = {
+    labels: [
+      "Felicidad",
+      "Energía",
+      "Calma",
+      "Curiosidad",
+      "Afecto",
+      "Confianza",
+    ],
+    datasets: [
+      {
+        label: "Nivel emocional",
+        data: [8, 7, 6, 9, 8, 7],
+        backgroundColor: "rgba(255, 99, 132, 0.2)",
+        borderColor: "rgba(255, 99, 132, 1)",
+        borderWidth: 1,
+      },
+    ],
   };
   return (
     <div className="max-w-4xl mx-auto p-4">
@@ -358,7 +498,7 @@ export default function CareGeneral() {
 
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle className="flex items-center">
+          <CardTitle className="flex items-center text-pr">
             <Weight className="mr-2" />
             Control de peso
           </CardTitle>
@@ -368,21 +508,15 @@ export default function CareGeneral() {
             <span>Peso actual:</span>
             <span className="text-2xl font-bold">{weight} kg</span>
           </div>
-          <div className="h-40 bg-muted rounded-md flex items-end">
-            {[...Array(12)].map((_, i) => (
-              <div
-                key={i}
-                className="flex-1 bg-primary mr-1 rounded-t-sm"
-                style={{ height: `${Math.random() * 100}%` }}
-              ></div>
-            ))}
+          <div className="h-64 mb-4">
+            <Line data={chartDataWeight} options={chartOptionsWeight} />
           </div>
           <p className="text-sm text-muted-foreground mt-2">
             Gráfico de peso en los últimos 12 meses
           </p>
         </CardContent>
         <CardFooter>
-          <div className="w-full">
+          <form onSubmit={handleWeightSubmit} className="w-full">
             <Label htmlFor="newWeight">Registrar nuevo peso:</Label>
             <div className="flex mt-2">
               <Input
@@ -392,17 +526,22 @@ export default function CareGeneral() {
                 value={weight}
                 onChange={(e) => setWeight(Number(e.target.value))}
                 className="mr-2"
+                step="0.1"
+                min="0"
+                max="500"
+                required
+                aria-label="Nuevo peso en kilogramos"
               />
-              <Button>Guardar</Button>
+              <Button type="submit">Guardar</Button>
             </div>
-          </div>
+          </form>
         </CardFooter>
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center">
+            <CardTitle className="flex items-center text-primary">
               <Pill className="mr-2" />
               Medicamentos
             </CardTitle>
@@ -430,7 +569,7 @@ export default function CareGeneral() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center">
+            <CardTitle className="flex items-center text-primary">
               <Calendar className="mr-2" />
               Próximas citas
             </CardTitle>
@@ -449,6 +588,173 @@ export default function CareGeneral() {
           </CardContent>
           <CardFooter>
             <Appointment />
+          </CardFooter>
+        </Card>
+        <Card className="w-full max-w-2xl">
+          <CardHeader>
+            <CardTitle className="flex items-center text-primary">
+              <Bath className="mr-2" />
+              Aseo y cuidado
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Próximos baños</h3>
+              <ul className="space-y-2">
+                <li className="flex justify-between items-center">
+                  <span>Baño y corte</span>
+                  <Badge variant="outline">10 de Julio</Badge>
+                </li>
+                <li className="flex justify-between items-center">
+                  <span>Baño y desparasitación</span>
+                  <Badge variant="outline">25 de Julio</Badge>
+                </li>
+                <li className="flex justify-between items-center">
+                  <span>Baño y cepillado</span>
+                  <Badge variant="outline">8 de Agosto</Badge>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-2">
+                Estadísticas de aseo
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="flex items-center">
+                  <Droplet className="mr-2 h-5 w-5 text-blue-500" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Baños totales
+                    </p>
+                    <p className="text-2xl font-bold">16</p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <Scissors className="mr-2 h-5 w-5 text-green-500" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Cortes</p>
+                    <p className="text-2xl font-bold">4</p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <BarChart className="mr-2 h-5 w-5 text-purple-500" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Promedio mensual
+                    </p>
+                    <p className="text-2xl font-bold">2.7</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button variant="outline" className="w-full">
+              <Calendar className="mr-2 h-4 w-4" /> Administrar aseo
+            </Button>
+          </CardFooter>
+        </Card>
+        <Card className="w-full max-w-2xl">
+          <CardHeader>
+            <CardTitle className="flex items-center text-primary">
+              <Moon className="mr-2 " />
+              Resumen de sueño
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Resumen de sueño</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="flex items-center">
+                  <Clock className="mr-2 h-5 w-5 text-blue-500" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Promedio diario
+                    </p>
+                    <p className="text-2xl font-bold">13 horas</p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <Sun className="mr-2 h-5 w-5 text-yellow-500" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Siestas diurnas
+                    </p>
+                    <p className="text-2xl font-bold">3-4</p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <Zap className="mr-2 h-5 w-5 text-purple-500" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Calidad de sueño
+                    </p>
+                    <p className="text-2xl font-bold">Buena</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className=" w-full">
+              <Bar options={optionsSleep} data={dataSleep} />
+            </div>
+          </CardContent>
+          <CardFooter className="flex justify-between">
+            <Button variant="outline" className="w-full">
+              <Moon className="mr-2 h-4 w-4" /> Registrar sueño
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+      <div className="grid grid-cols-1  gap-6 mt-6">
+        <Card className="w-full ">
+          <CardHeader>
+            <CardTitle className="flex items-center text-primary">
+              <Dog className="mr-2 " />
+              Emociones del perro
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Resumen emocional</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="flex items-center">
+                  <Heart className="mr-2 h-5 w-5 text-red-500" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Felicidad promedio
+                    </p>
+                    <p className="text-2xl font-bold">7.8/10</p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <Zap className="mr-2 h-5 w-5 text-yellow-500" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Energía promedio
+                    </p>
+                    <p className="text-2xl font-bold">6.9/10</p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <Dog className="mr-2 h-5 w-5 text-blue-500" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Estado general
+                    </p>
+                    <p className="text-2xl font-bold">Muy bueno</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="h-96 w-full flex justify-center ">
+              <Radar options={optionsEmotions} data={dataEmotions} />
+            </div>
+          </CardContent>
+          <CardFooter className="flex justify-between">
+            <Button variant={"outline"} className="w-full">
+              <Dog className="mr-2 h-4 w-4" /> Registrar emociones
+            </Button>
           </CardFooter>
         </Card>
       </div>
