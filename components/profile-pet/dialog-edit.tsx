@@ -51,7 +51,7 @@ const petSchema = z.object({
   weight: z.number().min(0, "El peso debe ser un número positivo"), // Agrega validación para el peso
 });
 
-export function DialogEdit({ pet }) {
+export function DialogEdit({ pet, onSave }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const supabase = createClient();
@@ -136,6 +136,9 @@ export function DialogEdit({ pet }) {
         description: "Información actualizada con éxito.",
       });
       setIsDialogOpen(false);
+      if (onSave) {
+        onSave(); // Llama al callback cuando se guarde la información
+      }
     }
   };
   // Convert the tags to a JSON structure

@@ -44,7 +44,9 @@ export default function ProfilePet() {
   const [selectedPett, setSelectedPett] = useState(null);
   const [pets, setPets] = useState([]);
   const [isPetsUpdated, setIsPetsUpdated] = useState(false);
-
+  const handleSave = () => {
+    setIsPetsUpdated(true); // Actualiza el estado para forzar la actualización de las mascotas
+  };
   useEffect(() => {
     async function fetchPets() {
       // Obtener el usuario autenticado
@@ -284,7 +286,7 @@ export default function ProfilePet() {
                     setSelectedPett(pet); // Establece la mascota seleccionada
                   }}
                 >
-                  <DialogEdit pet={selectedPett} />
+                  <DialogEdit pet={selectedPett} onSave={handleSave} />
                 </button>
                 <CardContent className="pt-6">
                   <div className="flex items-center mb-4">

@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,7 +42,7 @@ const FormSchema = z.object({
 
 interface SearchBarPetsProps {
   onRazaSelect: (razaId: string) => void;
-  selectedRazaId: string; // Añadido para manejar el valor seleccionado
+  selectedRazaId: string; // Agregar esta prop
 }
 
 export function SearchBarPets({
@@ -55,9 +56,20 @@ export function SearchBarPets({
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      raza: selectedRazaId, // Establecer el valor inicial
+      raza: selectedRazaId, // Establecer el valor inicial del formulario
     },
   });
+
+  function onSubmit(data: z.infer<typeof FormSchema>) {
+    toast({
+      title: "You submitted the following values:",
+      description: (
+        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
+        </pre>
+      ),
+    });
+  }
 
   useEffect(() => {
     const fetchRazas = async () => {
@@ -70,23 +82,7 @@ export function SearchBarPets({
     };
 
     fetchRazas();
-  }, [supabase]);
-
-  useEffect(() => {
-    // Actualizar el valor del formulario cuando cambia el selectedRazaId
-    form.setValue("raza", selectedRazaId);
-  }, [selectedRazaId, form]);
-
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
-  }
+  }, []);
 
   return (
     <Form {...form}>
@@ -126,11 +122,11 @@ export function SearchBarPets({
                       <CommandGroup>
                         {razas.map((raza) => (
                           <CommandItem
-                            value={raza.id.toString()}
+                            value={raza.name}
                             key={raza.id}
                             onSelect={() => {
                               form.setValue("raza", raza.id.toString());
-                              onRazaSelect(raza.id.toString()); // Pasar el ID al componente padre
+                              onRazaSelect(raza.id.toString());
                               setOpen(false);
                             }}
                           >
