@@ -62,8 +62,6 @@ export default function Nutrition() {
   const [feedingLogs, setFeedingLogs] = useState([]);
   const [weight, setWeight] = useState(10);
   const [targetWeight, setTargetWeight] = useState(10);
-  const [foodType, setFoodType] = useState("dry");
-  const [age, setAge] = useState(3);
   const [isAlertOpen, setIsAlertOpen] = useState(false); // Estado para el modal
   const [selectedLog, setSelectedLog] = useState(null);
   const [editLog, setEditLog] = useState(null);
@@ -77,45 +75,6 @@ export default function Nutrition() {
     { date: "29 May", weight: 10 },
   ];
 
-  const getWeightStatus = () => {
-    const diff = weight - targetWeight;
-    if (Math.abs(diff) <= 0.5) return "ideal";
-    return diff > 0 ? "sobrepeso" : "bajo peso";
-  };
-
-  const getRecommendations = () => {
-    const status = getWeightStatus();
-    const recommendations = [
-      `Mantén ${
-        status === "ideal"
-          ? "la porción actual de comida"
-          : status === "sobrepeso"
-          ? "una porción reducida de comida"
-          : "una porción aumentada de comida"
-      }`,
-      "Asegúrate de que tu perro tenga acceso a agua fresca en todo momento",
-    ];
-
-    if (status === "sobrepeso") {
-      recommendations.push(
-        "Aumenta gradualmente la actividad física de tu perro"
-      );
-    } else if (status === "bajo peso") {
-      recommendations.push("Considera añadir un snack saludable entre comidas");
-    }
-
-    return recommendations;
-  };
-
-  const addFeedingLog = () => {
-    const now = new Date();
-    const time = now.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-    const newLog = { time, amount: foodAmount / 2 };
-    setFeedingLogs([newLog, ...feedingLogs]);
-  };
   const { selectedPet } = useSelectedPet();
   const calculateIdealWeight = (selectedPet) => {
     if (!selectedPet) return null; // Verifica si selectedPet está definido
@@ -328,6 +287,33 @@ export default function Nutrition() {
         description: "Información eliminada con éxito.",
       });
     }
+  };
+
+  const getRecommendations = () => {
+    if (!idealWeight) return [];
+
+    const recommendations = [
+      "Asegúrate de que tu perro tenga acceso a agua fresca en todo momento",
+    ];
+
+    if (selectedPet.weight < idealWeight.minWeightCurrent) {
+      recommendations.push(
+        "Considera aumentar la cantidad de comida para ayudar a alcanzar el peso ideal",
+        "Añade snacks saludables entre comidas para ayudar a ganar peso"
+      );
+    } else if (selectedPet.weight > idealWeight.maxWeightCurrent) {
+      recommendations.push(
+        "Reduce la cantidad de comida para evitar el aumento de peso",
+        "Aumenta gradualmente la actividad física para ayudar a perder peso"
+      );
+    } else {
+      recommendations.push(
+        "Mantén la porción actual de comida",
+        "Sigue monitoreando el peso de tu perro regularmente"
+      );
+    }
+
+    return recommendations;
   };
 
   useEffect(() => {
@@ -586,77 +572,6 @@ export default function Nutrition() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.4 }}
-      >
-        {selectedPet && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Ajustes</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="weight">Peso actual (kg)</Label>
-                  <Input
-                    type="number"
-                    id="weight"
-                    value={weight}
-                    onChange={(e) => setWeight(parseFloat(e.target.value))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="targetWeight">Peso objetivo (kg)</Label>
-                  <Input
-                    type="number"
-                    id="targetWeight"
-                    value={targetWeight}
-                    onChange={(e) =>
-                      setTargetWeight(parseFloat(e.target.value))
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="age">Edad (años)</Label>
-                  <Input
-                    type="number"
-                    id="age"
-                    value={age}
-                    onChange={(e) => setAge(parseInt(e.target.value))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="activity">Nivel de actividad</Label>
-                  <Select value={activityLevel}>
-                    <SelectTrigger id="activity">
-                      <SelectValue placeholder="Selecciona el nivel de actividad" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="low">Bajo</SelectItem>
-                      <SelectItem value="moderate">Moderado</SelectItem>
-                      <SelectItem value="high">Alto</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="foodType">Tipo de alimento</Label>
-                  <Select value={foodType} onValueChange={setFoodType}>
-                    <SelectTrigger id="foodType">
-                      <SelectValue placeholder="Selecciona el tipo de alimento" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="dry">Seco</SelectItem>
-                      <SelectItem value="wet">Húmedo</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.6 }}
       >
         {selectedPet && (
           <Card>
