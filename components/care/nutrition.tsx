@@ -38,17 +38,36 @@ import {
   Calendar,
   Cookie,
   RocketIcon,
+  Trash,
+  Edit,
 } from "lucide-react";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { createClient } from "@/utils/supabase/client";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
+import { toast } from "../ui/use-toast";
+import { DialogNutritionEdit } from "./dialog-nutrition-edit";
 
 export default function Nutrition() {
+  const supabase = createClient();
+  const [feedingLogs, setFeedingLogs] = useState([]);
   const [weight, setWeight] = useState(10);
   const [targetWeight, setTargetWeight] = useState(10);
-
   const [foodType, setFoodType] = useState("dry");
   const [age, setAge] = useState(3);
-
+  const [isAlertOpen, setIsAlertOpen] = useState(false); // Estado para el modal
+  const [selectedLog, setSelectedLog] = useState(null);
+  const [editLog, setEditLog] = useState(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   // Simulated weight data
   const weightData = [
     { date: "1 May", weight: 9.8 },
@@ -87,11 +106,6 @@ export default function Nutrition() {
 
     return recommendations;
   };
-
-  const [feedingLogs, setFeedingLogs] = useState([
-    { time: "08:00", amount: 100 },
-    { time: "18:00", amount: 100 },
-  ]);
 
   const addFeedingLog = () => {
     const now = new Date();
@@ -265,6 +279,65 @@ export default function Nutrition() {
   const mealsPerDay = selectedPet
     ? calculateMealsPerDay(selectedPet.birthdate)
     : null;
+
+  // Define la función fetchFeedingLogs
+  const fetchFeedingLogs = async () => {
+    if (!selectedPet) return;
+
+    const { data, error } = await supabase
+      .from("pet_nutrition")
+      .select("*")
+      .eq("pet_id", selectedPet.id)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error al obtener los registros:", error);
+    } else {
+      const formattedLogs = data.map((log) => ({
+        id: log.id,
+        time: new Date(log.created_at).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        amount: log.food_amount,
+        type: log.food_type,
+      }));
+      setFeedingLogs(formattedLogs);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!selectedLog) return;
+
+    const { error } = await supabase
+      .from("pet_nutrition")
+      .delete()
+      .eq("id", selectedLog.id);
+
+    if (error) {
+      console.error("Error al eliminar el registro:", error);
+      alert("Hubo un error al eliminar el registro.");
+    } else {
+      const updatedLogs = feedingLogs.filter(
+        (log) => log.id !== selectedLog.id
+      );
+      setFeedingLogs(updatedLogs);
+      setIsAlertOpen(false); // Cierra el modal después de eliminar
+      toast({
+        title: "¡Éxito!",
+        description: "Información eliminada con éxito.",
+      });
+    }
+  };
+
+  useEffect(() => {
+    fetchFeedingLogs();
+  }, [selectedPet]);
+
+  const handleEditClick = (log) => {
+    setEditLog(log);
+  };
+
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 p-4">
       <motion.div
@@ -445,18 +518,69 @@ export default function Nutrition() {
                   >
                     <span className="text-sm font-medium">{log.time}</span>
                     <span className="text-sm text-muted-foreground">
-                      {log.amount}g
+                      {log.type}: {log.amount}g
                     </span>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleEditClick(log)}
+                        className="flex items-center text-gray-500 hover:text-gray-700 text-sm"
+                      >
+                        <Edit className="h-4 w-4 " />
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setSelectedLog(log);
+                          setIsAlertOpen(true); // Abre el modal
+                        }}
+                        className="text-red-500 hover:text-red-700 text-sm flex items-center"
+                      >
+                        <Trash className="h-4 w-4 " />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
             </CardContent>
             <CardFooter>
-              <DialogNutrition />
+              <DialogNutrition
+                feedingLogs={feedingLogs}
+                setFeedingLogs={setFeedingLogs}
+              />
+              <DialogNutritionEdit
+                feedingLogs={feedingLogs}
+                setFeedingLogs={setFeedingLogs}
+                editLog={editLog}
+                setEditLog={setEditLog}
+                isDialogOpen={isDialogOpen}
+                setIsDialogOpen={setIsDialogOpen}
+              />
             </CardFooter>
           </Card>
         )}
       </motion.div>
+      <AlertDialog
+        open={isAlertOpen} // Abre el modal si isAlertOpen es true
+        onOpenChange={(open) => setIsAlertOpen(open)} // Controla el estado del modal
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Estás absolutamente seguro?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. Esto eliminará permanentemente
+              el registro de alimentación.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setIsAlertOpen(false)}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}

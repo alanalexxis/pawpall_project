@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -23,34 +23,53 @@ import {
 import { createClient } from "@/utils/supabase/client";
 import { useSelectedPet } from "@/contexts/selectedPetContext";
 import { toast } from "../ui/use-toast";
+import { Edit, Trash } from "lucide-react";
 
-export const DialogNutrition = ({ feedingLogs, setFeedingLogs }) => {
+export const DialogNutritionEdit = ({
+  feedingLogs,
+  setFeedingLogs,
+  editLog,
+  setEditLog,
+}) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [foodAmount, setFoodAmount] = useState(0);
   const [foodType, setFoodType] = useState("");
   const supabase = createClient();
-  const { selectedPet } = useSelectedPet(); // Obtiene la mascota seleccionada del contexto
+  const { selectedPet } = useSelectedPet();
+
+  useEffect(() => {
+    if (editLog) {
+      setFoodAmount(editLog.amount);
+      setFoodType(editLog.type);
+      setIsDialogOpen(true);
+    }
+  }, [editLog]);
 
   const handleSubmit = async () => {
-    if (!selectedPet) {
-      console.error("No se ha proporcionado un ID de mascota.");
+    if (!selectedPet || !editLog) {
+      console.error(
+        "No se ha proporcionado un ID de mascota o registro para editar."
+      );
       return;
     }
 
-    const { data, error } = await supabase.from("pet_nutrition").insert([
-      {
-        pet_id: selectedPet.id,
+    const { data, error } = await supabase
+      .from("pet_nutrition")
+      .update({
         food_amount: foodAmount,
         food_type: foodType,
-        created_at: new Date().toISOString(),
-      },
-    ]);
+      })
+      .eq("id", editLog.id);
 
     if (error) {
-      console.error("Error al registrar la alimentación:", error);
-      alert("Hubo un error al registrar la alimentación.");
+      console.error("Error al editar el registro:", error);
+      toast({
+        variant: "destructive",
+        title: "¡Ups! Algo salió mal.",
+        description: "Hubo un problema al actualizar el registro.",
+      });
     } else {
-      // Fetch actualizado después de insertar
+      // Fetch actualizado después de editar
       const { data: updatedLogs, error: fetchError } = await supabase
         .from("pet_nutrition")
         .select("*")
@@ -64,7 +83,6 @@ export const DialogNutrition = ({ feedingLogs, setFeedingLogs }) => {
           description: "Hubo un problema con tu solicitud.",
         });
       } else {
-        // Formatear los registros para el componente
         const formattedLogs = updatedLogs.map((log) => ({
           id: log.id,
           time: new Date(log.created_at).toLocaleTimeString([], {
@@ -78,27 +96,32 @@ export const DialogNutrition = ({ feedingLogs, setFeedingLogs }) => {
         setFeedingLogs(formattedLogs);
         setFoodAmount(0);
         setFoodType("");
-        setIsDialogOpen(false); // Cierra el diálogo después de mostrar el toast
+        setIsDialogOpen(false);
+        setEditLog(null); // Limpia el registro a editar
         toast({
           title: "¡Éxito!",
-          description: "Información guardada con éxito.",
+          description: "Registro actualizado con éxito.",
         });
       }
     }
   };
 
+  const handleDialogClose = (open) => {
+    if (!open) {
+      setEditLog(null); // Limpia el registro si el diálogo se cierra sin guardar
+    }
+    setIsDialogOpen(open);
+  };
+
   return (
     <div>
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogTrigger asChild>
-          <Button variant="outline">Añadir comida</Button>
-        </DialogTrigger>
+      <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
+        <DialogTrigger asChild></DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Registrar comida</DialogTitle>
+            <DialogTitle>Editar registro de comida</DialogTitle>
             <DialogDescription>
-              Registra la cantidad, tipo de comida y momento del día en que se
-              la diste a tu perro.
+              Modifica la cantidad y el tipo de comida que diste a tu perro.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -129,7 +152,7 @@ export const DialogNutrition = ({ feedingLogs, setFeedingLogs }) => {
           </div>
           <DialogFooter>
             <Button type="submit" onClick={handleSubmit}>
-              Registrar comida
+              Guardar cambios
             </Button>
           </DialogFooter>
         </DialogContent>
