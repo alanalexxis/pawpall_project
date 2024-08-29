@@ -92,6 +92,11 @@ export function DialogEdit({ pet, onSave }) {
       return;
     }
 
+    // Asegúrate de que `razaId` sea una cadena
+    const razaId = selectedRazaId
+      ? selectedRazaId.toString()
+      : pet.breed_id?.toString();
+
     const result = petSchema.safeParse({
       petName,
       isOwner,
@@ -99,7 +104,7 @@ export function DialogEdit({ pet, onSave }) {
       date,
       gender,
       description,
-      razaId: selectedRazaId,
+      razaId, // Usa el ID convertido a cadena
       profile_id: user.id,
       tags: tagsJson,
       weight: petWeight, // Incluye el peso aquí
@@ -119,7 +124,7 @@ export function DialogEdit({ pet, onSave }) {
         birthdate: result.data.date,
         gender: result.data.gender,
         description: result.data.description,
-        breed_id: result.data.razaId,
+        breed_id: result.data.razaId, // Mantén el ID de la raza como cadena
         profile_id: user.id,
         tags: result.data.tags,
         image_url: imagePath,
@@ -141,6 +146,7 @@ export function DialogEdit({ pet, onSave }) {
       }
     }
   };
+
   // Convert the tags to a JSON structure
   const tagsJson = tags.map((tag) => ({ id: tag.id, text: tag.text }));
 
