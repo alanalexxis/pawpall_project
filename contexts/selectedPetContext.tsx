@@ -20,10 +20,19 @@ const SelectedPetContext = createContext<SelectedPetContextProps | undefined>(
 
 // Crea un proveedor para el contexto
 export const SelectedPetProvider = ({ children }: { children: ReactNode }) => {
-  const [selectedPet, setSelectedPet] = useState<any>(null);
+  const [selectedPet, setSelectedPet] = useState<any>(() => {
+    // Inicializa el estado desde localStorage si existe
+    const storedPet = localStorage.getItem("selectedPet");
+    return storedPet ? JSON.parse(storedPet) : null;
+  });
 
   useEffect(() => {
-    console.log("selectedPet ha cambiado:", selectedPet);
+    // Guarda el valor de selectedPet en localStorage cuando cambie
+    if (selectedPet) {
+      localStorage.setItem("selectedPet", JSON.stringify(selectedPet));
+    } else {
+      localStorage.removeItem("selectedPet");
+    }
   }, [selectedPet]);
 
   return (

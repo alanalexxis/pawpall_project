@@ -46,7 +46,7 @@ export default function Nutrition() {
   const [weight, setWeight] = useState(10);
   const [targetWeight, setTargetWeight] = useState(10);
   const [foodAmount, setFoodAmount] = useState(200);
-  const [activityLevel, setActivityLevel] = useState("moderate");
+
   const [foodType, setFoodType] = useState("dry");
   const [age, setAge] = useState(3);
 
@@ -76,10 +76,6 @@ export default function Nutrition() {
         foodTypeMultiplier
     );
   };
-
-  useEffect(() => {
-    setFoodAmount(calculateRecommendedFood());
-  }, [weight, activityLevel, age, foodType]);
 
   const getWeightStatus = () => {
     const diff = weight - targetWeight;
@@ -127,6 +123,7 @@ export default function Nutrition() {
   };
   const { selectedPet } = useSelectedPet();
   const calculateIdealWeight = (selectedPet) => {
+    if (!selectedPet) return null; // Verifica si selectedPet está definido
     const {
       birthdate,
       weight,
@@ -202,7 +199,29 @@ export default function Nutrition() {
   };
 
   const idealWeight = calculateIdealWeight(selectedPet);
+  const calculateActivityLevel = (
+    weight,
+    minWeightCurrent,
+    maxWeightCurrent
+  ) => {
+    if (weight < minWeightCurrent) {
+      return "bajo";
+    } else if (weight >= minWeightCurrent && weight <= maxWeightCurrent) {
+      return "normal";
+    } else if (weight > maxWeightCurrent && weight <= maxWeightCurrent * 1.2) {
+      return "alto";
+    } else {
+      return "muy alto";
+    }
+  };
 
+  const activityLevel = selectedPet
+    ? calculateActivityLevel(
+        selectedPet.weight,
+        idealWeight.minWeightCurrent,
+        idealWeight.maxWeightCurrent
+      )
+    : null;
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 p-4">
       <motion.div
@@ -295,7 +314,7 @@ export default function Nutrition() {
                         <p className="text-sm text-muted-foreground">
                           Alimento recomendado
                         </p>
-                        <p className="font-medium">{foodAmount} g</p>
+                        <p className="font-medium"> g</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -304,9 +323,7 @@ export default function Nutrition() {
                         <p className="text-sm text-muted-foreground">
                           Actividad recomendada
                         </p>
-                        <p className="font-medium capitalize">
-                          {activityLevel}
-                        </p>
+                        <p className="font-medium ">{activityLevel}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -352,8 +369,9 @@ export default function Nutrition() {
                   </ResponsiveContainer>
                 </div>
                 <blockquote className="text-xs">
-                  *El cálculo del peso incluye factores basados en la edad en
-                  meses, el género y el peso adulto promedio de la raza.
+                  *El cálculo del peso recomendado incluye factores basados en
+                  la edad en meses, el género y el peso adulto promedio de la
+                  raza.
                 </blockquote>
               </div>
             )}
@@ -440,10 +458,7 @@ export default function Nutrition() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="activity">Nivel de actividad</Label>
-                  <Select
-                    value={activityLevel}
-                    onValueChange={setActivityLevel}
-                  >
+                  <Select value={activityLevel}>
                     <SelectTrigger id="activity">
                       <SelectValue placeholder="Selecciona el nivel de actividad" />
                     </SelectTrigger>
