@@ -92,22 +92,21 @@ export function DialogEdit({ pet, onSave }) {
       return;
     }
 
-    // Asegúrate de que `razaId` sea una cadena
     const razaId = selectedRazaId
       ? selectedRazaId.toString()
       : pet.breed_id?.toString();
 
     const result = petSchema.safeParse({
       petName,
-      isOwner,
+      isOwner, // Incluye el estado isOwner
       ownerName,
       date,
       gender,
       description,
-      razaId, // Usa el ID convertido a cadena
+      razaId,
       profile_id: user.id,
       tags: tagsJson,
-      weight: petWeight, // Incluye el peso aquí
+      weight: petWeight,
     });
 
     if (!result.success) {
@@ -124,11 +123,11 @@ export function DialogEdit({ pet, onSave }) {
         birthdate: result.data.date,
         gender: result.data.gender,
         description: result.data.description,
-        breed_id: result.data.razaId, // Mantén el ID de la raza como cadena
+        breed_id: result.data.razaId,
         profile_id: user.id,
         tags: result.data.tags,
         image_url: imagePath,
-        weight: result.data.weight, // Agrega el peso en la inserción
+        weight: result.data.weight,
       })
       .eq("id", pet.id);
 
@@ -142,7 +141,7 @@ export function DialogEdit({ pet, onSave }) {
       });
       setIsDialogOpen(false);
       if (onSave) {
-        onSave(); // Llama al callback cuando se guarde la información
+        onSave();
       }
     }
   };

@@ -49,7 +49,6 @@ export default function ProfilePet() {
   };
   useEffect(() => {
     async function fetchPets() {
-      // Obtener el usuario autenticado
       const {
         data: { user },
         error: userError,
@@ -60,20 +59,29 @@ export default function ProfilePet() {
         return;
       }
 
-      const profileId = user.id; // Obtener el ID del perfil del usuario
+      const profileId = user.id;
+      const { data: userProfile, error: profileError } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", profileId)
+        .single();
 
-      // Obtener los datos de las mascotas para el usuario autenticado
+      if (profileError) {
+        console.error("Error fetching user profile:", profileError);
+        return;
+      }
+
+      const userFullName = userProfile.full_name;
+
       const { data: petsData, error: petsError } = await supabase
         .from("pets")
-        .select("*")
-        .eq("profile_id", profileId); // Filtrar por profile_id
+        .select("*");
 
       if (petsError) {
         console.error("Error fetching pets:", petsError);
         return;
       }
 
-      // Procesar cada mascota para obtener detalles adicionales
       const petsWithDetails = await Promise.all(
         petsData.map(async (pet) => {
           let ownerName = pet.owner_name;
@@ -85,7 +93,7 @@ export default function ProfilePet() {
           let min_weight_female = "";
           let max_weight_male = "";
           let max_weight_female = "";
-          // Si no hay owner_name o location, obtener datos desde la tabla de perfiles
+
           if (!ownerName || !location) {
             const { data: profileData, error: profileError } = await supabase
               .from("profiles")
@@ -102,11 +110,10 @@ export default function ProfilePet() {
               if (!location) {
                 location = profileData.city;
               }
-              avatarUrl = profileData.avatar_url; // Guardar el avatar_url
+              avatarUrl = profileData.avatar_url;
             }
           }
 
-          // Obtener el nombre de la raza utilizando el breed_id
           const { data: breedData, error: breedError } = await supabase
             .from("breeds")
             .select("*")
@@ -123,12 +130,10 @@ export default function ProfilePet() {
             max_weight_female = breedData.max_weight_female;
           }
 
-          // Calcular la edad en años y meses
           const birthdate = new Date(pet.birthdate);
           const years = differenceInYears(new Date(), birthdate);
           const months = differenceInMonths(new Date(), birthdate) % 12;
 
-          // Manejar el caso singular/plural para "año"
           const yearText = years === 1 ? "año" : "años";
           const monthText = months === 1 ? "mes" : "meses";
 
@@ -136,7 +141,6 @@ export default function ProfilePet() {
             months > 0 ? ` y ${months} ${monthText}` : ""
           }`;
 
-          // Obtener la URL pública de la imagen
           const { data: imageUrlData } = supabase.storage
             .from("image_upload")
             .getPublicUrl(pet.image_url);
@@ -148,11 +152,12 @@ export default function ProfilePet() {
             breed: breedName,
             age: age,
             image_url: imageUrlData.publicUrl,
-            avatar_url: avatarUrl || pet.avatar_url, // Añadir avatar_url al objeto
+            avatar_url: avatarUrl || pet.avatar_url,
             min_weight_male: min_weight_male,
             min_weight_female: min_weight_female,
             max_weight_male: max_weight_male,
             max_weight_female: max_weight_female,
+            isOwner: userFullName === ownerName, // Comparar el nombre completo del perfil con el nombre del dueño
           };
         })
       );
@@ -161,8 +166,8 @@ export default function ProfilePet() {
     }
 
     fetchPets();
-    setIsPetsUpdated(false); // Resetea el estado de actualización
-  }, [isPetsUpdated]); // Ejecuta useEffect cuando isPetsUpdated cambie
+    setIsPetsUpdated(false);
+  }, [isPetsUpdated]);
 
   const filteredPets = pets.filter(
     (pet) =>
