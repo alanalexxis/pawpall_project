@@ -48,6 +48,7 @@ import { Calendar } from "../ui/calendar";
 import React from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { toast } from "../ui/use-toast";
 export default function Grooming() {
   const [activities, setActivities] = useState([
     { type: "Baño", date: "2023-05-15" },
@@ -64,16 +65,21 @@ export default function Grooming() {
   const supabase = createClient();
 
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const [date, setDate] = React.useState<Date | undefined>(new Date());
+  const [date, setDate] = useState<Date | undefined>(new Date());
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (newActivity.type && newActivity.date && selectedPet) {
+      // Verifica que la fecha esté en formato string correcto
+      const formattedDate = date ? format(date, "yyyy-MM-dd") : "";
+
       // Inserta la nueva actividad en la base de datos
       const { error } = await supabase.from("grooming_activities").insert([
         {
           pet_id: selectedPet.id,
           type: newActivity.type,
-          date: newActivity.date,
+          date: formattedDate, // Usa la fecha formateada
         },
       ]);
 
@@ -81,8 +87,16 @@ export default function Grooming() {
         console.error("Error inserting data: ", error);
       } else {
         // Actualiza el estado local si la inserción fue exitosa
-        setActivities([newActivity, ...activities]);
+        setActivities([
+          { type: newActivity.type, date: formattedDate },
+          ...activities,
+        ]);
         setNewActivity({ type: "", date: "" });
+        setDate(undefined); // Limpia la fecha después del envío
+        toast({
+          title: "¡Éxito!",
+          description: "Información actualizada con éxito.",
+        });
       }
     }
   };
@@ -162,6 +176,7 @@ export default function Grooming() {
         "El pelaje sedoso necesita mantenimiento regular para mantener su brillo y evitar enredos, pero los baños demasiado frecuentes pueden hacer que pierda su suavidad natural.",
     },
   };
+
   // Asume que `selectedPet.coat_type` es el tipo de pelaje de la mascota seleccionada
   let recommendation = {}; // Inicializa como un objeto vacío por defecto
 
@@ -203,9 +218,10 @@ export default function Grooming() {
                 <div className="grid md:grid-cols-2 gap-8">
                   <div className="space-y-6">
                     <div>
+                      <CardTitle>Programar estética</CardTitle>
                       <Label
                         htmlFor="activity-type"
-                        className="text-lg font-semibold mb-2 block"
+                        className="text-lg font-semibold mb-2 block mt-4"
                       >
                         Tipo de actividad
                       </Label>
@@ -254,11 +270,9 @@ export default function Grooming() {
                             variant="outline"
                             className="w-full justify-start text-left font-normal"
                           >
-                            {date ? (
-                              format(date, "PPP", { locale: es })
-                            ) : (
-                              <span>Selecciona una fecha</span>
-                            )}
+                            {date
+                              ? format(date, "PPP", { locale: es })
+                              : "Selecciona una fecha"}
                             <CalendarDays className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </PopoverTrigger>
@@ -269,8 +283,14 @@ export default function Grooming() {
                             mode="single"
                             selected={date}
                             onSelect={(e) => {
-                              setDate(e);
-                              setIsCalendarOpen(false);
+                              if (e) {
+                                setDate(e); // Actualiza el estado con la fecha seleccionada
+                                setNewActivity({
+                                  ...newActivity,
+                                  date: format(e, "yyyy-MM-dd"),
+                                }); // Actualiza `newActivity.date`
+                                setIsCalendarOpen(false);
+                              }
                             }}
                             initialFocus
                           />
