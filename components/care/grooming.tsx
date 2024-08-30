@@ -23,6 +23,10 @@ import {
   Dog,
   CalendarDaysIcon,
   Cookie,
+  CalendarDays,
+  Scissors,
+  Droplet,
+  PawPrint,
 } from "lucide-react";
 import {
   BarChart,
@@ -111,6 +115,60 @@ export default function Grooming() {
   }, [activities]);
 
   const { selectedPet } = useSelectedPet();
+  const bathRecommendations = {
+    Áspero: {
+      frequency: "Cada 6-8 semanas",
+      reason:
+        "El pelaje áspero es más propenso a enredarse, por lo que es importante cepillarlo regularmente y bañarlo de forma menos frecuente para mantener su textura natural.",
+    },
+    "Sin pelo": {
+      frequency: "Cada 1-2 semanas",
+      reason:
+        "Los perros sin pelo necesitan baños más frecuentes para eliminar la acumulación de aceite y proteger su piel, ya que carecen de la protección que ofrece el pelaje.",
+    },
+    Liso: {
+      frequency: "Cada 4-6 semanas",
+      reason:
+        "El pelaje liso es fácil de mantener y no se ensucia rápidamente, por lo que no requiere baños demasiado frecuentes.",
+    },
+    Rugoso: {
+      frequency: "Cada 6-8 semanas",
+      reason:
+        "Similar al pelaje áspero, el pelaje rugoso debe mantenerse en su estado natural, y los baños frecuentes podrían dañarlo.",
+    },
+    Doble: {
+      frequency: "Cada 6-12 semanas",
+      reason:
+        "Los perros con pelaje doble necesitan menos baños para evitar eliminar los aceites naturales que protegen sus dos capas de pelaje. Es importante cepillarlos regularmente para evitar enredos.",
+    },
+    Rizado: {
+      frequency: "Cada 4-6 semanas",
+      reason:
+        "El pelaje rizado puede enredarse fácilmente, por lo que es importante mantener una rutina regular de baños y cepillados.",
+    },
+    Ondulado: {
+      frequency: "Cada 4-8 semanas",
+      reason:
+        "Similar al pelaje rizado, el pelaje ondulado requiere una buena rutina de cuidado para evitar enredos y mantener su forma natural.",
+    },
+    Cordado: {
+      frequency: "Cada 8-12 semanas",
+      reason:
+        "Este tipo de pelaje se forma en cordones o rastas que necesitan un cuidado especializado. El baño debe ser menos frecuente para evitar dañar la estructura del pelaje.",
+    },
+    Sedoso: {
+      frequency: "Cada 4-6 semanas",
+      reason:
+        "El pelaje sedoso necesita mantenimiento regular para mantener su brillo y evitar enredos, pero los baños demasiado frecuentes pueden hacer que pierda su suavidad natural.",
+    },
+  };
+  // Asume que `selectedPet.coat_type` es el tipo de pelaje de la mascota seleccionada
+  let recommendation = {}; // Inicializa como un objeto vacío por defecto
+
+  if (selectedPet) {
+    const selectedCoatType = selectedPet.coat_type;
+    recommendation = bathRecommendations[selectedCoatType] || {};
+  }
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 p-4">
@@ -119,50 +177,74 @@ export default function Grooming() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Card className="mb-6">
+        <Card className="w-full max-w-4xl mx-auto">
           <CardHeader className="bg-primary text-primary-foreground">
             <CardTitle className="text-2xl flex items-center gap-2">
-              <Dog className="w-6 h-6" />
+              <Dog className="w-8 h-8" />
               {selectedPet
                 ? `Monitoreo de aseo de ${selectedPet.name}`
                 : "Monitoreo de aseo"}
             </CardTitle>
             <CardDescription className="text-primary-foreground/80">
-              Mantén a tu perro limpio y bien cuidado.
+              Mantén a tu perro limpio y bien cuidado
             </CardDescription>
           </CardHeader>
           <CardContent className="p-6">
             {!selectedPet ? (
-              <p className="text-center text-gray-500">
-                Por favor, selecciona una mascota para ver los detalles de aseo.
-              </p>
+              <div className="text-center p-8">
+                <Dog className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+                <p className="text-lg text-gray-500">
+                  Por favor, selecciona una mascota para ver los detalles de
+                  aseo.
+                </p>
+              </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-8 ">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-4">
-                    <Label htmlFor="activity-type">Tipo de actividad</Label>
-                    <Select
-                      onValueChange={(value) =>
-                        setNewActivity({ ...newActivity, type: value })
-                      }
-                      value={newActivity.type}
-                    >
-                      <SelectTrigger id="activity-type">
-                        <SelectValue placeholder="Selecciona una actividad" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Baño">Baño</SelectItem>
-                        <SelectItem value="Cepillado">Cepillado</SelectItem>
-                        <SelectItem value="Corte de uñas">
-                          Corte de uñas
-                        </SelectItem>
-                        <SelectItem value="Corte de pelo">
-                          Corte de pelo
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <div className="space-y-2 flex flex-col ">
-                      <Label htmlFor="dob">Fecha de la actividad</Label>
+              <form onSubmit={handleSubmit} className="space-y-8">
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="space-y-6">
+                    <div>
+                      <Label
+                        htmlFor="activity-type"
+                        className="text-lg font-semibold mb-2 block"
+                      >
+                        Tipo de actividad
+                      </Label>
+                      <Select
+                        onValueChange={(value) =>
+                          setNewActivity({ ...newActivity, type: value })
+                        }
+                        value={newActivity.type}
+                      >
+                        <SelectTrigger id="activity-type" className="w-full">
+                          <SelectValue placeholder="Selecciona una actividad" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Baño">
+                            <Droplet className="w-4 h-4 inline-block mr-2" />{" "}
+                            Baño
+                          </SelectItem>
+                          <SelectItem value="Cepillado">
+                            <Scissors className="w-4 h-4 inline-block mr-2" />{" "}
+                            Cepillado
+                          </SelectItem>
+                          <SelectItem value="Corte de uñas">
+                            <PawPrint className="w-4 h-4 inline-block mr-2" />{" "}
+                            Corte de uñas
+                          </SelectItem>
+                          <SelectItem value="Corte de pelo">
+                            <Scissors className="w-4 h-4 inline-block mr-2" />{" "}
+                            Corte de pelo
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label
+                        htmlFor="dob"
+                        className="text-lg font-semibold mb-2 block"
+                      >
+                        Fecha de la actividad
+                      </Label>
                       <Popover
                         open={isCalendarOpen}
                         onOpenChange={setIsCalendarOpen}
@@ -170,14 +252,14 @@ export default function Grooming() {
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
-                            className="pl-3 text-right font-normal text-muted-foreground ml-1"
+                            className="w-full justify-start text-left font-normal"
                           >
                             {date ? (
                               format(date, "PPP", { locale: es })
                             ) : (
                               <span>Selecciona una fecha</span>
                             )}
-                            <CalendarDaysIcon className="ml-2 h-4 w-4 opacity-50" />
+                            <CalendarDays className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
@@ -185,30 +267,69 @@ export default function Grooming() {
                             disabled={(day) => day > new Date()}
                             locale={es}
                             mode="single"
-                            captionLayout="dropdown-buttons"
                             selected={date}
                             onSelect={(e) => {
                               setDate(e);
                               setIsCalendarOpen(false);
                             }}
-                            fromYear={1999}
-                            toYear={2024}
+                            initialFocus
                           />
                         </PopoverContent>
                       </Popover>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Cookie className="w-5 h-5 text-primary" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        Tipo de pelaje:
-                      </p>
-                      <p className="font-medium">28</p>
+                  <div className="space-y-6 bg-secondary/20 p-6 rounded-lg">
+                    <h3 className="text-lg font-semibold mb-4">
+                      Información de la mascota
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <Droplet className="w-5 h-5 text-primary" />
+                        <div>
+                          <p className="text-sm text-muted-foreground">
+                            Tipo de pelaje
+                          </p>
+                          <p className="font-medium">{selectedPet.coat_type}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Scissors className="w-5 h-5 text-primary" />
+                        <div>
+                          <p className="text-sm text-muted-foreground">
+                            Largo del pelaje
+                          </p>
+                          <p className="font-medium">
+                            {selectedPet.coat_length}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <CalendarDays className="w-5 h-5 text-primary" />
+                        <div>
+                          <p className="text-sm text-muted-foreground">
+                            Frecuencia de baño recomendada
+                          </p>
+                          <p className="font-medium">
+                            {recommendation.frequency}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <Button type="submit">Registrar actividad</Button>
+                <div className="flex flex-col items-center gap-4">
+                  <Button type="submit" className="w-full max-w-md">
+                    Registrar actividad
+                  </Button>
+                  <div className="flex items-start gap-3 bg-primary/10 p-4 rounded-lg max-w-2xl">
+                    <div>
+                      <p className="font-semibold text-primary mb-1">
+                        Importante:
+                      </p>
+                      <p className="text-sm">{recommendation.reason}</p>
+                    </div>
+                  </div>
+                </div>
               </form>
             )}
           </CardContent>
@@ -220,7 +341,7 @@ export default function Grooming() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 mt-6">
               <Card>
                 <CardHeader>
                   <CardTitle>Resumen de aseo</CardTitle>

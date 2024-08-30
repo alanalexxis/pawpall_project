@@ -391,10 +391,13 @@ export default function Nutrition() {
           </CardHeader>
           <CardContent className="p-6">
             {!selectedPet ? (
-              <p className="text-center text-gray-500">
-                Por favor, selecciona una mascota para ver los detalles de
-                nutrición.
-              </p>
+              <div className="text-center p-8">
+                <Dog className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+                <p className="text-lg text-gray-500">
+                  Por favor, selecciona una mascota para ver los detalles de
+                  nutrición.
+                </p>
+              </div>
             ) : (
               <div className="grid gap-6 md:grid-cols-2">
                 <div className="space-y-4">

@@ -199,9 +199,13 @@ export default function Emotions() {
                 </div>
               </>
             ) : (
-              <p className="text-center text-gray-500">
-                Selecciona una mascota para ver los datos de salud emocional.
-              </p>
+              <div className="text-center p-8">
+                <Dog className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+                <p className="text-lg text-gray-500">
+                  Por favor, selecciona una mascota para ver los detalles de
+                  salud emocional.
+                </p>
+              </div>
             )}
           </CardContent>
           <CardFooter>

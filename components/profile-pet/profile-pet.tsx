@@ -94,6 +94,7 @@ export default function ProfilePet() {
           let max_weight_male = "";
           let max_weight_female = "";
           let coatType = ""; // Variable para almacenar el tipo de pelaje
+          let coatLength = ""; // Variable para almacenar la longitud del pelaje
 
           if (!ownerName || !location) {
             const { data: profileData, error: profileError } = await supabase
@@ -143,6 +144,21 @@ export default function ProfilePet() {
               coatType =
                 coatTypesData?.coat_types.coat_type || "No especificado";
             }
+
+            // Obtener la longitud de pelaje asociada
+            const { data: coatLengthData, error: coatLengthError } =
+              await supabase
+                .from("breed_coat_length")
+                .select("coat_length(length)")
+                .eq("breed_id", pet.breed_id)
+                .single();
+
+            if (coatLengthError) {
+              console.error("Error fetching coat length:", coatLengthError);
+            } else {
+              coatLength =
+                coatLengthData?.coat_length.length || "No especificado";
+            }
           }
 
           const birthdate = new Date(pet.birthdate);
@@ -173,6 +189,7 @@ export default function ProfilePet() {
             max_weight_male: max_weight_male,
             max_weight_female: max_weight_female,
             coat_type: coatType, // Guardar el tipo de pelaje
+            coat_length: coatLength, // Guardar la longitud del pelaje
             isOwner: userFullName === ownerName, // Comparar el nombre completo del perfil con el nombre del dueño
           };
         })
