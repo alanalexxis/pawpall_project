@@ -90,7 +90,6 @@ export default function Grooming() {
 
     fetchActivities();
   }, [selectedPet, supabase]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -102,15 +101,16 @@ export default function Grooming() {
           pet_id: selectedPet.id,
           type: newActivity.type,
           date: formattedDate,
-          completed: 1,
+          completed: 1, // Marca la actividad como pendiente
         },
       ]);
 
       if (error) {
         console.error("Error inserting data: ", error);
       } else {
+        // Actualiza el estado local con el campo `completed`
         setActivities((prevActivities) => [
-          { type: newActivity.type, date: formattedDate },
+          { type: newActivity.type, date: formattedDate, completed: 1 }, // Incluye `completed` aquí
           ...prevActivities,
         ]);
         setNewActivity({ type: "", date: "" });
@@ -480,12 +480,11 @@ export default function Grooming() {
                         key={index}
                         className="flex items-center justify-between"
                       >
-                        <div className="flex items-center">
-                          {activity.completed === 1 && (
-                            <CircleAlert className="text-yellow-500 mr-2 h-5 w-5" />
-                          )}
-                          <span className="flex-grow">{activity.type}</span>
-                        </div>
+                        {activity.completed === 1 && (
+                          <CircleAlert className="text-yellow-500 mr-2 h-5 w-5" />
+                        )}
+                        <span className="flex-grow">{activity.type}</span>
+
                         <span className="text-sm text-muted-foreground">
                           {activity.date}
                         </span>
