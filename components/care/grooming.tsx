@@ -16,7 +16,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { BathIcon, ScissorsIcon, BoneIcon, Dog } from "lucide-react";
+import {
+  BathIcon,
+  ScissorsIcon,
+  BoneIcon,
+  Dog,
+  CalendarDaysIcon,
+  Cookie,
+} from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -31,7 +38,12 @@ import {
 } from "recharts";
 import { useSelectedPet } from "@/contexts/selectedPetContext";
 import { motion } from "framer-motion";
-
+import { createClient } from "@/utils/supabase/client";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Calendar } from "../ui/calendar";
+import React from "react";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 export default function Grooming() {
   const [activities, setActivities] = useState([
     { type: "Baño", date: "2023-05-15" },
@@ -44,14 +56,30 @@ export default function Grooming() {
     { type: "Cepillado", date: "2023-03-14" },
     { type: "Corte de uñas", date: "2023-03-10" },
   ]);
-
   const [newActivity, setNewActivity] = useState({ type: "", date: "" });
+  const supabase = createClient();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [date, setDate] = React.useState<Date | undefined>(new Date());
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newActivity.type && newActivity.date) {
-      setActivities([newActivity, ...activities]);
-      setNewActivity({ type: "", date: "" });
+    if (newActivity.type && newActivity.date && selectedPet) {
+      // Inserta la nueva actividad en la base de datos
+      const { error } = await supabase.from("grooming_activities").insert([
+        {
+          pet_id: selectedPet.id,
+          type: newActivity.type,
+          date: newActivity.date,
+        },
+      ]);
+
+      if (error) {
+        console.error("Error inserting data: ", error);
+      } else {
+        // Actualiza el estado local si la inserción fue exitosa
+        setActivities([newActivity, ...activities]);
+        setNewActivity({ type: "", date: "" });
+      }
     }
   };
 
@@ -109,9 +137,9 @@ export default function Grooming() {
                 Por favor, selecciona una mascota para ver los detalles de aseo.
               </p>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-8 ">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
+                  <div className="space-y-4">
                     <Label htmlFor="activity-type">Tipo de actividad</Label>
                     <Select
                       onValueChange={(value) =>
@@ -128,19 +156,56 @@ export default function Grooming() {
                         <SelectItem value="Corte de uñas">
                           Corte de uñas
                         </SelectItem>
+                        <SelectItem value="Corte de pelo">
+                          Corte de pelo
+                        </SelectItem>
                       </SelectContent>
                     </Select>
+                    <div className="space-y-2 flex flex-col ">
+                      <Label htmlFor="dob">Fecha de la actividad</Label>
+                      <Popover
+                        open={isCalendarOpen}
+                        onOpenChange={setIsCalendarOpen}
+                      >
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="pl-3 text-right font-normal text-muted-foreground ml-1"
+                          >
+                            {date ? (
+                              format(date, "PPP", { locale: es })
+                            ) : (
+                              <span>Selecciona una fecha</span>
+                            )}
+                            <CalendarDaysIcon className="ml-2 h-4 w-4 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            disabled={(day) => day > new Date()}
+                            locale={es}
+                            mode="single"
+                            captionLayout="dropdown-buttons"
+                            selected={date}
+                            onSelect={(e) => {
+                              setDate(e);
+                              setIsCalendarOpen(false);
+                            }}
+                            fromYear={1999}
+                            toYear={2024}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="activity-date">Fecha</Label>
-                    <Input
-                      id="activity-date"
-                      type="date"
-                      value={newActivity.date}
-                      onChange={(e) =>
-                        setNewActivity({ ...newActivity, date: e.target.value })
-                      }
-                    />
+                  <div className="flex items-center gap-2">
+                    <Cookie className="w-5 h-5 text-primary" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Tipo de pelaje:
+                      </p>
+                      <p className="font-medium">28</p>
+                    </div>
                   </div>
                 </div>
                 <Button type="submit">Registrar actividad</Button>
