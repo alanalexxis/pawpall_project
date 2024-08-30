@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import { generateScale } from "./lib/utils";
 const {
   default: flattenColorPalette,
 } = require("tailwindcss/lib/util/flattenColorPalette");
@@ -21,6 +22,7 @@ const config = {
     },
     extend: {
       colors: {
+        gray: generateScale({ name: "slate" }),
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

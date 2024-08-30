@@ -64,6 +64,8 @@ import {
 import Link from "next/link";
 import Appointment from "../appointments/appointment";
 import { useSelectedPet } from "@/contexts/selectedPetContext";
+import FinalAppointment from "./general-components/final-appointment";
+import { TooltipProvider } from "../ui/tooltip";
 // Simulamos datos de paseos para la demostración
 const pendingWalks = [
   { id: 1, date: "2023-06-10", duration: 30 },
@@ -587,7 +589,9 @@ export default function CareGeneral() {
             </ul>
           </CardContent>
           <CardFooter>
-            <Appointment />
+            <TooltipProvider delayDuration={0}>
+              <FinalAppointment />
+            </TooltipProvider>
           </CardFooter>
         </Card>
         <Card className="w-full max-w-2xl">
