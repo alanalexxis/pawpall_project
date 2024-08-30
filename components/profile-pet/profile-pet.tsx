@@ -95,6 +95,7 @@ export default function ProfilePet() {
           let max_weight_female = "";
           let coatType = ""; // Variable para almacenar el tipo de pelaje
           let coatLength = ""; // Variable para almacenar la longitud del pelaje
+          let nutrition_description = ""; // Variable para almacenar la descripción de la nutrición
 
           if (!ownerName || !location) {
             const { data: profileData, error: profileError } = await supabase
@@ -130,6 +131,7 @@ export default function ProfilePet() {
             min_weight_female = breedData.min_weight_female;
             max_weight_male = breedData.max_weight_male;
             max_weight_female = breedData.max_weight_female;
+            nutrition_description = breedData.nutrition_description;
 
             // Obtener el tipo de pelaje asociado
             const { data: coatTypesData, error: coatTypeError } = await supabase
@@ -191,6 +193,7 @@ export default function ProfilePet() {
             coat_type: coatType, // Guardar el tipo de pelaje
             coat_length: coatLength, // Guardar la longitud del pelaje
             isOwner: userFullName === ownerName, // Comparar el nombre completo del perfil con el nombre del dueño
+            nutrition_description: nutrition_description,
           };
         })
       );

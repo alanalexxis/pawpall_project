@@ -520,9 +520,30 @@ export default function Nutrition() {
                   </ResponsiveContainer>
                 </div>
                 <blockquote className="text-xs">
-                  *El cálculo del peso recomendado incluye factores basados en
-                  la edad en meses, el género y el peso adulto promedio de la
-                  raza.
+                  <div className="flex items-start gap-3 bg-primary/10 p-4 rounded-lg max-w-2xl">
+                    <div>
+                      <p className="font-semibold text-primary mb-1">
+                        Importante:
+                      </p>
+                      <p className="text-xs">
+                        El cálculo del peso recomendado incluye factores basados
+                        en la edad en meses, el género y el peso adulto promedio
+                        de la raza.
+                      </p>
+                    </div>
+                  </div>
+                </blockquote>
+                <blockquote className="text-xs">
+                  <div className="flex items-start gap-3 bg-primary/10 p-4 rounded-lg max-w-2xl">
+                    <div>
+                      <p className="font-semibold text-primary mb-1">
+                        Recuerda:
+                      </p>
+                      <p className="text-xs">
+                        {selectedPet.nutrition_description}
+                      </p>
+                    </div>
+                  </div>
                 </blockquote>
               </div>
             )}
