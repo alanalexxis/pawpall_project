@@ -29,6 +29,10 @@ import {
   PawPrint,
   Trash,
   CircleAlert,
+  Check,
+  X,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 import {
   BarChart,
@@ -96,25 +100,29 @@ export default function Grooming() {
     if (newActivity.type && newActivity.date && selectedPet) {
       const formattedDate = date ? format(date, "yyyy-MM-dd") : "";
 
-      const { error } = await supabase.from("grooming_activities").insert([
-        {
-          pet_id: selectedPet.id,
-          type: newActivity.type,
-          date: formattedDate,
-          completed: 1, // Marca la actividad como pendiente
-        },
-      ]);
+      // Inserta la nueva actividad y obtiene el ID generado
+      const { data, error } = await supabase
+        .from("grooming_activities")
+        .insert([
+          {
+            pet_id: selectedPet.id,
+            type: newActivity.type,
+            date: formattedDate,
+            completed: 1,
+          },
+        ])
+        .select(); // Asegúrate de que se devuelva el registro insertado
 
       if (error) {
         console.error("Error inserting data: ", error);
       } else {
-        // Actualiza el estado local con el campo `completed`
+        // Actualiza el estado local con el registro completo, incluyendo el ID
         setActivities((prevActivities) => [
-          { type: newActivity.type, date: formattedDate, completed: 1 }, // Incluye `completed` aquí
+          ...data, // Incluye el registro completo devuelto por Supabase
           ...prevActivities,
         ]);
         setNewActivity({ type: "", date: "" });
-        setDate(undefined); // Limpia la fecha después del envío
+        setDate(undefined);
         toast({
           title: "¡Éxito!",
           description: "Información actualizada con éxito.",
@@ -245,6 +253,53 @@ export default function Grooming() {
           description: "Actividad eliminada con éxito.",
         });
       }
+    }
+  };
+  const handleAccept = async (activity) => {
+    const { error } = await supabase
+      .from("grooming_activities")
+      .update({ completed: 2 })
+      .match({
+        id: activity.id,
+      });
+
+    if (error) {
+      console.error("Error updating data: ", error);
+    } else {
+      // Actualiza el estado local
+      setActivities((prevActivities) =>
+        prevActivities.map((a) =>
+          a.id === activity.id ? { ...a, completed: 2 } : a
+        )
+      );
+      toast({
+        title: "¡Éxito!",
+        description: "Actividad marcada como completada.",
+      });
+    }
+  };
+
+  const handleReject = async (activity) => {
+    const { error } = await supabase
+      .from("grooming_activities")
+      .update({ completed: 3 })
+      .match({
+        id: activity.id,
+      });
+
+    if (error) {
+      console.error("Error updating data: ", error);
+    } else {
+      // Actualiza el estado local
+      setActivities((prevActivities) =>
+        prevActivities.map((a) =>
+          a.id === activity.id ? { ...a, completed: 3 } : a
+        )
+      );
+      toast({
+        title: "¡Éxito!",
+        description: "Actividad rechazada.",
+      });
     }
   };
 
@@ -480,14 +535,44 @@ export default function Grooming() {
                         key={index}
                         className="flex items-center justify-between"
                       >
+                        {/* Mostrar íconos según el estado de completed */}
                         {activity.completed === 1 && (
-                          <CircleAlert className="text-yellow-500 mr-2 h-5 w-5" />
+                          <CircleAlert className="text-yellow-500 h-5 w-5 mr-2" />
                         )}
+                        {activity.completed === 2 && (
+                          <CheckCircle className="text-green-500 h-5 w-5 mr-2" />
+                        )}
+                        {activity.completed === 3 && (
+                          <XCircle className="text-red-500 h-5 w-5 mr-2" />
+                        )}
+
                         <span className="flex-grow">{activity.type}</span>
 
                         <span className="text-sm text-muted-foreground">
                           {activity.date}
                         </span>
+                        {activity.completed === 1 && (
+                          <>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => handleAccept(activity)}
+                              className="h-8 w-8 text-green-500 hover:text-green-700 hover:bg-green-100"
+                            >
+                              <Check className="h-4 w-4" />
+                              <span className="sr-only">Aceptar</span>
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => handleReject(activity)}
+                              className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-100"
+                            >
+                              <X className="h-4 w-4" />
+                              <span className="sr-only">Rechazar</span>
+                            </Button>
+                          </>
+                        )}
                         <button
                           onClick={() => {
                             setActivityToDelete(activity);
