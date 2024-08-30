@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,6 +27,8 @@ import {
   Scissors,
   Droplet,
   PawPrint,
+  Trash,
+  CircleAlert,
 } from "lucide-react";
 import {
   BarChart,
@@ -49,47 +51,67 @@ import React from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "../ui/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
 export default function Grooming() {
-  const [activities, setActivities] = useState([
-    { type: "Baño", date: "2023-05-15" },
-    { type: "Cepillado", date: "2023-05-14" },
-    { type: "Corte de uñas", date: "2023-05-10" },
-    { type: "Baño", date: "2023-04-15" },
-    { type: "Cepillado", date: "2023-04-14" },
-    { type: "Corte de uñas", date: "2023-04-10" },
-    { type: "Baño", date: "2023-03-15" },
-    { type: "Cepillado", date: "2023-03-14" },
-    { type: "Corte de uñas", date: "2023-03-10" },
-  ]);
+  const [activities, setActivities] = useState([]);
+  const [isAlertOpen, setIsAlertOpen] = useState(false); // Estado para el modal
   const [newActivity, setNewActivity] = useState({ type: "", date: "" });
   const supabase = createClient();
 
+  const [activityToDelete, setActivityToDelete] = useState(null);
+  const [activityIndex, setActivityIndex] = useState(null);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const { selectedPet } = useSelectedPet();
+  useEffect(() => {
+    const fetchActivities = async () => {
+      if (selectedPet) {
+        const { data, error } = await supabase
+          .from("grooming_activities")
+          .select("*")
+          .eq("pet_id", selectedPet.id);
+
+        if (error) {
+          console.error("Error fetching activities: ", error);
+        } else {
+          setActivities(data);
+        }
+      }
+    };
+
+    fetchActivities();
+  }, [selectedPet, supabase]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (newActivity.type && newActivity.date && selectedPet) {
-      // Verifica que la fecha esté en formato string correcto
       const formattedDate = date ? format(date, "yyyy-MM-dd") : "";
 
-      // Inserta la nueva actividad en la base de datos
       const { error } = await supabase.from("grooming_activities").insert([
         {
           pet_id: selectedPet.id,
           type: newActivity.type,
-          date: formattedDate, // Usa la fecha formateada
+          date: formattedDate,
+          completed: 1,
         },
       ]);
 
       if (error) {
         console.error("Error inserting data: ", error);
       } else {
-        // Actualiza el estado local si la inserción fue exitosa
-        setActivities([
+        setActivities((prevActivities) => [
           { type: newActivity.type, date: formattedDate },
-          ...activities,
+          ...prevActivities,
         ]);
         setNewActivity({ type: "", date: "" });
         setDate(undefined); // Limpia la fecha después del envío
@@ -101,9 +123,18 @@ export default function Grooming() {
     }
   };
 
-  const getLastActivityDate = (type: string) => {
-    const activity = activities.find((a) => a.type === type);
-    return activity ? activity.date : "No registrado";
+  const getNextActivityDate = (type: string) => {
+    const today = new Date().toISOString().split("T")[0]; // Fecha de hoy en formato "YYYY-MM-DD"
+
+    // Filtra actividades por tipo y que sean futuras
+    const futureActivities = activities
+      .filter((a) => a.type === type && a.date >= today)
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()); // Ordena por fecha
+
+    // Devuelve la actividad más próxima, si existe
+    return futureActivities.length > 0
+      ? futureActivities[0].date
+      : "No registrado";
   };
 
   const barChartData = useMemo(() => {
@@ -111,14 +142,20 @@ export default function Grooming() {
       acc[curr.type] = (acc[curr.type] || 0) + 1;
       return acc;
     }, {});
-    return Object.entries(counts).map(([type, count]) => ({ type, count }));
+    return Object.entries(counts).map(([type, Total]) => ({ type, Total }));
   }, [activities]);
 
   const lineChartData = useMemo(() => {
     const monthlyData = activities.reduce((acc, curr) => {
       const month = curr.date.substring(0, 7); // YYYY-MM
       if (!acc[month]) {
-        acc[month] = { month, Baño: 0, Cepillado: 0, "Corte de uñas": 0 };
+        acc[month] = {
+          month,
+          Baño: 0,
+          Cepillado: 0,
+          "Corte de uñas": 0,
+          "Corte de pelo": 0,
+        };
       }
       acc[month][curr.type]++;
       return acc;
@@ -128,7 +165,6 @@ export default function Grooming() {
     );
   }, [activities]);
 
-  const { selectedPet } = useSelectedPet();
   const bathRecommendations = {
     Áspero: {
       frequency: "Cada 6-8 semanas",
@@ -184,6 +220,33 @@ export default function Grooming() {
     const selectedCoatType = selectedPet.coat_type;
     recommendation = bathRecommendations[selectedCoatType] || {};
   }
+  const handleDelete = async () => {
+    if (activityToDelete && activityIndex !== null) {
+      // Elimina la actividad de la base de datos
+      const { error } = await supabase
+        .from("grooming_activities")
+        .delete()
+        .match({
+          pet_id: selectedPet.id,
+          type: activityToDelete.type,
+          date: activityToDelete.date,
+        });
+
+      if (error) {
+        console.error("Error deleting data: ", error);
+      } else {
+        // Actualiza el estado local eliminando la actividad
+        setActivities((prevActivities) =>
+          prevActivities.filter((_, i) => i !== activityIndex)
+        );
+        setIsAlertOpen(false); // Cierra el modal
+        toast({
+          title: "¡Éxito!",
+          description: "Actividad eliminada con éxito.",
+        });
+      }
+    }
+  };
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 p-4">
@@ -278,7 +341,7 @@ export default function Grooming() {
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
                           <Calendar
-                            disabled={(day) => day > new Date()}
+                            disabled={(day) => day < new Date()} // Deshabilita días anteriores a hoy
                             locale={es}
                             mode="single"
                             selected={date}
@@ -374,23 +437,30 @@ export default function Grooming() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
                         <BathIcon className="mr-2" />
-                        <span>Último baño</span>
+                        <span>Próximo baño</span>
                       </div>
-                      <span>{getLastActivityDate("Baño")}</span>
+                      <span>{getNextActivityDate("Baño")}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
                         <BoneIcon className="mr-2" />
-                        <span>Último cepillado</span>
+                        <span>Próximo cepillado</span>
                       </div>
-                      <span>{getLastActivityDate("Cepillado")}</span>
+                      <span>{getNextActivityDate("Cepillado")}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
                         <ScissorsIcon className="mr-2" />
-                        <span>Último corte de uñas</span>
+                        <span>Próximo corte de uñas</span>
                       </div>
-                      <span>{getLastActivityDate("Corte de uñas")}</span>
+                      <span>{getNextActivityDate("Corte de uñas")}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <ScissorsIcon className="mr-2" />
+                        <span>Próximo corte de pelo</span>
+                      </div>
+                      <span>{getNextActivityDate("Corte de pelo")}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -408,12 +478,27 @@ export default function Grooming() {
                     {activities.slice(0, 5).map((activity, index) => (
                       <li
                         key={index}
-                        className="flex justify-between items-center"
+                        className="flex items-center justify-between"
                       >
-                        <span>{activity.type}</span>
+                        <div className="flex items-center">
+                          {activity.completed === 1 && (
+                            <CircleAlert className="text-yellow-500 mr-2 h-5 w-5" />
+                          )}
+                          <span className="flex-grow">{activity.type}</span>
+                        </div>
                         <span className="text-sm text-muted-foreground">
                           {activity.date}
                         </span>
+                        <button
+                          onClick={() => {
+                            setActivityToDelete(activity);
+                            setActivityIndex(index);
+                            setIsAlertOpen(true);
+                          }}
+                          className="text-red-500 hover:text-red-700 ml-4"
+                        >
+                          <Trash className="h-4 w-4" />
+                        </button>
                       </li>
                     ))}
                   </ul>
@@ -422,6 +507,28 @@ export default function Grooming() {
             </div>
           </motion.div>
         )}
+        <AlertDialog
+          open={isAlertOpen} // Abre el modal si isAlertOpen es true
+          onOpenChange={(open) => setIsAlertOpen(open)} // Controla el estado del modal
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>¿Estás absolutamente seguro?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta acción no se puede deshacer. Esto eliminará permanentemente
+                el registro de actividad.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setIsAlertOpen(false)}>
+                Cancelar
+              </AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete}>
+                Eliminar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         {selectedPet && (
           <motion.div
@@ -445,7 +552,7 @@ export default function Grooming() {
                       <YAxis />
                       <Tooltip />
                       <Legend />
-                      <Bar dataKey="count" fill="#8884d8" />
+                      <Bar dataKey="Total" fill="#8884d8" />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -476,6 +583,11 @@ export default function Grooming() {
                         type="monotone"
                         dataKey="Corte de uñas"
                         stroke="#ffc658"
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="Corte de pelo"
+                        stroke="#ff7300"
                       />
                     </LineChart>
                   </ResponsiveContainer>
