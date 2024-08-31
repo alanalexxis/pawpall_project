@@ -21,11 +21,31 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const fetchUser = async () => {
+      // Obtener la información básica del usuario autenticado
       const {
-        data: { user },
+        data: { user: authUser },
       } = await supabase.auth.getUser();
-      setUser(user);
+
+      if (authUser) {
+        // Consultar la tabla profiles para obtener detalles adicionales del perfil
+        const { data: profile, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", authUser.id) // Suponiendo que el perfil tiene el mismo id que el authUser
+          .single();
+
+        if (error) {
+          console.error(
+            "Error al obtener el perfil del usuario:",
+            error.message
+          );
+        } else {
+          // Combinar los datos de autenticación con el perfil
+          setUser({ ...authUser, ...profile });
+        }
+      }
     };
+
     fetchUser();
   }, []);
 

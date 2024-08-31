@@ -98,7 +98,7 @@ export function Demo() {
             />
           </>
         ) : (
-          <FormPanel />
+          <FormPanel selectedDate={date} />
         )}
       </div>
     </div>

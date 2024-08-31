@@ -1,25 +1,43 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
 import { Textarea } from "@/components/ui/textarea";
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { UserPlus, X } from "lucide-react";
-import Link from "next/link";
+
 import { useRouter } from "next/navigation";
 import { PhoneInput } from "../phone-input";
-
 import * as React from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../../ui/tooltip";
+import { useUser } from "@/contexts/userContext";
+import { useSelectedPet } from "@/contexts/selectedPetContext";
+import { createClient } from "@/utils/supabase/client";
+import { toast } from "@/components/ui/use-toast";
+import { getLocalTimeZone } from "@internationalized/date";
+type FormPanelProps = {
+  selectedDate: CalendarDate;
+};
 
 type Guest = {
   email: string;
 };
 
-export function FormPanel() {
+export function FormPanel({ selectedDate }: FormPanelProps) {
   const router = useRouter();
 
   const [guests, setGuests] = React.useState<Guest[]>([]);
+  const [appointmentReason, setAppointmentReason] = React.useState<string>("");
+  const [notes, setNotes] = React.useState<string>("");
+
+  const supabase = createClient();
+  const { user } = useUser();
+  const { selectedPet } = useSelectedPet();
 
   const addGuest = () => {
     setGuests([...guests, { email: "" }]);
@@ -33,27 +51,69 @@ export function FormPanel() {
     setGuests(guests.map((guest, i) => (i === index ? { email } : guest)));
   };
 
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const { error } = await supabase.from("appointments").insert({
+      pet_id: selectedPet.id,
+      date: selectedDate.toDate(getLocalTimeZone()).toISOString(),
+      note: notes,
+      reason: appointmentReason,
+      profile_id: user?.id,
+    });
+
+    if (error) {
+      console.error("Error al crear la cita:", error.message);
+    }
+    toast({
+      title: "¡Éxito!",
+      description: "Información guardada con éxito.",
+    });
+  };
+
   const hasGuests = guests.length > 0;
 
   return (
-    <form className="flex flex-col gap-5 w-[360px]">
+    <form className="flex flex-col gap-5 w-[360px]" onSubmit={handleFormSubmit}>
       <div className="flex flex-col space-y-1.5">
         <Label htmlFor="name">Tu nombre *</Label>
-        <Input id="name" defaultValue="Introduce tu nombre" />
+        <Input id="name" value={user?.full_name || ""} disabled />
       </div>
       <div className="flex flex-col space-y-1.5">
         <Label htmlFor="email">Email *</Label>
-        <Input id="email" type="email" defaultValue="Introduce tu email" />
+        <Input id="email" type="email" value={user?.email || ""} disabled />
       </div>
       <div className="flex flex-col space-y-1.5">
         <Label htmlFor="phone">Número de teléfono *</Label>
-        <PhoneInput id="phone" />
+        <Input
+          id="cellphone"
+          type="tel"
+          value={user?.cellphone || ""}
+          disabled
+        />
       </div>
       <div className="flex flex-col space-y-1.5">
-        <Label htmlFor="email">Notas adicionales</Label>
+        <Label htmlFor="reason">Motivo de la cita *</Label>
+        <Select value={appointmentReason} onValueChange={setAppointmentReason}>
+          <SelectTrigger className="w-fit">
+            <SelectValue placeholder="Selecciona un motivo" />
+          </SelectTrigger>
+          <SelectContent className="w-fit dark:bg-gray-5">
+            <SelectItem value="consulta">Consulta</SelectItem>
+            <SelectItem value="vacunas">Vacunas</SelectItem>
+            <SelectItem value="examen">Examen</SelectItem>
+            <SelectItem value="cirugia">Cirugía</SelectItem>
+            <SelectItem value="otro">Otro</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="flex flex-col space-y-1.5">
+        <Label htmlFor="notes">Notas adicionales</Label>
         <Textarea
           id="notes"
           placeholder="Añade cualquier detalle adicional de relevancia para la cita veterinaria"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
         />
       </div>
       {hasGuests && (
@@ -104,11 +164,7 @@ export function FormPanel() {
         >
           Regresar
         </Button>
-        <Button asChild type="button">
-          <Link href="https://github.com/damianricobelli/shadcn-cal-com">
-            Continuar
-          </Link>
-        </Button>
+        <Button type="submit">Continuar</Button>
       </div>
     </form>
   );

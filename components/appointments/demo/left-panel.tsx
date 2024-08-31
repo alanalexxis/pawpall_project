@@ -58,7 +58,6 @@ export function LeftPanel({
             </Avatar>
           </TooltipTrigger>
           <TooltipContent>
-            {" "}
             {user?.user_metadata?.full_name ?? "Usuario"}
           </TooltipContent>
         </Tooltip>
