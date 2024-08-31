@@ -1,6 +1,4 @@
-"use client";
-
-import * as React from "react";
+import React from "react";
 import { Clock } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { TimePickerInput } from "../ui/time-picker-input";
@@ -13,7 +11,13 @@ interface TimePickerDemoProps {
 export function TimePickerDemo({ date, setDate }: TimePickerDemoProps) {
   const minuteRef = React.useRef<HTMLInputElement>(null);
   const hourRef = React.useRef<HTMLInputElement>(null);
-  const secondRef = React.useRef<HTMLInputElement>(null);
+
+  const handleTimeChange = (hours: number, minutes: number) => {
+    const newDate = new Date();
+    newDate.setHours(hours);
+    newDate.setMinutes(minutes);
+    setDate(newDate);
+  };
 
   return (
     <div className="flex items-end gap-2">
@@ -24,7 +28,9 @@ export function TimePickerDemo({ date, setDate }: TimePickerDemoProps) {
         <TimePickerInput
           picker="hours"
           date={date}
-          setDate={setDate}
+          setDate={(newDate) => {
+            handleTimeChange(newDate?.getHours() || 0, date?.getMinutes() || 0);
+          }}
           ref={hourRef}
           onRightFocus={() => minuteRef.current?.focus()}
         />
@@ -36,10 +42,11 @@ export function TimePickerDemo({ date, setDate }: TimePickerDemoProps) {
         <TimePickerInput
           picker="minutes"
           date={date}
-          setDate={setDate}
+          setDate={(newDate) => {
+            handleTimeChange(date?.getHours() || 0, newDate?.getMinutes() || 0);
+          }}
           ref={minuteRef}
           onLeftFocus={() => hourRef.current?.focus()}
-          onRightFocus={() => secondRef.current?.focus()}
         />
       </div>
 

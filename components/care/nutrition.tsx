@@ -453,8 +453,8 @@ export default function Nutrition() {
                           Peso recomendado
                         </p>
                         <p className="font-medium">
-                          {idealWeight.minWeightCurrent} kg y{" "}
-                          {idealWeight.maxWeightCurrent} kg
+                          {idealWeight.minWeightCurrent.toFixed(2)} kg y{" "}
+                          {idealWeight.maxWeightCurrent.toFixed(2)} kg
                         </p>
                       </div>
                     </div>
