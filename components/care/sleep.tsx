@@ -19,6 +19,8 @@ import {
   AlertTriangle,
   Clock,
   Calendar,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Bar } from "react-chartjs-2";
 import {
@@ -37,6 +39,7 @@ import { toast } from "../ui/use-toast";
 import { TimePickerDemo } from "../appointments/time-picker";
 import React from "react";
 import { Badge } from "../ui/badge";
+import { Progress } from "../ui/progress";
 
 ChartJS.register(
   CategoryScale,
@@ -136,18 +139,29 @@ export default function Sleep() {
   };
 
   const getRecommendedSleep = (age: number) => {
+    let recommendedHours;
     if (age < 1) {
-      return { range: "18-20 horas", nightly: "10-12 horas" };
+      recommendedHours = 18; // Horas recomendadas para cachorros
     } else if (age < 7) {
-      return { range: "12-14 horas", nightly: "8-10 horas" };
+      recommendedHours = 12; // Horas recomendadas para adultos
     } else {
-      return { range: "14-18 horas", nightly: "10-12 horas" };
+      recommendedHours = 14; // Horas recomendadas para mayores
     }
+
+    return {
+      range: age < 1 ? "18-20 horas" : age < 7 ? "12-14 horas" : "14-18 horas",
+      nightly: age < 1 ? "10-12 horas" : age < 7 ? "8-10 horas" : "10-12 horas",
+      recommendedHours,
+    };
   };
+
   const age = selectedPet ? getAgeInYears(new Date(selectedPet.birthdate)) : 0;
   const recommendedNaps = getRecommendedNaps(age);
-  const { range: recommendedSleep, nightly: nightlySleep } =
-    getRecommendedSleep(age);
+  const {
+    range: recommendedSleep,
+    nightly: nightlySleep,
+    recommendedHours,
+  } = getRecommendedSleep(age);
 
   useEffect(() => {
     // Inicializa la fecha seleccionada en la fecha de hoy
@@ -176,6 +190,29 @@ export default function Sleep() {
     return { totalHours, remainingMinutes };
   };
   const { totalHours, remainingMinutes } = calculateTotalSleep(sleepLog);
+
+  const calculateSleepProgress = (
+    totalHours: number,
+    remainingMinutes: number,
+    recommendedHours: number
+  ) => {
+    // Convertir los minutos restantes a horas
+    const totalSleepHours = totalHours + remainingMinutes / 60;
+
+    // Calcular el porcentaje de sueño registrado
+    const percentage = Math.min(
+      Math.round((totalSleepHours / recommendedHours) * 100),
+      100
+    );
+
+    return percentage; // Devolver el porcentaje como número entero
+  };
+  // Calcular el porcentaje de progreso
+  const progressPercentage = calculateSleepProgress(
+    totalHours,
+    remainingMinutes,
+    recommendedHours
+  );
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 p-4">
@@ -382,6 +419,24 @@ export default function Sleep() {
                     No hay registros de sueño aún.
                   </p>
                 )}
+              </CardContent>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between mb-2">
+                      <span className="text-sm font-medium">
+                        Progreso de sueño diario
+                      </span>
+                      <span className="text-sm font-medium">
+                        {progressPercentage}%
+                      </span>
+                    </div>
+                    <Progress value={progressPercentage} className="w-full" />
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Recomendado: {recommendedHours}h</span>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </motion.div>
