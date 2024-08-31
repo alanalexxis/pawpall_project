@@ -13,7 +13,7 @@ import { FormPanel } from "./form-panel";
 import { LeftPanel } from "./left-panel";
 import { RightPanel } from "./right-panel";
 
-export function Demo() {
+export function Demo({ onClose }: { onClose: () => void }) {
   const router = useRouter();
   const { locale } = useLocale();
 
@@ -37,7 +37,7 @@ export function Demo() {
       "date",
       date.toDate(timeZone).toISOString().split("T")[0]
     );
-    router.push(url.toString());
+    window.history.pushState({}, "", url.toString());
   };
 
   const handleChangeAvailableTime = (time: string) => {
@@ -69,7 +69,7 @@ export function Demo() {
 
     const url = new URL(window.location.href);
     url.searchParams.set("slot", currentDate.toISOString());
-    router.push(url.toString());
+    window.history.pushState({}, "", url.toString());
 
     setSelectedTime(time); // Actualiza el estado con el tiempo seleccionado
   };
@@ -105,6 +105,7 @@ export function Demo() {
           <FormPanel
             selectedDate={date}
             selectedTime={selectedTime} // Pasa el tiempo seleccionado al panel de formulario
+            onClose={onClose} // Asegúrate de pasar la función onClose
           />
         )}
       </div>

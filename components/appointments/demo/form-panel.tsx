@@ -18,12 +18,18 @@ import { useSelectedPet } from "@/contexts/selectedPetContext";
 import { createClient } from "@/utils/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { getLocalTimeZone } from "@internationalized/date";
+
 type FormPanelProps = {
   selectedDate: CalendarDate;
   selectedTime: string; // Añade el tiempo seleccionado como prop
+  onClose: () => void; // Añade prop para manejar el cierre
 };
 
-export function FormPanel({ selectedDate, selectedTime }: FormPanelProps) {
+export function FormPanel({
+  selectedDate,
+  selectedTime,
+  onClose,
+}: FormPanelProps) {
   const router = useRouter();
   const [guests, setGuests] = React.useState<Guest[]>([]);
   const [appointmentReason, setAppointmentReason] = React.useState<string>("");
@@ -51,7 +57,7 @@ export function FormPanel({ selectedDate, selectedTime }: FormPanelProps) {
     const { error } = await supabase.from("appointments").insert({
       pet_id: selectedPet.id,
       date: selectedDate.toDate(getLocalTimeZone()).toISOString(),
-      hour: selectedTime, // Añade el tiempo seleccionado aquí
+      hour: selectedTime,
       note: notes,
       reason: appointmentReason,
       profile_id: user?.id,
@@ -59,11 +65,24 @@ export function FormPanel({ selectedDate, selectedTime }: FormPanelProps) {
 
     if (error) {
       console.error("Error al crear la cita:", error.message);
+      toast({
+        title: "Error",
+        description: "No se pudo guardar la información.",
+      });
+    } else {
+      toast({
+        title: "¡Éxito!",
+        description: "Información guardada con éxito.",
+      });
+
+      // Remover los parámetros `date` y `slot` de la URL
+      const url = new URL(window.location.href);
+      url.searchParams.delete("date");
+      url.searchParams.delete("slot");
+      router.replace(url.toString());
+
+      onClose(); // Cierra el modal si la cita se guarda correctamente
     }
-    toast({
-      title: "¡Éxito!",
-      description: "Información guardada con éxito.",
-    });
   };
 
   const hasGuests = guests.length > 0;
@@ -152,6 +171,7 @@ export function FormPanel({ selectedDate, selectedTime }: FormPanelProps) {
       </p>
       <div className="flex justify-end gap-2">
         <Button
+          type="button"
           variant="ghost"
           onClick={() => {
             router.back();

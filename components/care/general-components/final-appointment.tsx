@@ -2,9 +2,23 @@ import { Demo } from "@/components/appointments/demo";
 import { Suspense, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 export default function AppointmentDialog() {
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
+
+  const handleClose = () => {
+    // Elimina los parámetros de la URL sin recargar la página
+    const url = new URL(window.location.href);
+    url.searchParams.delete("date");
+    url.searchParams.delete("slot");
+
+    // Usa la API history.pushState para actualizar la URL
+    window.history.pushState({}, "", url.toString());
+
+    setIsOpen(false);
+  };
 
   return (
     <div>
@@ -23,7 +37,7 @@ export default function AppointmentDialog() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-            onClick={() => setIsOpen(false)}
+            onClick={handleClose}
           >
             <motion.div
               initial={{ scale: 0.9, y: 20, opacity: 0 }}
@@ -46,12 +60,12 @@ export default function AppointmentDialog() {
                       </div>
                     }
                   >
-                    <Demo />
+                    <Demo onClose={handleClose} />
                   </Suspense>
                 </div>
               </div>
               <div className="bg-white dark:bg-black px-6 py-4 flex justify-end">
-                <Button variant="outline" onClick={() => setIsOpen(false)}>
+                <Button variant="outline" onClick={handleClose}>
                   Cerrar
                 </Button>
               </div>
