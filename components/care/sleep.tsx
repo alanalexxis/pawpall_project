@@ -86,6 +86,7 @@ export default function Sleep() {
             minute: "2-digit",
             hour12: true,
           }),
+          date: new Date(entry.date).toLocaleDateString("es-ES"), // Guardar la fecha en formato de cadena
         }));
         setSleepLog(formattedLogs);
       }
@@ -93,6 +94,7 @@ export default function Sleep() {
 
     fetchSleepLogs();
   }, [selectedPet.id]);
+
   const getCurrentDateTimeForSupabase = () => {
     return new Date().toISOString(); // Formato ISO 8601
   };
@@ -115,6 +117,7 @@ export default function Sleep() {
           minute: "2-digit",
           hour12: true,
         }),
+        date: new Date().toLocaleDateString("es-ES"), // Guardar la fecha en formato de cadena
       };
 
       // Guardar en la tabla 'sleep_patterns'
@@ -150,7 +153,6 @@ export default function Sleep() {
       });
     }
   };
-
   const chartData = {
     labels: ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
     datasets: [
@@ -295,6 +297,40 @@ export default function Sleep() {
     return `${formattedHours}:${formattedMinutes}`;
   };
 
+  const calculateDailySleep = (logs: SleepEntry[]) => {
+    const dailySleep: Record<string, number> = {};
+
+    logs.forEach((entry) => {
+      const [hours, minutes] = entry.duration.split(":").map(Number);
+      const sleepMinutes =
+        (isNaN(hours) ? 0 : hours * 60) + (isNaN(minutes) ? 0 : minutes);
+      const date = entry.date;
+
+      if (!dailySleep[date]) {
+        dailySleep[date] = 0;
+      }
+      dailySleep[date] += sleepMinutes;
+    });
+
+    return dailySleep;
+  };
+
+  const calculateAverageSleep = (dailySleep: Record<string, number>) => {
+    const totalDays = Object.keys(dailySleep).length;
+    const totalMinutes = Object.values(dailySleep).reduce(
+      (acc, minutes) => acc + minutes,
+      0
+    );
+    const averageMinutes = totalDays > 0 ? totalMinutes / totalDays : 0;
+    const averageHours = Math.floor(averageMinutes / 60);
+    const averageRemainingMinutes = Math.round(averageMinutes % 60); // Cambiado el nombre a averageRemainingMinutes
+
+    return { averageHours, averageRemainingMinutes };
+  };
+
+  const dailySleep = calculateDailySleep(sleepLog);
+  const { averageHours, averageRemainingMinutes } =
+    calculateAverageSleep(dailySleep);
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 p-4">
       <motion.div
@@ -329,7 +365,9 @@ export default function Sleep() {
                   {[
                     {
                       label: "Promedio de horas de sueño",
-                      value: "8.5",
+                      value: `${averageHours}.${averageRemainingMinutes
+                        .toString()
+                        .padStart(2, "0")}`,
                       icon: Moon,
                       color: "text-blue-500",
                     },
