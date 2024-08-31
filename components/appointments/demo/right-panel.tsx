@@ -15,6 +15,7 @@ export function RightPanel({
   timeZone: string;
   weeksInMonth: number;
   handleChangeAvailableTime: (time: string) => void;
+  setSelectedTime: (time: string) => void; // Nueva prop para manejar el tiempo seleccionado
 }) {
   const { locale } = useLocale();
   const [dayNumber, dayName] = date

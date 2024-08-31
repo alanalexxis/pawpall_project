@@ -10,9 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { UserPlus, X } from "lucide-react";
-
 import { useRouter } from "next/navigation";
-import { PhoneInput } from "../phone-input";
 import * as React from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../../ui/tooltip";
 import { useUser } from "@/contexts/userContext";
@@ -22,15 +20,11 @@ import { toast } from "@/components/ui/use-toast";
 import { getLocalTimeZone } from "@internationalized/date";
 type FormPanelProps = {
   selectedDate: CalendarDate;
+  selectedTime: string; // Añade el tiempo seleccionado como prop
 };
 
-type Guest = {
-  email: string;
-};
-
-export function FormPanel({ selectedDate }: FormPanelProps) {
+export function FormPanel({ selectedDate, selectedTime }: FormPanelProps) {
   const router = useRouter();
-
   const [guests, setGuests] = React.useState<Guest[]>([]);
   const [appointmentReason, setAppointmentReason] = React.useState<string>("");
   const [notes, setNotes] = React.useState<string>("");
@@ -57,6 +51,7 @@ export function FormPanel({ selectedDate }: FormPanelProps) {
     const { error } = await supabase.from("appointments").insert({
       pet_id: selectedPet.id,
       date: selectedDate.toDate(getLocalTimeZone()).toISOString(),
+      hour: selectedTime, // Añade el tiempo seleccionado aquí
       note: notes,
       reason: appointmentReason,
       profile_id: user?.id,

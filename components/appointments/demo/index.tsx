@@ -1,7 +1,4 @@
-"use client";
-
 import { Calendar } from "@/components/appointments/calendar";
-
 import {
   type CalendarDate,
   getLocalTimeZone,
@@ -29,6 +26,7 @@ export function Demo() {
   const [focusedDate, setFocusedDate] = React.useState<CalendarDate | null>(
     date
   );
+  const [selectedTime, setSelectedTime] = React.useState<string>(""); // Nuevo estado para el tiempo seleccionado
 
   const weeksInMonth = getWeeksInMonth(focusedDate as DateValue, locale);
 
@@ -72,6 +70,8 @@ export function Demo() {
     const url = new URL(window.location.href);
     url.searchParams.set("slot", currentDate.toISOString());
     router.push(url.toString());
+
+    setSelectedTime(time); // Actualiza el estado con el tiempo seleccionado
   };
 
   const showForm = !!dateParam && !!slotParam;
@@ -94,11 +94,18 @@ export function Demo() {
               onFocusChange={(focused) => setFocusedDate(focused)}
             />
             <RightPanel
-              {...{ date, timeZone, weeksInMonth, handleChangeAvailableTime }}
+              date={date}
+              timeZone={timeZone}
+              weeksInMonth={weeksInMonth}
+              handleChangeAvailableTime={handleChangeAvailableTime}
+              setSelectedTime={setSelectedTime} // Pasa la función para manejar el tiempo seleccionado
             />
           </>
         ) : (
-          <FormPanel selectedDate={date} />
+          <FormPanel
+            selectedDate={date}
+            selectedTime={selectedTime} // Pasa el tiempo seleccionado al panel de formulario
+          />
         )}
       </div>
     </div>
