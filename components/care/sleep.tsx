@@ -40,6 +40,7 @@ import { TimePickerDemo } from "../appointments/time-picker";
 import React from "react";
 import { Badge } from "../ui/badge";
 import { Progress } from "../ui/progress";
+import { createClient } from "@/utils/supabase/client";
 
 ChartJS.register(
   CategoryScale,
@@ -56,32 +57,91 @@ interface SleepEntry {
 }
 
 export default function Sleep() {
+  const supabase = createClient();
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [sleepLog, setSleepLog] = useState<SleepEntry[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const handleSubmit = (e: React.FormEvent) => {
+  const [selectedLog, setSelectedLog] = useState(null);
+  const { selectedPet } = useSelectedPet();
+  useEffect(() => {
+    const fetchSleepLogs = async () => {
+      const { data, error } = await supabase
+        .from("sleep_patterns")
+        .select("*")
+        .eq("pet_id", selectedPet.id)
+        .order("date", { ascending: false });
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Hubo un error al obtener los registros de sueño.",
+          variant: "destructive",
+        });
+      } else {
+        const formattedLogs = data.map((entry) => ({
+          id: entry.id,
+          duration: formatTimeFromSupabase(entry.total_time), // Convertir el formato
+          timestamp: new Date(entry.date).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          }),
+        }));
+        setSleepLog(formattedLogs);
+      }
+    };
+
+    fetchSleepLogs();
+  }, [selectedPet.id]);
+  const getCurrentDateTimeForSupabase = () => {
+    return new Date().toISOString(); // Formato ISO 8601
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (date) {
+      // Obtener la fecha y hora actual en formato ISO 8601
+      const isoDateTime = getCurrentDateTimeForSupabase();
+
       const hours = date.getHours().toString().padStart(2, "0");
       const minutes = date.getMinutes().toString().padStart(2, "0");
-      const duration = `${hours}:${minutes}`;
+      const totalHours = `${hours}.${minutes}`;
+
       const newEntry: SleepEntry = {
         id: Date.now(),
-        duration: duration,
+        duration: `${hours}:${minutes}`,
         timestamp: new Date().toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
-          hour12: true, // Usa el formato de 12 horas con AM/PM
+          hour12: true,
         }),
       };
 
-      setSleepLog((prevLog) => [newEntry, ...prevLog]);
-      setDate(undefined);
+      // Guardar en la tabla 'sleep_patterns'
+      const { error } = await supabase.from("sleep_patterns").insert([
+        {
+          pet_id: selectedPet.id,
+          date: isoDateTime, // Fecha y hora en formato ISO 8601 para `timestampz`
+          total_time: totalHours,
+        },
+      ]);
 
-      toast({
-        title: "Sueño registrado",
-        description: `Tu perro durmió durante ${hours} horas y ${minutes} minutos.`,
-      });
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Hubo un error al registrar el sueño.",
+          variant: "destructive",
+        });
+      } else {
+        // Actualiza el estado local con el nuevo registro
+        setSleepLog((prevLog) => [newEntry, ...prevLog]);
+        setDate(undefined);
+
+        toast({
+          title: "Sueño registrado",
+          description: `Tu perro durmió durante ${hours} horas y ${minutes} minutos.`,
+        });
+      }
     } else {
       toast({
         title: "Error",
@@ -90,7 +150,6 @@ export default function Sleep() {
       });
     }
   };
-  const { selectedPet } = useSelectedPet();
 
   const chartData = {
     labels: ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
@@ -180,8 +239,16 @@ export default function Sleep() {
     let totalMinutes = 0;
 
     logs.forEach((entry) => {
-      const [hours, minutes] = entry.duration.split(":").map(Number);
-      totalMinutes += hours * 60 + minutes;
+      // Asegúrate de que duration sea una cadena
+      const durationString =
+        typeof entry.duration === "string" ? entry.duration : "";
+
+      // Maneja el caso donde durationString puede estar vacío o no tener el formato esperado
+      if (durationString) {
+        const [hours, minutes] = durationString.split(":").map(Number);
+        totalMinutes +=
+          (isNaN(hours) ? 0 : hours) * 60 + (isNaN(minutes) ? 0 : minutes);
+      }
     });
 
     const totalHours = Math.floor(totalMinutes / 60);
@@ -189,6 +256,7 @@ export default function Sleep() {
 
     return { totalHours, remainingMinutes };
   };
+
   const { totalHours, remainingMinutes } = calculateTotalSleep(sleepLog);
 
   const calculateSleepProgress = (
@@ -207,12 +275,25 @@ export default function Sleep() {
 
     return percentage; // Devolver el porcentaje como número entero
   };
+
   // Calcular el porcentaje de progreso
   const progressPercentage = calculateSleepProgress(
     totalHours,
     remainingMinutes,
     recommendedHours
   );
+  const formatTimeFromSupabase = (timeFloat: number) => {
+    // Convertir el número float en horas y minutos
+    const hours = Math.floor(timeFloat); // Parte entera como horas
+    const minutes = Math.round((timeFloat - hours) * 100); // Parte decimal como minutos
+
+    // Formatear horas y minutos para tener siempre dos dígitos
+    const formattedHours = hours.toString().padStart(2, "0");
+    const formattedMinutes = minutes.toString().padStart(2, "0");
+
+    // Combinar horas y minutos en el formato deseado
+    return `${formattedHours}:${formattedMinutes}`;
+  };
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 p-4">
