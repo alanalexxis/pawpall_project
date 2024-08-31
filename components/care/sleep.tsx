@@ -162,6 +162,21 @@ export default function Sleep() {
     year: "numeric",
   });
 
+  const calculateTotalSleep = (logs: SleepEntry[]) => {
+    let totalMinutes = 0;
+
+    logs.forEach((entry) => {
+      const [hours, minutes] = entry.duration.split(":").map(Number);
+      totalMinutes += hours * 60 + minutes;
+    });
+
+    const totalHours = Math.floor(totalMinutes / 60);
+    const remainingMinutes = totalMinutes % 60;
+
+    return { totalHours, remainingMinutes };
+  };
+  const { totalHours, remainingMinutes } = calculateTotalSleep(sleepLog);
+
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 p-4">
       <motion.div
@@ -326,33 +341,42 @@ export default function Sleep() {
                   Registro de sueño{" "}
                   <Badge className="text-sm">{formattedDate}</Badge>
                 </CardTitle>
-
                 <CardDescription>
                   Historial de sueños registrados
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 {sleepLog.length > 0 ? (
-                  <ul className="space-y-4">
-                    {sleepLog.map((entry) => (
-                      <li
-                        key={entry.id}
-                        className="flex items-start justify-between border-b pb-2"
-                      >
-                        <div className="flex items-start space-x-2">
-                          <Clock className="w-5 h-5 text-primary mt-1" />
-                          <div>
-                            <span className="font-semibold">
-                              {entry.duration}
-                            </span>
+                  <>
+                    <div className="mb-4">
+                      <p className="font-semibold">
+                        Total de sueño registrado:
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {totalHours} horas y {remainingMinutes} minutos
+                      </p>
+                    </div>
+                    <ul className="space-y-4">
+                      {sleepLog.map((entry) => (
+                        <li
+                          key={entry.id}
+                          className="flex items-start justify-between border-b pb-2"
+                        >
+                          <div className="flex items-start space-x-2">
+                            <Clock className="w-5 h-5 text-primary mt-1" />
+                            <div>
+                              <span className="font-semibold">
+                                {entry.duration}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                        <span className="text-sm text-muted-foreground">
-                          {entry.timestamp}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
+                          <span className="text-sm text-muted-foreground">
+                            {entry.timestamp}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
                 ) : (
                   <p className="text-muted-foreground">
                     No hay registros de sueño aún.
