@@ -112,25 +112,26 @@ export default function Emotions() {
   };
 
   const getMoodIcon = (moodValue) => {
-    if (moodValue < 33) return <Frown className="w-16 h-16 text-red-500" />;
+    if (moodValue == 0) return <Smile className="w-16 h-16 text-green-500" />;
+    if (moodValue <= 33) return <Frown className="w-16 h-16 text-red-500" />;
     if (moodValue < 66) return <Meh className="w-16 h-16 text-yellow-500" />;
     return <Smile className="w-16 h-16 text-green-500" />;
   };
 
-  const getRecommendation = (mood) => {
-    if (mood <= 20) {
+  const getRecommendation = (moodPercentage) => {
+    if (calculateMoodPercentage() <= 20) {
       return "Tu perro está muy triste. Intenta pasar más tiempo con él, tal vez un largo paseo o un rato de juego. Si su tristeza persiste, considera consultar a un veterinario para descartar problemas de salud.";
     }
-    if (mood <= 33) {
+    if (moodPercentage <= 33) {
       return "Tu perro parece estar triste. Considera darle un paseo o jugar con él para levantar su ánimo. Si su tristeza continúa, puede ser útil consultar con un veterinario.";
     }
-    if (mood <= 50) {
+    if (moodPercentage <= 50) {
       return "Tu perro está bien, pero podrías mejorar su día con una golosina o un poco de atención extra. Si notas algún cambio inusual en su comportamiento, no dudes en hablar con un veterinario.";
     }
-    if (mood <= 66) {
+    if (moodPercentage <= 66) {
       return "Tu perro está en un buen estado de ánimo. ¿Por qué no intentas mantenerlo así con un poco de juego?";
     }
-    if (mood <= 80) {
+    if (moodPercentage <= 80) {
       return "¡Tu perro está feliz! Sigue así con los cuidados que le das.";
     }
     return "¡Tu perro está en un estado de ánimo excelente! Continúa con las buenas prácticas y tu perro estará muy contento.";
@@ -191,6 +192,26 @@ export default function Emotions() {
     }
   };
 
+  const calculateMoodPercentage = () => {
+    const totalAttributes =
+      energyLevel +
+      calmLevel +
+      curiosityLevel +
+      affectionLevel +
+      trustLevel +
+      happinessLevel +
+      dailyMood;
+
+    // El valor máximo posible es 18 (6 atributos * 3)
+    const maxPossibleValue = 21;
+
+    // Calcula el porcentaje
+    const moodPercentage = (totalAttributes / maxPossibleValue) * 100;
+
+    return Math.round(moodPercentage);
+  };
+  const moodPercentage = calculateMoodPercentage();
+
   return (
     <>
       {showConfetti && (
@@ -227,20 +248,24 @@ export default function Emotions() {
                         damping: 20,
                       }}
                     >
-                      {getMoodIcon(mood)}
+                      {getMoodIcon(moodPercentage)}
                     </motion.div>
                   </div>
-                  <Progress value={mood} className="w-full h-4 mb-4" />
+                  <Progress
+                    value={moodPercentage}
+                    className="w-full h-4 mb-4"
+                  />
                   <p className="text-center mb-6 text-lg font-semibold">
-                    Estado de ánimo actual: {mood}%
+                    Estado de ánimo actual: {moodPercentage}%
                   </p>
-                  {selectedPet &&
-                    (mood <= 50 ? (
+                  {hasEntryForToday &&
+                    selectedPet &&
+                    (moodPercentage <= 50 ? (
                       <Alert variant="destructive">
                         <ExclamationTriangleIcon className="h-4 w-4" />
                         <AlertTitle>Alerta de estado de ánimo</AlertTitle>
                         <AlertDescription>
-                          {getRecommendation(mood)}
+                          {getRecommendation(moodPercentage)}
                         </AlertDescription>
                       </Alert>
                     ) : (
@@ -248,7 +273,7 @@ export default function Emotions() {
                         <RocketIcon className="h-4 w-4" />
                         <AlertTitle>Recomendación</AlertTitle>
                         <AlertDescription>
-                          {getRecommendation(mood)}
+                          {getRecommendation(moodPercentage)}
                         </AlertDescription>
                       </Alert>
                     ))}
@@ -296,17 +321,17 @@ export default function Emotions() {
                         >
                           {[
                             {
-                              value: "1",
+                              value: 1,
                               icon: Frown,
                               color: "text-red-500",
                             },
                             {
-                              value: "2",
+                              value: 2,
                               icon: Meh,
                               color: "text-yellow-500",
                             },
                             {
-                              value: "3",
+                              value: 3,
                               icon: Smile,
                               color: "text-green-500",
                             },
