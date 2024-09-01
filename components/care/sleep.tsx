@@ -9,7 +9,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { calculateSleepByDayOfWeek, SleepEntry } from "@/lib/utils"; // Importar la función y la interfaz
+
 import { Label } from "@/components/ui/label";
 import {
   Bell,
@@ -66,6 +67,7 @@ interface SleepEntry {
   id: number;
   duration: string;
   timestamp: string;
+  date: Date;
 }
 
 export default function Sleep() {
@@ -73,10 +75,10 @@ export default function Sleep() {
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [sleepLog, setSleepLog] = useState<SleepEntry[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
-
   const { selectedPet } = useSelectedPet();
   const [logToDelete, setLogToDelete] = useState<number | null>(null); // Estado para el log a eliminar
   const [isAlertOpen, setIsAlertOpen] = useState(false); // Estado para el modal
+
   // Fetch sleep logs when component mounts or selectedPet changes
   const fetchSleepLogs = async () => {
     const { data, error } = await supabase
@@ -100,7 +102,8 @@ export default function Sleep() {
           minute: "2-digit",
           hour12: true,
         }),
-        date: new Date(entry.date).toLocaleDateString("es-ES"), // Guardar la fecha en formato de cadena
+        date: new Date(entry.date), // Formato ISO para comparaciones
+        displayDate: new Date(entry.date).toLocaleDateString("es-ES"),
       }));
       setSleepLog(formattedLogs);
     }
@@ -155,29 +158,7 @@ export default function Sleep() {
       });
     }
   };
-  const chartData = {
-    labels: ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
-    datasets: [
-      {
-        label: "Horas de sueño",
-        data: [8, 7.5, 9, 8.5, 7, 10, 9.5],
-        backgroundColor: "rgba(34, 197, 94, 0.5)", // Tailwind green-500 with opacity
-      },
-    ],
-  };
 
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "top" as const,
-      },
-      title: {
-        display: true,
-        text: "Patrón de sueño semanal",
-      },
-    },
-  };
   const getAgeInYears = (birthDate: Date) => {
     const today = new Date();
     const age = today.getFullYear() - birthDate.getFullYear();
@@ -243,7 +224,9 @@ export default function Sleep() {
     let totalMinutes = 0;
 
     logs
-      .filter((entry) => entry.date === new Date().toLocaleDateString("es-ES"))
+      .filter(
+        (entry) => entry.displayDate === new Date().toLocaleDateString("es-ES")
+      )
       .forEach((entry) => {
         const durationString =
           typeof entry.duration === "string" ? entry.duration : "";
@@ -306,7 +289,7 @@ export default function Sleep() {
       const [hours, minutes] = entry.duration.split(":").map(Number);
       const sleepMinutes =
         (isNaN(hours) ? 0 : hours * 60) + (isNaN(minutes) ? 0 : minutes);
-      const date = entry.date;
+      const date = entry.displayDate;
 
       if (!dailySleep[date]) {
         dailySleep[date] = 0;
@@ -375,7 +358,7 @@ export default function Sleep() {
     const napsPerDay: Record<string, number> = {};
 
     logs.forEach((entry) => {
-      const date = entry.date;
+      const date = entry.displayDate;
       if (!napsPerDay[date]) {
         napsPerDay[date] = 0;
       }
@@ -435,6 +418,54 @@ export default function Sleep() {
       }
       setIsAlertOpen(false);
     }
+  };
+
+  // Preparar los datos para la gráfica
+  const sleepByDay = calculateSleepByDayOfWeek(sleepLog);
+
+  const chartData = {
+    labels: [
+      "Lunes",
+      "Martes",
+      "Miércoles",
+      "Jueves",
+      "Viernes",
+      "Sábado",
+      "Domingo",
+    ],
+    datasets: [
+      {
+        label: "Horas de sueño",
+        data: [
+          sleepByDay.Mon,
+          sleepByDay.Tue,
+          sleepByDay.Wed,
+          sleepByDay.Thu,
+          sleepByDay.Fri,
+          sleepByDay.Sat,
+          sleepByDay.Sun,
+        ],
+        backgroundColor: "rgba(34, 197, 94, 0.5)", // Tailwind green-500 with opacity
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "top" as const,
+      },
+      title: {
+        display: true,
+        text: "Patrón de sueño semanal",
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
   };
 
   return (
@@ -630,7 +661,7 @@ export default function Sleep() {
                       {sleepLog
                         .filter(
                           (entry) =>
-                            entry.date ===
+                            entry.displayDate ===
                             selectedDate.toLocaleDateString("es-ES")
                         )
                         .map((entry) => (
