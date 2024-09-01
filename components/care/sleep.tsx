@@ -77,35 +77,36 @@ export default function Sleep() {
   const { selectedPet } = useSelectedPet();
   const [logToDelete, setLogToDelete] = useState<number | null>(null); // Estado para el log a eliminar
   const [isAlertOpen, setIsAlertOpen] = useState(false); // Estado para el modal
+  // Fetch sleep logs when component mounts or selectedPet changes
+  const fetchSleepLogs = async () => {
+    const { data, error } = await supabase
+      .from("sleep_patterns")
+      .select("*")
+      .eq("pet_id", selectedPet.id)
+      .order("date", { ascending: false });
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Hubo un error al obtener los registros de sueño.",
+        variant: "destructive",
+      });
+    } else {
+      const formattedLogs = data.map((entry) => ({
+        id: entry.id,
+        duration: formatTimeFromSupabase(entry.total_time), // Convertir el formato
+        timestamp: new Date(entry.date).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        }),
+        date: new Date(entry.date).toLocaleDateString("es-ES"), // Guardar la fecha en formato de cadena
+      }));
+      setSleepLog(formattedLogs);
+    }
+  };
+
   useEffect(() => {
-    const fetchSleepLogs = async () => {
-      const { data, error } = await supabase
-        .from("sleep_patterns")
-        .select("*")
-        .eq("pet_id", selectedPet.id)
-        .order("date", { ascending: false });
-
-      if (error) {
-        toast({
-          title: "Error",
-          description: "Hubo un error al obtener los registros de sueño.",
-          variant: "destructive",
-        });
-      } else {
-        const formattedLogs = data.map((entry) => ({
-          id: entry.id,
-          duration: formatTimeFromSupabase(entry.total_time), // Convertir el formato
-          timestamp: new Date(entry.date).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-          }),
-          date: new Date(entry.date).toLocaleDateString("es-ES"), // Guardar la fecha en formato de cadena
-        }));
-        setSleepLog(formattedLogs);
-      }
-    };
-
     fetchSleepLogs();
   }, [selectedPet.id]);
 
@@ -116,32 +117,21 @@ export default function Sleep() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (date) {
-      // Obtener la fecha y hora actual en formato ISO 8601
       const isoDateTime = getCurrentDateTimeForSupabase();
-
       const hours = date.getHours().toString().padStart(2, "0");
       const minutes = date.getMinutes().toString().padStart(2, "0");
       const totalHours = `${hours}.${minutes}`;
 
-      const newEntry: SleepEntry = {
-        id: Date.now(),
-        duration: `${hours}:${minutes}`,
-        timestamp: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true,
-        }),
-        date: new Date().toLocaleDateString("es-ES"), // Guardar la fecha en formato de cadena
-      };
-
-      // Guardar en la tabla 'sleep_patterns'
-      const { error } = await supabase.from("sleep_patterns").insert([
-        {
-          pet_id: selectedPet.id,
-          date: isoDateTime, // Fecha y hora en formato ISO 8601 para `timestampz`
-          total_time: totalHours,
-        },
-      ]);
+      const { data, error } = await supabase
+        .from("sleep_patterns")
+        .insert([
+          {
+            pet_id: selectedPet.id,
+            date: isoDateTime,
+            total_time: totalHours,
+          },
+        ])
+        .single(); // Obtener un solo registro
 
       if (error) {
         toast({
@@ -150,14 +140,12 @@ export default function Sleep() {
           variant: "destructive",
         });
       } else {
-        // Actualiza el estado local con el nuevo registro
-        setSleepLog((prevLog) => [newEntry, ...prevLog]);
-        setDate(undefined);
-
         toast({
           title: "Sueño registrado",
           description: `Tu perro durmió durante ${hours} horas y ${minutes} minutos.`,
         });
+        // Re-fetch sleep logs after successful insertion
+        fetchSleepLogs();
       }
     } else {
       toast({
@@ -412,23 +400,34 @@ export default function Sleep() {
   // Usar las funciones en tu componente
   const napsPerDay = calculateNapsPerDay(sleepLog);
   const averageNapsPerDay = calculateAverageNapsPerDay(napsPerDay);
+
   const handleDelete = async () => {
     if (logToDelete !== null) {
+      console.log("ID del registro a eliminar:", logToDelete); // Depuración del ID
+
       const { error } = await supabase
         .from("sleep_patterns")
         .delete()
-        .match({ id: logToDelete });
+        .eq("id", logToDelete); // Asegúrate de usar .eq en lugar de .match
 
       if (error) {
+        console.error("Error al eliminar el registro:", error.message); // Depuración del error
         toast({
           title: "Error",
           description: "Hubo un error al eliminar el registro de sueño.",
           variant: "destructive",
         });
       } else {
-        setSleepLog((prevLog) =>
-          prevLog.filter((entry) => entry.id !== logToDelete)
-        );
+        setSleepLog((prevLog) => {
+          const updatedLog = prevLog.filter(
+            (entry) => entry.id !== logToDelete
+          );
+          console.log(
+            "Registro actualizado después de eliminación:",
+            updatedLog
+          ); // Depuración del estado
+          return updatedLog;
+        });
         toast({
           title: "Registro eliminado",
           description: "El registro de sueño ha sido eliminado con éxito.",
@@ -437,6 +436,7 @@ export default function Sleep() {
       setIsAlertOpen(false);
     }
   };
+
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 p-4">
       <motion.div
