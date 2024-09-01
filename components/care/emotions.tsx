@@ -35,7 +35,7 @@ import Confetti from "react-confetti";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 export default function Emotions() {
-  const [mood, setMood] = useState(20);
+  const [mood, setMood] = useState(90);
   const [moodHistory, setMoodHistory] = useState([]);
   const [dailyMood, setDailyMood] = useState(null);
   const [energyLevel, setEnergyLevel] = useState(null);
@@ -107,6 +107,7 @@ export default function Emotions() {
   };
 
   const { selectedPet } = useSelectedPet();
+
   const attributes = [
     { name: "Energía", value: energyLevel },
     { name: "Calma", value: calmLevel },
@@ -115,6 +116,12 @@ export default function Emotions() {
     { name: "Confianza", value: trustLevel },
     { name: "Felicidad", value: happinessLevel },
   ];
+  const descriptionMap = {
+    1: "Bajo",
+    2: "Moderado",
+    3: "Alto",
+  };
+
   return (
     <>
       {showConfetti && (
@@ -176,7 +183,7 @@ export default function Emotions() {
                         </AlertDescription>
                       </Alert>
                     ))}
-                  <Card className="mb-6">
+                  <Card className="mb-6 mt-6">
                     <CardHeader>
                       <CardTitle className="text-lg">
                         Estado de ánimo en los últimos 7 días
@@ -268,25 +275,31 @@ export default function Emotions() {
                           </CardHeader>
                           <CardContent>
                             <RadioGroup
-                              onValueChange={setEnergyLevel}
+                              onValueChange={(value) =>
+                                setEnergyLevel(Number(value))
+                              }
                               className="flex justify-between"
                             >
-                              {["Bajo", "Moderado", "Alto"].map((level) => (
+                              {[
+                                { label: "Bajo", value: 1 },
+                                { label: "Moderado", value: 2 },
+                                { label: "Alto", value: 3 },
+                              ].map(({ label, value }) => (
                                 <div
-                                  key={level}
+                                  key={value}
                                   className="flex flex-col items-center"
                                 >
                                   <RadioGroupItem
-                                    value={level.toLowerCase()}
-                                    id={level}
+                                    value={value.toString()}
+                                    id={label}
                                     className="sr-only"
                                   />
                                   <Label
-                                    htmlFor={level}
+                                    htmlFor={label}
                                     className="cursor-pointer"
                                   >
                                     <span className="text-lg font-semibold">
-                                      {level}
+                                      {label}
                                     </span>
                                   </Label>
                                 </div>
@@ -305,25 +318,31 @@ export default function Emotions() {
                           </CardHeader>
                           <CardContent>
                             <RadioGroup
-                              onValueChange={setCalmLevel}
+                              onValueChange={(value) =>
+                                setCalmLevel(Number(value))
+                              }
                               className="flex justify-between"
                             >
-                              {["Bajo", "Moderado", "Alto"].map((level) => (
+                              {[
+                                { label: "Bajo", value: 1 },
+                                { label: "Moderado", value: 2 },
+                                { label: "Alto", value: 3 },
+                              ].map(({ label, value }) => (
                                 <div
-                                  key={level}
+                                  key={value}
                                   className="flex flex-col items-center"
                                 >
                                   <RadioGroupItem
-                                    value={level.toLowerCase()}
-                                    id={level}
+                                    value={value.toString()}
+                                    id={label}
                                     className="sr-only"
                                   />
                                   <Label
-                                    htmlFor={level}
+                                    htmlFor={label}
                                     className="cursor-pointer"
                                   >
                                     <span className="text-lg font-semibold">
-                                      {level}
+                                      {label}
                                     </span>
                                   </Label>
                                 </div>
@@ -342,25 +361,31 @@ export default function Emotions() {
                           </CardHeader>
                           <CardContent>
                             <RadioGroup
-                              onValueChange={setCuriosityLevel}
+                              onValueChange={(value) =>
+                                setCuriosityLevel(Number(value))
+                              }
                               className="flex justify-between"
                             >
-                              {["Bajo", "Moderado", "Alto"].map((level) => (
+                              {[
+                                { label: "Bajo", value: 1 },
+                                { label: "Moderado", value: 2 },
+                                { label: "Alto", value: 3 },
+                              ].map(({ label, value }) => (
                                 <div
-                                  key={level}
+                                  key={value}
                                   className="flex flex-col items-center"
                                 >
                                   <RadioGroupItem
-                                    value={level.toLowerCase()}
-                                    id={level}
+                                    value={value.toString()}
+                                    id={label}
                                     className="sr-only"
                                   />
                                   <Label
-                                    htmlFor={level}
+                                    htmlFor={label}
                                     className="cursor-pointer"
                                   >
                                     <span className="text-lg font-semibold">
-                                      {level}
+                                      {label}
                                     </span>
                                   </Label>
                                 </div>
@@ -379,25 +404,31 @@ export default function Emotions() {
                           </CardHeader>
                           <CardContent>
                             <RadioGroup
-                              onValueChange={setAffectionLevel}
+                              onValueChange={(value) =>
+                                setAffectionLevel(Number(value))
+                              }
                               className="flex justify-between"
                             >
-                              {["Bajo", "Moderado", "Alto"].map((level) => (
+                              {[
+                                { label: "Bajo", value: 1 },
+                                { label: "Moderado", value: 2 },
+                                { label: "Alto", value: 3 },
+                              ].map(({ label, value }) => (
                                 <div
-                                  key={level}
+                                  key={value}
                                   className="flex flex-col items-center"
                                 >
                                   <RadioGroupItem
-                                    value={level.toLowerCase()}
-                                    id={level}
+                                    value={value.toString()}
+                                    id={label}
                                     className="sr-only"
                                   />
                                   <Label
-                                    htmlFor={level}
+                                    htmlFor={label}
                                     className="cursor-pointer"
                                   >
                                     <span className="text-lg font-semibold">
-                                      {level}
+                                      {label}
                                     </span>
                                   </Label>
                                 </div>
@@ -416,25 +447,31 @@ export default function Emotions() {
                           </CardHeader>
                           <CardContent>
                             <RadioGroup
-                              onValueChange={setTrustLevel}
+                              onValueChange={(value) =>
+                                setTrustLevel(Number(value))
+                              }
                               className="flex justify-between"
                             >
-                              {["Bajo", "Moderado", "Alto"].map((level) => (
+                              {[
+                                { label: "Bajo", value: 1 },
+                                { label: "Moderado", value: 2 },
+                                { label: "Alto", value: 3 },
+                              ].map(({ label, value }) => (
                                 <div
-                                  key={level}
+                                  key={value}
                                   className="flex flex-col items-center"
                                 >
                                   <RadioGroupItem
-                                    value={level.toLowerCase()}
-                                    id={level}
+                                    value={value.toString()}
+                                    id={label}
                                     className="sr-only"
                                   />
                                   <Label
-                                    htmlFor={level}
+                                    htmlFor={label}
                                     className="cursor-pointer"
                                   >
                                     <span className="text-lg font-semibold">
-                                      {level}
+                                      {label}
                                     </span>
                                   </Label>
                                 </div>
@@ -443,7 +480,6 @@ export default function Emotions() {
                           </CardContent>
                         </Card>
                       )}
-
                       {trustLevel !== null && happinessLevel === null && (
                         <Card className="mb-6">
                           <CardHeader>
@@ -453,25 +489,31 @@ export default function Emotions() {
                           </CardHeader>
                           <CardContent>
                             <RadioGroup
-                              onValueChange={handleHappinessChange}
+                              onValueChange={(value) =>
+                                handleHappinessChange(Number(value))
+                              }
                               className="flex justify-between"
                             >
-                              {["Bajo", "Moderado", "Alto"].map((level) => (
+                              {[
+                                { label: "Bajo", value: 1 },
+                                { label: "Moderado", value: 2 },
+                                { label: "Alto", value: 3 },
+                              ].map(({ label, value }) => (
                                 <div
-                                  key={level}
+                                  key={value}
                                   className="flex flex-col items-center"
                                 >
                                   <RadioGroupItem
-                                    value={level.toLowerCase()}
-                                    id={level}
+                                    value={value.toString()}
+                                    id={label}
                                     className="sr-only"
                                   />
                                   <Label
-                                    htmlFor={level}
+                                    htmlFor={label}
                                     className="cursor-pointer"
                                   >
                                     <span className="text-lg font-semibold">
-                                      {level}
+                                      {label}
                                     </span>
                                   </Label>
                                 </div>
@@ -509,7 +551,8 @@ export default function Emotions() {
                                         {attribute.name}:
                                       </strong>
                                       <div className="mt-2 text-md">
-                                        {attribute.value}
+                                        {descriptionMap[attribute.value] ||
+                                          attribute.value}
                                       </div>
                                     </div>
                                   </CardContent>
