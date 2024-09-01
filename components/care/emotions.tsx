@@ -34,23 +34,24 @@ import useWindowSize from "react-use/lib/useWindowSize";
 import Confetti from "react-confetti";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import { createClient } from "@/utils/supabase/client";
+import { toast } from "../ui/use-toast";
+
 export default function Emotions() {
+  const supabase = createClient();
+  const { selectedPet } = useSelectedPet();
+  const [energyLevel, setEnergyLevel] = useState(null);
+  const [calmLevel, setCalmLevel] = useState(null);
+  const [affectionLevel, setAffectionLevel] = useState(null);
+  const [curiosityLevel, setCuriosityLevel] = useState(null);
+  const [trustLevel, setTrustLevel] = useState(null);
+  const [happinessLevel, setHappinessLevel] = useState(null);
+  const { width, height } = useWindowSize();
+  const [showConfetti, setShowConfetti] = useState(false);
   const [mood, setMood] = useState(90);
   const [moodHistory, setMoodHistory] = useState([]);
   const [dailyMood, setDailyMood] = useState(null);
-  const [energyLevel, setEnergyLevel] = useState(null);
-  const [calmLevel, setCalmLevel] = useState(null); // Nuevo estado para el nivel de calma
-  const [affectionLevel, setAffectionLevel] = useState(null); // Nuevo estado para el nivel de calma
-  const [curiosityLevel, setCuriosityLevel] = useState(null); // Nuevo estado para el nivel de calma
-  const [trustLevel, setTrustLevel] = useState(null); // Nuevo estado para el nivel de calma
-  const [happinessLevel, setHappinessLevel] = useState(null); // Nuevo estado para el nivel de calma
-  const { width, height } = useWindowSize();
-  const [showConfetti, setShowConfetti] = useState(false);
-  const handleHappinessChange = (level) => {
-    setHappinessLevel(level);
-    setShowConfetti(true);
-  };
-  setHappinessLevel;
+  const [hasEntryForToday, setHasEntryForToday] = useState(false);
 
   useEffect(() => {
     const mockData = Array.from({ length: 7 }, (_, i) => ({
@@ -62,6 +63,43 @@ export default function Emotions() {
     setMoodHistory(mockData);
   }, []);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const today = new Date().toISOString().split("T")[0];
+      const { data, error } = await supabase
+        .from("emotions")
+        .select("*")
+        .eq("pet_id", selectedPet.id)
+        .eq("date", today);
+
+      if (error) {
+        console.error("Error fetching data:", error);
+      } else {
+        if (data.length > 0) {
+          setHasEntryForToday(true);
+          const latestEntry = data[0]; // Suponiendo que solo hay una entrada por día
+          setEnergyLevel(latestEntry.energy_level);
+          setCalmLevel(latestEntry.calm_level);
+          setCuriosityLevel(latestEntry.curiosity_level);
+          setAffectionLevel(latestEntry.affection_level);
+          setTrustLevel(latestEntry.trust_level);
+          setHappinessLevel(latestEntry.happiness_level);
+          setDailyMood(latestEntry.mood_level);
+        } else {
+          setHasEntryForToday(false);
+        }
+      }
+    };
+
+    fetchData();
+  }, [selectedPet.id]);
+
+  useEffect(() => {
+    if (happinessLevel !== null) {
+      insertEmotions();
+    }
+  }, [happinessLevel]);
+
   const updateMood = (value) => {
     setMood((prevMood) => {
       const newMood = Math.max(0, Math.min(100, prevMood + value));
@@ -71,14 +109,6 @@ export default function Emotions() {
       ]);
       return newMood;
     });
-  };
-
-  const addActivity = (activity) => {
-    setActivities((prev) => [
-      ...prev,
-      { name: activity, time: new Date().toLocaleTimeString() },
-    ]);
-    updateMood(activity === "Paseo" ? 10 : activity === "Golosina" ? 5 : 15);
   };
 
   const getMoodIcon = (moodValue) => {
@@ -106,8 +136,6 @@ export default function Emotions() {
     return "¡Tu perro está en un estado de ánimo excelente! Continúa con las buenas prácticas y tu perro estará muy contento.";
   };
 
-  const { selectedPet } = useSelectedPet();
-
   const attributes = [
     { name: "Energía", value: energyLevel },
     { name: "Calma", value: calmLevel },
@@ -116,10 +144,51 @@ export default function Emotions() {
     { name: "Confianza", value: trustLevel },
     { name: "Felicidad", value: happinessLevel },
   ];
+
   const descriptionMap = {
     1: "Bajo",
     2: "Moderado",
     3: "Alto",
+  };
+
+  const handleHappinessChange = (level) => {
+    setHappinessLevel(level);
+    setShowConfetti(true);
+  };
+
+  const insertEmotions = async () => {
+    if (!hasEntryForToday) {
+      // Solo insertar si no hay entrada para hoy
+      const today = new Date().toISOString().split("T")[0];
+
+      const { data, error } = await supabase.from("emotions").insert([
+        {
+          date: today,
+          pet_id: selectedPet.id,
+          energy_level: energyLevel,
+          calm_level: calmLevel,
+          curiosity_level: curiosityLevel,
+          affection_level: affectionLevel,
+          trust_level: trustLevel,
+          happiness_level: happinessLevel,
+          mood_level: dailyMood,
+        },
+      ]);
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "¡Ups! Algo salió mal.",
+          description: "Hubo un problema con tu solicitud.",
+        });
+      } else {
+        toast({
+          title: "¡Éxito!",
+          description: "La información de emociones se guardó con éxito.",
+        });
+        setHasEntryForToday(true);
+      }
+    }
   };
 
   return (
@@ -206,7 +275,7 @@ export default function Emotions() {
                     </CardContent>
                   </Card>
 
-                  {dailyMood === null ? (
+                  {!hasEntryForToday && dailyMood === null ? (
                     <Card className="mb-6">
                       <CardHeader>
                         <CardTitle className="text-lg">
@@ -227,17 +296,17 @@ export default function Emotions() {
                         >
                           {[
                             {
-                              value: "sad",
+                              value: "1",
                               icon: Frown,
                               color: "text-red-500",
                             },
                             {
-                              value: "neutral",
+                              value: "2",
                               icon: Meh,
                               color: "text-yellow-500",
                             },
                             {
-                              value: "happy",
+                              value: "3",
                               icon: Smile,
                               color: "text-green-500",
                             },
@@ -266,7 +335,7 @@ export default function Emotions() {
                     </Card>
                   ) : (
                     <>
-                      {energyLevel === null && (
+                      {!hasEntryForToday && energyLevel === null && (
                         <Card className="mb-6">
                           <CardHeader>
                             <CardTitle className="text-lg">
@@ -309,221 +378,232 @@ export default function Emotions() {
                         </Card>
                       )}
 
-                      {energyLevel !== null && calmLevel === null && (
-                        <Card className="mb-6">
-                          <CardHeader>
-                            <CardTitle className="text-lg">
-                              ¿Cómo fue el nivel de calma de tu perro hoy?
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <RadioGroup
-                              onValueChange={(value) =>
-                                setCalmLevel(Number(value))
-                              }
-                              className="flex justify-between"
-                            >
-                              {[
-                                { label: "Bajo", value: 1 },
-                                { label: "Moderado", value: 2 },
-                                { label: "Alto", value: 3 },
-                              ].map(({ label, value }) => (
-                                <div
-                                  key={value}
-                                  className="flex flex-col items-center"
-                                >
-                                  <RadioGroupItem
-                                    value={value.toString()}
-                                    id={label}
-                                    className="sr-only"
-                                  />
-                                  <Label
-                                    htmlFor={label}
-                                    className="cursor-pointer"
+                      {!hasEntryForToday &&
+                        energyLevel !== null &&
+                        calmLevel === null && (
+                          <Card className="mb-6">
+                            <CardHeader>
+                              <CardTitle className="text-lg">
+                                ¿Cómo fue el nivel de calma de tu perro hoy?
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <RadioGroup
+                                onValueChange={(value) =>
+                                  setCalmLevel(Number(value))
+                                }
+                                className="flex justify-between"
+                              >
+                                {[
+                                  { label: "Bajo", value: 1 },
+                                  { label: "Moderado", value: 2 },
+                                  { label: "Alto", value: 3 },
+                                ].map(({ label, value }) => (
+                                  <div
+                                    key={value}
+                                    className="flex flex-col items-center"
                                   >
-                                    <span className="text-lg font-semibold">
-                                      {label}
-                                    </span>
-                                  </Label>
-                                </div>
-                              ))}
-                            </RadioGroup>
-                          </CardContent>
-                        </Card>
-                      )}
+                                    <RadioGroupItem
+                                      value={value.toString()}
+                                      id={label}
+                                      className="sr-only"
+                                    />
+                                    <Label
+                                      htmlFor={label}
+                                      className="cursor-pointer"
+                                    >
+                                      <span className="text-lg font-semibold">
+                                        {label}
+                                      </span>
+                                    </Label>
+                                  </div>
+                                ))}
+                              </RadioGroup>
+                            </CardContent>
+                          </Card>
+                        )}
 
-                      {calmLevel !== null && curiosityLevel === null && (
-                        <Card className="mb-6">
-                          <CardHeader>
-                            <CardTitle className="text-lg">
-                              ¿Cómo fue el nivel de curiosidad de tu perro hoy?
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <RadioGroup
-                              onValueChange={(value) =>
-                                setCuriosityLevel(Number(value))
-                              }
-                              className="flex justify-between"
-                            >
-                              {[
-                                { label: "Bajo", value: 1 },
-                                { label: "Moderado", value: 2 },
-                                { label: "Alto", value: 3 },
-                              ].map(({ label, value }) => (
-                                <div
-                                  key={value}
-                                  className="flex flex-col items-center"
-                                >
-                                  <RadioGroupItem
-                                    value={value.toString()}
-                                    id={label}
-                                    className="sr-only"
-                                  />
-                                  <Label
-                                    htmlFor={label}
-                                    className="cursor-pointer"
+                      {!hasEntryForToday &&
+                        calmLevel !== null &&
+                        curiosityLevel === null && (
+                          <Card className="mb-6">
+                            <CardHeader>
+                              <CardTitle className="text-lg">
+                                ¿Cómo fue el nivel de curiosidad de tu perro
+                                hoy?
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <RadioGroup
+                                onValueChange={(value) =>
+                                  setCuriosityLevel(Number(value))
+                                }
+                                className="flex justify-between"
+                              >
+                                {[
+                                  { label: "Bajo", value: 1 },
+                                  { label: "Moderado", value: 2 },
+                                  { label: "Alto", value: 3 },
+                                ].map(({ label, value }) => (
+                                  <div
+                                    key={value}
+                                    className="flex flex-col items-center"
                                   >
-                                    <span className="text-lg font-semibold">
-                                      {label}
-                                    </span>
-                                  </Label>
-                                </div>
-                              ))}
-                            </RadioGroup>
-                          </CardContent>
-                        </Card>
-                      )}
+                                    <RadioGroupItem
+                                      value={value.toString()}
+                                      id={label}
+                                      className="sr-only"
+                                    />
+                                    <Label
+                                      htmlFor={label}
+                                      className="cursor-pointer"
+                                    >
+                                      <span className="text-lg font-semibold">
+                                        {label}
+                                      </span>
+                                    </Label>
+                                  </div>
+                                ))}
+                              </RadioGroup>
+                            </CardContent>
+                          </Card>
+                        )}
 
-                      {curiosityLevel !== null && affectionLevel === null && (
-                        <Card className="mb-6">
-                          <CardHeader>
-                            <CardTitle className="text-lg">
-                              ¿Cómo fue el nivel de afecto de tu perro hoy?
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <RadioGroup
-                              onValueChange={(value) =>
-                                setAffectionLevel(Number(value))
-                              }
-                              className="flex justify-between"
-                            >
-                              {[
-                                { label: "Bajo", value: 1 },
-                                { label: "Moderado", value: 2 },
-                                { label: "Alto", value: 3 },
-                              ].map(({ label, value }) => (
-                                <div
-                                  key={value}
-                                  className="flex flex-col items-center"
-                                >
-                                  <RadioGroupItem
-                                    value={value.toString()}
-                                    id={label}
-                                    className="sr-only"
-                                  />
-                                  <Label
-                                    htmlFor={label}
-                                    className="cursor-pointer"
+                      {!hasEntryForToday &&
+                        curiosityLevel !== null &&
+                        affectionLevel === null && (
+                          <Card className="mb-6">
+                            <CardHeader>
+                              <CardTitle className="text-lg">
+                                ¿Cómo fue el nivel de afecto de tu perro hoy?
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <RadioGroup
+                                onValueChange={(value) =>
+                                  setAffectionLevel(Number(value))
+                                }
+                                className="flex justify-between"
+                              >
+                                {[
+                                  { label: "Bajo", value: 1 },
+                                  { label: "Moderado", value: 2 },
+                                  { label: "Alto", value: 3 },
+                                ].map(({ label, value }) => (
+                                  <div
+                                    key={value}
+                                    className="flex flex-col items-center"
                                   >
-                                    <span className="text-lg font-semibold">
-                                      {label}
-                                    </span>
-                                  </Label>
-                                </div>
-                              ))}
-                            </RadioGroup>
-                          </CardContent>
-                        </Card>
-                      )}
+                                    <RadioGroupItem
+                                      value={value.toString()}
+                                      id={label}
+                                      className="sr-only"
+                                    />
+                                    <Label
+                                      htmlFor={label}
+                                      className="cursor-pointer"
+                                    >
+                                      <span className="text-lg font-semibold">
+                                        {label}
+                                      </span>
+                                    </Label>
+                                  </div>
+                                ))}
+                              </RadioGroup>
+                            </CardContent>
+                          </Card>
+                        )}
 
-                      {affectionLevel !== null && trustLevel === null && (
-                        <Card className="mb-6">
-                          <CardHeader>
-                            <CardTitle className="text-lg">
-                              ¿Cómo fue el nivel de confianza de tu perro hoy?
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <RadioGroup
-                              onValueChange={(value) =>
-                                setTrustLevel(Number(value))
-                              }
-                              className="flex justify-between"
-                            >
-                              {[
-                                { label: "Bajo", value: 1 },
-                                { label: "Moderado", value: 2 },
-                                { label: "Alto", value: 3 },
-                              ].map(({ label, value }) => (
-                                <div
-                                  key={value}
-                                  className="flex flex-col items-center"
-                                >
-                                  <RadioGroupItem
-                                    value={value.toString()}
-                                    id={label}
-                                    className="sr-only"
-                                  />
-                                  <Label
-                                    htmlFor={label}
-                                    className="cursor-pointer"
+                      {!hasEntryForToday &&
+                        affectionLevel !== null &&
+                        trustLevel === null && (
+                          <Card className="mb-6">
+                            <CardHeader>
+                              <CardTitle className="text-lg">
+                                ¿Cómo fue el nivel de confianza de tu perro hoy?
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <RadioGroup
+                                onValueChange={(value) =>
+                                  setTrustLevel(Number(value))
+                                }
+                                className="flex justify-between"
+                              >
+                                {[
+                                  { label: "Bajo", value: 1 },
+                                  { label: "Moderado", value: 2 },
+                                  { label: "Alto", value: 3 },
+                                ].map(({ label, value }) => (
+                                  <div
+                                    key={value}
+                                    className="flex flex-col items-center"
                                   >
-                                    <span className="text-lg font-semibold">
-                                      {label}
-                                    </span>
-                                  </Label>
-                                </div>
-                              ))}
-                            </RadioGroup>
-                          </CardContent>
-                        </Card>
-                      )}
-                      {trustLevel !== null && happinessLevel === null && (
-                        <Card className="mb-6">
-                          <CardHeader>
-                            <CardTitle className="text-lg">
-                              ¿Cómo fue el nivel de felicidad de tu perro hoy?
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <RadioGroup
-                              onValueChange={(value) =>
-                                handleHappinessChange(Number(value))
-                              }
-                              className="flex justify-between"
-                            >
-                              {[
-                                { label: "Bajo", value: 1 },
-                                { label: "Moderado", value: 2 },
-                                { label: "Alto", value: 3 },
-                              ].map(({ label, value }) => (
-                                <div
-                                  key={value}
-                                  className="flex flex-col items-center"
-                                >
-                                  <RadioGroupItem
-                                    value={value.toString()}
-                                    id={label}
-                                    className="sr-only"
-                                  />
-                                  <Label
-                                    htmlFor={label}
-                                    className="cursor-pointer"
+                                    <RadioGroupItem
+                                      value={value.toString()}
+                                      id={label}
+                                      className="sr-only"
+                                    />
+                                    <Label
+                                      htmlFor={label}
+                                      className="cursor-pointer"
+                                    >
+                                      <span className="text-lg font-semibold">
+                                        {label}
+                                      </span>
+                                    </Label>
+                                  </div>
+                                ))}
+                              </RadioGroup>
+                            </CardContent>
+                          </Card>
+                        )}
+                      {!hasEntryForToday &&
+                        trustLevel !== null &&
+                        happinessLevel === null && (
+                          <Card className="mb-6">
+                            <CardHeader>
+                              <CardTitle className="text-lg">
+                                ¿Cómo fue el nivel de felicidad de tu perro hoy?
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <RadioGroup
+                                onValueChange={(value) =>
+                                  handleHappinessChange(Number(value))
+                                }
+                                className="flex justify-between"
+                              >
+                                {[
+                                  { label: "Bajo", value: 1 },
+                                  { label: "Moderado", value: 2 },
+                                  { label: "Alto", value: 3 },
+                                ].map(({ label, value }) => (
+                                  <div
+                                    key={value}
+                                    className="flex flex-col items-center"
                                   >
-                                    <span className="text-lg font-semibold">
-                                      {label}
-                                    </span>
-                                  </Label>
-                                </div>
-                              ))}
-                            </RadioGroup>
-                          </CardContent>
-                        </Card>
-                      )}
+                                    <RadioGroupItem
+                                      value={value.toString()}
+                                      id={label}
+                                      className="sr-only"
+                                    />
+                                    <Label
+                                      htmlFor={label}
+                                      className="cursor-pointer"
+                                    >
+                                      <span className="text-lg font-semibold">
+                                        {label}
+                                      </span>
+                                    </Label>
+                                  </div>
+                                ))}
+                              </RadioGroup>
+                            </CardContent>
+                          </Card>
+                        )}
 
-                      {happinessLevel !== null && (
+                      {hasEntryForToday && happinessLevel !== null && (
                         <Card className="w-full  mx-auto">
                           <CardHeader className="text-center">
                             <CardTitle className="text-2xl font-bold flex items-center justify-center gap-2">
@@ -536,7 +616,7 @@ export default function Emotions() {
                             <div className="text-center mb-4">
                               <p className="text-lg font-semibold text-primary">
                                 ¡Gracias por registrar la salud emocional de tu
-                                perro!
+                                perro, vuelve mañana!
                               </p>
                             </div>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4">
