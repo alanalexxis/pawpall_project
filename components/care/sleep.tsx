@@ -21,6 +21,8 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
+  BedDouble,
+  Trash,
 } from "lucide-react";
 import { Bar } from "react-chartjs-2";
 import {
@@ -41,6 +43,16 @@ import React from "react";
 import { Badge } from "../ui/badge";
 import { Progress } from "../ui/progress";
 import { createClient } from "@/utils/supabase/client";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
 
 ChartJS.register(
   CategoryScale,
@@ -61,8 +73,10 @@ export default function Sleep() {
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [sleepLog, setSleepLog] = useState<SleepEntry[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedLog, setSelectedLog] = useState(null);
+
   const { selectedPet } = useSelectedPet();
+  const [logToDelete, setLogToDelete] = useState<number | null>(null); // Estado para el log a eliminar
+  const [isAlertOpen, setIsAlertOpen] = useState(false); // Estado para el modal
   useEffect(() => {
     const fetchSleepLogs = async () => {
       const { data, error } = await supabase
@@ -237,21 +251,20 @@ export default function Sleep() {
     year: "numeric",
   });
 
-  const calculateTotalSleep = (logs: SleepEntry[]) => {
+  const calculateTotalSleepToday = (logs: SleepEntry[]) => {
     let totalMinutes = 0;
 
-    logs.forEach((entry) => {
-      // Asegúrate de que duration sea una cadena
-      const durationString =
-        typeof entry.duration === "string" ? entry.duration : "";
-
-      // Maneja el caso donde durationString puede estar vacío o no tener el formato esperado
-      if (durationString) {
-        const [hours, minutes] = durationString.split(":").map(Number);
-        totalMinutes +=
-          (isNaN(hours) ? 0 : hours) * 60 + (isNaN(minutes) ? 0 : minutes);
-      }
-    });
+    logs
+      .filter((entry) => entry.date === new Date().toLocaleDateString("es-ES"))
+      .forEach((entry) => {
+        const durationString =
+          typeof entry.duration === "string" ? entry.duration : "";
+        if (durationString) {
+          const [hours, minutes] = durationString.split(":").map(Number);
+          totalMinutes +=
+            (isNaN(hours) ? 0 : hours) * 60 + (isNaN(minutes) ? 0 : minutes);
+        }
+      });
 
     const totalHours = Math.floor(totalMinutes / 60);
     const remainingMinutes = totalMinutes % 60;
@@ -259,7 +272,8 @@ export default function Sleep() {
     return { totalHours, remainingMinutes };
   };
 
-  const { totalHours, remainingMinutes } = calculateTotalSleep(sleepLog);
+  // En tu componente
+  const { totalHours, remainingMinutes } = calculateTotalSleepToday(sleepLog);
 
   const calculateSleepProgress = (
     totalHours: number,
@@ -331,6 +345,98 @@ export default function Sleep() {
   const dailySleep = calculateDailySleep(sleepLog);
   const { averageHours, averageRemainingMinutes } =
     calculateAverageSleep(dailySleep);
+
+  const calculateSleepQuality = (
+    averageHours: number,
+    averageRemainingMinutes: number,
+    recommendedHours: number
+  ) => {
+    // Convertir promedio de sueño a un número decimal
+    const averageSleepHours = averageHours + averageRemainingMinutes / 60;
+
+    // Calcular porcentaje de sueño registrado respecto a las horas recomendadas
+    const percentage = Math.min(
+      Math.round((averageSleepHours / recommendedHours) * 100),
+      100
+    );
+
+    // Determinar la calidad del sueño basada en el porcentaje
+    let qualityMessage = "";
+
+    if (percentage >= 90) {
+      qualityMessage = "Excelente";
+    } else if (percentage >= 75) {
+      qualityMessage = "Bueno";
+    } else if (percentage >= 50) {
+      qualityMessage = "Aceptable";
+    } else {
+      qualityMessage = "Necesita mejorar";
+    }
+
+    return { percentage, qualityMessage };
+  };
+
+  // Usar la función en tu componente
+  const { percentage, qualityMessage } = calculateSleepQuality(
+    averageHours,
+    averageRemainingMinutes,
+    recommendedHours
+  );
+
+  const calculateNapsPerDay = (logs: SleepEntry[]) => {
+    const napsPerDay: Record<string, number> = {};
+
+    logs.forEach((entry) => {
+      const date = entry.date;
+      if (!napsPerDay[date]) {
+        napsPerDay[date] = 0;
+      }
+      napsPerDay[date] += 1; // Contar una siesta para este día
+    });
+
+    return napsPerDay;
+  };
+
+  // Calcular el promedio de siestas por día
+  const calculateAverageNapsPerDay = (napsPerDay: Record<string, number>) => {
+    const totalDays = Object.keys(napsPerDay).length;
+    const totalNaps = Object.values(napsPerDay).reduce(
+      (acc, naps) => acc + naps,
+      0
+    );
+    const averageNaps = totalDays > 0 ? totalNaps / totalDays : 0;
+
+    return averageNaps.toFixed(1); // Redondear a un decimal
+  };
+
+  // Usar las funciones en tu componente
+  const napsPerDay = calculateNapsPerDay(sleepLog);
+  const averageNapsPerDay = calculateAverageNapsPerDay(napsPerDay);
+  const handleDelete = async () => {
+    if (logToDelete !== null) {
+      const { error } = await supabase
+        .from("sleep_patterns")
+        .delete()
+        .match({ id: logToDelete });
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Hubo un error al eliminar el registro de sueño.",
+          variant: "destructive",
+        });
+      } else {
+        setSleepLog((prevLog) =>
+          prevLog.filter((entry) => entry.id !== logToDelete)
+        );
+        toast({
+          title: "Registro eliminado",
+          description: "El registro de sueño ha sido eliminado con éxito.",
+        });
+      }
+      setIsAlertOpen(false);
+    }
+  };
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 p-4">
       <motion.div
@@ -373,13 +479,21 @@ export default function Sleep() {
                     },
                     {
                       label: "Calidad del sueño",
-                      value: "95%",
-                      icon: Sun,
+                      value: (
+                        <div>
+                          <span>{percentage}%</span>
+                          <span className="text-base block -mt-2">
+                            {qualityMessage}
+                          </span>
+                        </div>
+                      ),
+                      icon: BedDouble,
                       color: "text-green-500",
                     },
+
                     {
-                      label: "Siestas por día",
-                      value: "3",
+                      label: "Promedio de siestas por día",
+                      value: averageNapsPerDay,
                       icon: Dog,
                       color: "text-purple-500",
                     },
@@ -506,38 +620,77 @@ export default function Sleep() {
                   <>
                     <div className="mb-4">
                       <p className="font-semibold">
-                        Total de sueño registrado:
+                        Total de sueño registrado hoy:
                       </p>
                       <p className="text-sm text-muted-foreground">
                         {totalHours} horas y {remainingMinutes} minutos
                       </p>
                     </div>
                     <ul className="space-y-4">
-                      {sleepLog.map((entry) => (
-                        <li
-                          key={entry.id}
-                          className="flex items-start justify-between border-b pb-2"
-                        >
-                          <div className="flex items-start space-x-2">
-                            <Clock className="w-5 h-5 text-primary mt-1" />
-                            <div>
-                              <span className="font-semibold">
-                                {entry.duration}
-                              </span>
+                      {sleepLog
+                        .filter(
+                          (entry) =>
+                            entry.date ===
+                            selectedDate.toLocaleDateString("es-ES")
+                        )
+                        .map((entry) => (
+                          <li
+                            key={entry.id}
+                            className="flex items-start justify-between border-b pb-2"
+                          >
+                            <div className="flex items-start space-x-2">
+                              <Clock className="w-5 h-5 text-primary mt-1" />
+                              <div>
+                                <span className="font-semibold">
+                                  {entry.duration}
+                                </span>
+                              </div>
                             </div>
-                          </div>
-                          <span className="text-sm text-muted-foreground">
-                            {entry.timestamp}
-                          </span>
-                        </li>
-                      ))}
+                            <span className="text-sm text-muted-foreground">
+                              {entry.timestamp}
+                            </span>
+                            <button
+                              onClick={() => {
+                                setLogToDelete(entry.id);
+                                setIsAlertOpen(true);
+                              }}
+                              className="text-red-500 hover:text-red-700 ml-4"
+                            >
+                              <Trash className="h-4 w-4" />
+                            </button>
+                          </li>
+                        ))}
                     </ul>
                   </>
                 ) : (
                   <p className="text-muted-foreground">
-                    No hay registros de sueño aún.
+                    No hay registros de sueño hoy.
                   </p>
                 )}
+                <AlertDialog
+                  open={isAlertOpen} // Abre el modal si isAlertOpen es true
+                  onOpenChange={(open) => setIsAlertOpen(open)} // Controla el estado del modal
+                >
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        ¿Estás absolutamente seguro?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Esta acción no se puede deshacer. Esto eliminará
+                        permanentemente el registro de actividad.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel onClick={() => setIsAlertOpen(false)}>
+                        Cancelar
+                      </AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete}>
+                        Eliminar
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </CardContent>
               <CardContent>
                 <div className="space-y-4">
