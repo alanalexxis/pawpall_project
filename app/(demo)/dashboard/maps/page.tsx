@@ -1,86 +1,121 @@
 "use client";
-// LocationPicker.jsx
-import React, { useState, useEffect } from "react";
-import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
+import React, { useState, useCallback, useEffect } from "react";
+import {
+  GoogleMap,
+  LoadScript,
+  Marker,
+  DirectionsService,
+  DirectionsRenderer,
+} from "@react-google-maps/api";
 
-const libraries = ["places"];
+const containerStyle = {
+  width: "100%",
+  height: "400px",
+};
 
-const LocationPicker = ({ onLocationChange }) => {
-  const [position, setPosition] = useState(null); // Inicialmente sin posición
-  const [address, setAddress] = useState(""); // Estado para almacenar la dirección
+const GoogleMapRouteComponent = () => {
+  const [directions, setDirections] = useState(null);
+  const [travelTime, setTravelTime] = useState(null);
+  const [distance, setDistance] = useState(null);
+  const [destination, setDestination] = useState(null);
+  const [origin, setOrigin] = useState(null);
+  const [routeCalculated, setRouteCalculated] = useState(false);
+  const [originAddress, setOriginAddress] = useState("");
+  const [destinationAddress, setDestinationAddress] = useState("");
 
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: "AIzaSyAERpuLNoqLOK9Kp02Qi7WkX3n6uFM9ezA", // Reemplaza con tu API Key
-    libraries,
-  });
-
-  const geocodePosition = (pos) => {
+  const geocodeLatLng = (latLng, callback) => {
     const geocoder = new window.google.maps.Geocoder();
-    geocoder.geocode({ location: pos }, (results, status) => {
+    geocoder.geocode({ location: latLng }, (results, status) => {
       if (status === "OK" && results[0]) {
-        setAddress(results[0].formatted_address);
+        callback(results[0].formatted_address);
       } else {
-        console.error("Geocoder failed due to: " + status);
-        setAddress("No se pudo determinar la dirección.");
+        console.error("Geocoder failed due to " + status);
+        callback("Address not found");
       }
     });
   };
 
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          const pos = { lat: latitude, lng: longitude };
-          setPosition(pos);
-          geocodePosition(pos);
-          if (onLocationChange) {
-            onLocationChange(pos);
-          }
-        },
-        () => {
-          console.error("Error obteniendo la ubicación.");
-          setPosition({ lat: 51.505, lng: -0.09 }); // Posición por defecto
-          geocodePosition({ lat: 51.505, lng: -0.09 }); // Geocoding para la posición por defecto
+  const directionsCallback = useCallback(
+    (response) => {
+      if (response !== null) {
+        if (response.status === "OK") {
+          setDirections(response);
+          const route = response.routes[0].legs[0];
+          setTravelTime(route.duration.text);
+          setDistance(route.distance.text);
+          setRouteCalculated(true);
+          geocodeLatLng({ lat: origin.lat, lng: origin.lng }, setOriginAddress);
+          geocodeLatLng(
+            { lat: destination.lat, lng: destination.lng },
+            setDestinationAddress
+          );
+        } else {
+          console.error("Directions request failed due to " + response.status);
         }
-      );
-    } else {
-      console.error("Geolocalización no es soportada por este navegador.");
-      setPosition({ lat: 51.505, lng: -0.09 }); // Posición por defecto
-      geocodePosition({ lat: 51.505, lng: -0.09 }); // Geocoding para la posición por defecto
-    }
-  }, [onLocationChange]);
+      }
+    },
+    [destination, origin]
+  );
 
-  if (loadError) return <div>Error loading maps</div>;
-  if (!isLoaded || !position) return <div>Loading...</div>;
-
-  const handleMarkerDragEnd = (e) => {
-    const lat = e.latLng.lat();
-    const lng = e.latLng.lng();
-    const pos = { lat, lng };
-    setPosition(pos);
-    geocodePosition(pos);
-    if (onLocationChange) {
-      onLocationChange(pos);
-    }
+  const handleMapClick = (event) => {
+    setDestination({
+      lat: event.latLng.lat(),
+      lng: event.latLng.lng(),
+    });
+    setRouteCalculated(false);
   };
 
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        setOrigin({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+      });
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+    }
+  }, []);
+
   return (
-    <div>
-      <h1>Dirección seleccionada: {address}</h1>
+    <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
       <GoogleMap
-        mapContainerStyle={{ height: "400px", width: "100%" }}
-        center={position}
-        zoom={13}
+        mapContainerStyle={containerStyle}
+        center={origin || { lat: 37.437041393899676, lng: -4.191635586788259 }}
+        zoom={15}
+        onClick={handleMapClick}
       >
-        <Marker
-          position={position}
-          draggable={true}
-          onDragEnd={handleMarkerDragEnd}
-        />
+        {origin && destination && !routeCalculated && (
+          <DirectionsService
+            options={{
+              destination: destination,
+              origin: origin,
+              travelMode: "WALKING",
+            }}
+            callback={directionsCallback}
+          />
+        )}
+        {directions && (
+          <DirectionsRenderer
+            options={{
+              directions: directions,
+            }}
+          />
+        )}
       </GoogleMap>
-    </div>
+      <h1>
+        Dirección origen: {originAddress} <br />
+        Dirección destino: {destinationAddress}
+      </h1>
+      {travelTime && (
+        <>
+          <p>Tiempo de paseo estimado: {travelTime}</p>
+          <p>Distancia estimada: {distance}</p>
+        </>
+      )}
+    </LoadScript>
   );
 };
 
-export default LocationPicker;
+export default GoogleMapRouteComponent;
