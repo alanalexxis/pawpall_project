@@ -40,6 +40,7 @@
     "@react-aria/focus": "^3.18.2",
     "@react-aria/i18n": "^3.12.2",
     "@react-aria/visually-hidden": "^3.8.15",
+    "@react-google-maps/api": "^2.19.3",
     "@react-stately/calendar": "^3.5.4",
     "@react-three/drei": "^9.106.0",
     "@react-three/fiber": "^8.16.8",
