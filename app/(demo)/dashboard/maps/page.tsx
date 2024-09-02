@@ -29,8 +29,10 @@ export default function GoogleMapRouteComponent() {
   const [destinationAddress, setDestinationAddress] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [destinationInput, setDestinationInput] = useState("");
+  const [autocomplete, setAutocomplete] = useState(null);
+  const [suggestions, setSuggestions] = useState([]);
 
-  const geocodeLatLng = (latLng, callback) => {
+  const geocodeLatLng = useCallback((latLng, callback) => {
     if (window.google && window.google.maps) {
       const geocoder = new window.google.maps.Geocoder();
       geocoder.geocode({ location: latLng }, (results, status) => {
@@ -44,7 +46,7 @@ export default function GoogleMapRouteComponent() {
     } else {
       console.error("Google Maps is not loaded.");
     }
-  };
+  }, []);
 
   const directionsCallback = useCallback(
     (response) => {
@@ -63,20 +65,22 @@ export default function GoogleMapRouteComponent() {
         console.error("Directions request failed due to " + response?.status);
       }
     },
-    [destination, origin]
+    [destination, origin, geocodeLatLng]
   );
 
   const handleSetDestination = () => {
-    const geocoder = new window.google.maps.Geocoder();
-    geocoder.geocode({ address: destinationInput }, (results, status) => {
-      if (status === "OK" && results[0]) {
-        const { lat, lng } = results[0].geometry.location;
-        setDestination({ lat: lat(), lng: lng() });
-        setRouteCalculated(false);
-      } else {
-        console.error("Geocoding failed due to " + status);
-      }
-    });
+    if (window.google && window.google.maps) {
+      const geocoder = new window.google.maps.Geocoder();
+      geocoder.geocode({ address: destinationInput }, (results, status) => {
+        if (status === "OK" && results[0]) {
+          const { lat, lng } = results[0].geometry.location;
+          setDestination({ lat: lat(), lng: lng() });
+          setRouteCalculated(false);
+        } else {
+          console.error("Geocoding failed due to " + status);
+        }
+      });
+    }
   };
 
   const handleMapClick = (event) => {
@@ -105,7 +109,46 @@ export default function GoogleMapRouteComponent() {
       console.error("Geolocation is not supported by this browser.");
       setIsLoading(false);
     }
-  }, []);
+  }, [geocodeLatLng]);
+
+  useEffect(() => {
+    if (window.google && window.google.maps) {
+      const input = document.getElementById("destination-input");
+      if (input) {
+        const autocomplete = new window.google.maps.places.Autocomplete(input);
+        setAutocomplete(autocomplete);
+        autocomplete.addListener("place_changed", () => {
+          const place = autocomplete.getPlace();
+          handlePlaceSelect(place);
+        });
+      }
+    }
+  }, [window.google]);
+
+  const handlePlaceSelect = (place) => {
+    if (place.geometry) {
+      setDestination({
+        lat: place.geometry.location.lat(),
+        lng: place.geometry.location.lng(),
+      });
+      setDestinationInput(place.formatted_address);
+      setRouteCalculated(false);
+      geocodeLatLng(
+        {
+          lat: place.geometry.location.lat(),
+          lng: place.geometry.location.lng(),
+        },
+        (address) => {
+          setDestinationAddress(address);
+        }
+      );
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setDestinationInput(value);
+  };
 
   return (
     <Card className="w-full max-w-3xl mx-auto">
@@ -115,6 +158,7 @@ export default function GoogleMapRouteComponent() {
       <CardContent>
         <LoadScript
           googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}
+          libraries={["places"]}
         >
           {isLoading ? (
             <div className="flex justify-center items-center h-[400px]">
@@ -130,7 +174,6 @@ export default function GoogleMapRouteComponent() {
               onClick={handleMapClick}
             >
               {origin && <Marker position={origin} />}
-
               {origin && destination && !routeCalculated && (
                 <DirectionsService
                   options={{
@@ -151,13 +194,27 @@ export default function GoogleMapRouteComponent() {
           <div className="flex items-center space-x-2">
             <MapPin className="text-primary" />
             <Input
+              id="destination-input"
               type="text"
               placeholder="Ingrese el destino"
               value={destinationInput}
-              onChange={(e) => setDestinationInput(e.target.value)}
+              onChange={handleInputChange}
             />
-            <Button onClick={handleSetDestination}>Establecer Destino</Button>
+            <Button onClick={handleSetDestination}>Establecer destino</Button>
           </div>
+          {suggestions.length > 0 && (
+            <ul className="absolute bg-white border border-gray-300 rounded-lg mt-1 max-h-60 overflow-auto w-full">
+              {suggestions.map((suggestion) => (
+                <li
+                  key={suggestion.place_id}
+                  className="p-2 cursor-pointer hover:bg-gray-100"
+                  onClick={() => handlePlaceSelect(suggestion)}
+                >
+                  {suggestion.description}
+                </li>
+              ))}
+            </ul>
+          )}
           <div className="flex items-center space-x-2 text-sm text-muted-foreground">
             <MousePointer size={16} />
             <span>O haga clic en el mapa para seleccionar el destino</span>
