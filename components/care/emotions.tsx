@@ -47,6 +47,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../ui/alert-dialog";
+import { Badge } from "../ui/badge";
 
 export default function Emotions() {
   const supabase = createClient();
@@ -64,6 +65,7 @@ export default function Emotions() {
   const [dailyMood, setDailyMood] = useState(null);
   const [hasEntryForToday, setHasEntryForToday] = useState(false);
   const [isAlertOpen, setIsAlertOpen] = useState(false); // Estado para el modal
+  const [selectedDate, setSelectedDate] = useState(new Date());
   useEffect(() => {
     const mockData = Array.from({ length: 7 }, (_, i) => ({
       date: new Date(
@@ -253,7 +255,12 @@ export default function Emotions() {
       setHasEntryForToday(false);
     }
   };
-
+  // Formatear la fecha seleccionada
+  const formattedDate = selectedDate.toLocaleDateString("es-ES", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
   return (
     <>
       {showConfetti && (
@@ -343,382 +350,433 @@ export default function Emotions() {
                   </Card>
 
                   {!hasEntryForToday && dailyMood === null ? (
-                    <Card className="mb-6">
-                      <CardHeader>
-                        <CardTitle className="text-lg">
-                          ¿Cómo se sintió tu perro hoy?
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <RadioGroup
-                          onValueChange={(value) => {
-                            setDailyMood(value);
-                            setEnergyLevel(null); // Reset energy level when mood is selected
-                            setCalmLevel(null); // Reset calm level when mood is selected
-                            setCuriosityLevel(null); // Reset curiosity level when mood is selected
-                            setAffectionLevel(null);
-                            setTrustLevel(null);
-                          }}
-                          className="flex justify-between"
-                        >
-                          {[
-                            {
-                              value: 1,
-                              icon: Frown,
-                              color: "text-red-500",
-                            },
-                            {
-                              value: 2,
-                              icon: Meh,
-                              color: "text-yellow-500",
-                            },
-                            {
-                              value: 3,
-                              icon: Smile,
-                              color: "text-green-500",
-                            },
-                          ].map((item) => (
-                            <div
-                              key={item.value}
-                              className="flex flex-col items-center"
-                            >
-                              <RadioGroupItem
-                                value={item.value}
-                                id={item.value}
-                                className="sr-only"
-                              />
-                              <Label
-                                htmlFor={item.value}
-                                className="cursor-pointer"
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.2 }}
+                    >
+                      <Card className="mb-6">
+                        <CardHeader>
+                          <CardTitle className="text-lg">
+                            ¿Cómo se sintió tu perro hoy?
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <RadioGroup
+                            onValueChange={(value) => {
+                              setDailyMood(value);
+                              setEnergyLevel(null); // Reset energy level when mood is selected
+                              setCalmLevel(null); // Reset calm level when mood is selected
+                              setCuriosityLevel(null); // Reset curiosity level when mood is selected
+                              setAffectionLevel(null);
+                              setTrustLevel(null);
+                            }}
+                            className="flex justify-between"
+                          >
+                            {[
+                              {
+                                value: 1,
+                                icon: Frown,
+                                color: "text-red-500",
+                              },
+                              {
+                                value: 2,
+                                icon: Meh,
+                                color: "text-yellow-500",
+                              },
+                              {
+                                value: 3,
+                                icon: Smile,
+                                color: "text-green-500",
+                              },
+                            ].map((item) => (
+                              <div
+                                key={item.value}
+                                className="flex flex-col items-center"
                               >
-                                <item.icon
-                                  className={`w-12 h-12 ${item.color}`}
+                                <RadioGroupItem
+                                  value={item.value}
+                                  id={item.value}
+                                  className="sr-only"
                                 />
-                              </Label>
-                            </div>
-                          ))}
-                        </RadioGroup>
-                      </CardContent>
-                    </Card>
+                                <Label
+                                  htmlFor={item.value}
+                                  className="cursor-pointer"
+                                >
+                                  <item.icon
+                                    className={`w-12 h-12 ${item.color}`}
+                                  />
+                                </Label>
+                              </div>
+                            ))}
+                          </RadioGroup>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
                   ) : (
                     <>
                       {!hasEntryForToday && energyLevel === null && (
-                        <Card className="mb-6">
-                          <CardHeader>
-                            <CardTitle className="text-lg">
-                              ¿Cómo fue el nivel de energía de tu perro hoy?
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <RadioGroup
-                              onValueChange={(value) =>
-                                setEnergyLevel(Number(value))
-                              }
-                              className="flex justify-between"
-                            >
-                              {[
-                                { label: "Bajo", value: 1 },
-                                { label: "Moderado", value: 2 },
-                                { label: "Alto", value: 3 },
-                              ].map(({ label, value }) => (
-                                <div
-                                  key={value}
-                                  className="flex flex-col items-center"
-                                >
-                                  <RadioGroupItem
-                                    value={value.toString()}
-                                    id={label}
-                                    className="sr-only"
-                                  />
-                                  <Label
-                                    htmlFor={label}
-                                    className="cursor-pointer"
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.5, delay: 0.2 }}
+                        >
+                          <Card className="mb-6">
+                            <CardHeader>
+                              <CardTitle className="text-lg">
+                                ¿Cómo fue el nivel de energía de tu perro hoy?
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <RadioGroup
+                                onValueChange={(value) =>
+                                  setEnergyLevel(Number(value))
+                                }
+                                className="flex justify-between"
+                              >
+                                {[
+                                  { label: "Bajo", value: 1 },
+                                  { label: "Moderado", value: 2 },
+                                  { label: "Alto", value: 3 },
+                                ].map(({ label, value }) => (
+                                  <div
+                                    key={value}
+                                    className="flex flex-col items-center"
                                   >
-                                    <span className="text-lg font-semibold">
-                                      {label}
-                                    </span>
-                                  </Label>
-                                </div>
-                              ))}
-                            </RadioGroup>
-                          </CardContent>
-                        </Card>
+                                    <RadioGroupItem
+                                      value={value.toString()}
+                                      id={label}
+                                      className="sr-only"
+                                    />
+                                    <Label
+                                      htmlFor={label}
+                                      className="cursor-pointer"
+                                    >
+                                      <span className="text-lg font-semibold">
+                                        {label}
+                                      </span>
+                                    </Label>
+                                  </div>
+                                ))}
+                              </RadioGroup>
+                            </CardContent>
+                          </Card>
+                        </motion.div>
                       )}
 
                       {!hasEntryForToday &&
                         energyLevel !== null &&
                         calmLevel === null && (
-                          <Card className="mb-6">
-                            <CardHeader>
-                              <CardTitle className="text-lg">
-                                ¿Cómo fue el nivel de calma de tu perro hoy?
-                              </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                              <RadioGroup
-                                onValueChange={(value) =>
-                                  setCalmLevel(Number(value))
-                                }
-                                className="flex justify-between"
-                              >
-                                {[
-                                  { label: "Bajo", value: 1 },
-                                  { label: "Moderado", value: 2 },
-                                  { label: "Alto", value: 3 },
-                                ].map(({ label, value }) => (
-                                  <div
-                                    key={value}
-                                    className="flex flex-col items-center"
-                                  >
-                                    <RadioGroupItem
-                                      value={value.toString()}
-                                      id={label}
-                                      className="sr-only"
-                                    />
-                                    <Label
-                                      htmlFor={label}
-                                      className="cursor-pointer"
+                          <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.2 }}
+                          >
+                            <Card className="mb-6">
+                              <CardHeader>
+                                <CardTitle className="text-lg">
+                                  ¿Cómo fue el nivel de calma de tu perro hoy?
+                                </CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                <RadioGroup
+                                  onValueChange={(value) =>
+                                    setCalmLevel(Number(value))
+                                  }
+                                  className="flex justify-between"
+                                >
+                                  {[
+                                    { label: "Bajo", value: 1 },
+                                    { label: "Moderado", value: 2 },
+                                    { label: "Alto", value: 3 },
+                                  ].map(({ label, value }) => (
+                                    <div
+                                      key={value}
+                                      className="flex flex-col items-center"
                                     >
-                                      <span className="text-lg font-semibold">
-                                        {label}
-                                      </span>
-                                    </Label>
-                                  </div>
-                                ))}
-                              </RadioGroup>
-                            </CardContent>
-                          </Card>
+                                      <RadioGroupItem
+                                        value={value.toString()}
+                                        id={label}
+                                        className="sr-only"
+                                      />
+                                      <Label
+                                        htmlFor={label}
+                                        className="cursor-pointer"
+                                      >
+                                        <span className="text-lg font-semibold">
+                                          {label}
+                                        </span>
+                                      </Label>
+                                    </div>
+                                  ))}
+                                </RadioGroup>
+                              </CardContent>
+                            </Card>
+                          </motion.div>
                         )}
 
                       {!hasEntryForToday &&
                         calmLevel !== null &&
                         curiosityLevel === null && (
-                          <Card className="mb-6">
-                            <CardHeader>
-                              <CardTitle className="text-lg">
-                                ¿Cómo fue el nivel de curiosidad de tu perro
-                                hoy?
-                              </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                              <RadioGroup
-                                onValueChange={(value) =>
-                                  setCuriosityLevel(Number(value))
-                                }
-                                className="flex justify-between"
-                              >
-                                {[
-                                  { label: "Bajo", value: 1 },
-                                  { label: "Moderado", value: 2 },
-                                  { label: "Alto", value: 3 },
-                                ].map(({ label, value }) => (
-                                  <div
-                                    key={value}
-                                    className="flex flex-col items-center"
-                                  >
-                                    <RadioGroupItem
-                                      value={value.toString()}
-                                      id={label}
-                                      className="sr-only"
-                                    />
-                                    <Label
-                                      htmlFor={label}
-                                      className="cursor-pointer"
+                          <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.2 }}
+                          >
+                            <Card className="mb-6">
+                              <CardHeader>
+                                <CardTitle className="text-lg">
+                                  ¿Cómo fue el nivel de curiosidad de tu perro
+                                  hoy?
+                                </CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                <RadioGroup
+                                  onValueChange={(value) =>
+                                    setCuriosityLevel(Number(value))
+                                  }
+                                  className="flex justify-between"
+                                >
+                                  {[
+                                    { label: "Bajo", value: 1 },
+                                    { label: "Moderado", value: 2 },
+                                    { label: "Alto", value: 3 },
+                                  ].map(({ label, value }) => (
+                                    <div
+                                      key={value}
+                                      className="flex flex-col items-center"
                                     >
-                                      <span className="text-lg font-semibold">
-                                        {label}
-                                      </span>
-                                    </Label>
-                                  </div>
-                                ))}
-                              </RadioGroup>
-                            </CardContent>
-                          </Card>
+                                      <RadioGroupItem
+                                        value={value.toString()}
+                                        id={label}
+                                        className="sr-only"
+                                      />
+                                      <Label
+                                        htmlFor={label}
+                                        className="cursor-pointer"
+                                      >
+                                        <span className="text-lg font-semibold">
+                                          {label}
+                                        </span>
+                                      </Label>
+                                    </div>
+                                  ))}
+                                </RadioGroup>
+                              </CardContent>
+                            </Card>
+                          </motion.div>
                         )}
 
                       {!hasEntryForToday &&
                         curiosityLevel !== null &&
                         affectionLevel === null && (
-                          <Card className="mb-6">
-                            <CardHeader>
-                              <CardTitle className="text-lg">
-                                ¿Cómo fue el nivel de afecto de tu perro hoy?
-                              </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                              <RadioGroup
-                                onValueChange={(value) =>
-                                  setAffectionLevel(Number(value))
-                                }
-                                className="flex justify-between"
-                              >
-                                {[
-                                  { label: "Bajo", value: 1 },
-                                  { label: "Moderado", value: 2 },
-                                  { label: "Alto", value: 3 },
-                                ].map(({ label, value }) => (
-                                  <div
-                                    key={value}
-                                    className="flex flex-col items-center"
-                                  >
-                                    <RadioGroupItem
-                                      value={value.toString()}
-                                      id={label}
-                                      className="sr-only"
-                                    />
-                                    <Label
-                                      htmlFor={label}
-                                      className="cursor-pointer"
+                          <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.2 }}
+                          >
+                            <Card className="mb-6">
+                              <CardHeader>
+                                <CardTitle className="text-lg">
+                                  ¿Cómo fue el nivel de afecto de tu perro hoy?
+                                </CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                <RadioGroup
+                                  onValueChange={(value) =>
+                                    setAffectionLevel(Number(value))
+                                  }
+                                  className="flex justify-between"
+                                >
+                                  {[
+                                    { label: "Bajo", value: 1 },
+                                    { label: "Moderado", value: 2 },
+                                    { label: "Alto", value: 3 },
+                                  ].map(({ label, value }) => (
+                                    <div
+                                      key={value}
+                                      className="flex flex-col items-center"
                                     >
-                                      <span className="text-lg font-semibold">
-                                        {label}
-                                      </span>
-                                    </Label>
-                                  </div>
-                                ))}
-                              </RadioGroup>
-                            </CardContent>
-                          </Card>
+                                      <RadioGroupItem
+                                        value={value.toString()}
+                                        id={label}
+                                        className="sr-only"
+                                      />
+                                      <Label
+                                        htmlFor={label}
+                                        className="cursor-pointer"
+                                      >
+                                        <span className="text-lg font-semibold">
+                                          {label}
+                                        </span>
+                                      </Label>
+                                    </div>
+                                  ))}
+                                </RadioGroup>
+                              </CardContent>
+                            </Card>
+                          </motion.div>
                         )}
 
                       {!hasEntryForToday &&
                         affectionLevel !== null &&
                         trustLevel === null && (
-                          <Card className="mb-6">
-                            <CardHeader>
-                              <CardTitle className="text-lg">
-                                ¿Cómo fue el nivel de confianza de tu perro hoy?
-                              </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                              <RadioGroup
-                                onValueChange={(value) =>
-                                  setTrustLevel(Number(value))
-                                }
-                                className="flex justify-between"
-                              >
-                                {[
-                                  { label: "Bajo", value: 1 },
-                                  { label: "Moderado", value: 2 },
-                                  { label: "Alto", value: 3 },
-                                ].map(({ label, value }) => (
-                                  <div
-                                    key={value}
-                                    className="flex flex-col items-center"
-                                  >
-                                    <RadioGroupItem
-                                      value={value.toString()}
-                                      id={label}
-                                      className="sr-only"
-                                    />
-                                    <Label
-                                      htmlFor={label}
-                                      className="cursor-pointer"
+                          <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.2 }}
+                          >
+                            <Card className="mb-6">
+                              <CardHeader>
+                                <CardTitle className="text-lg">
+                                  ¿Cómo fue el nivel de confianza de tu perro
+                                  hoy?
+                                </CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                <RadioGroup
+                                  onValueChange={(value) =>
+                                    setTrustLevel(Number(value))
+                                  }
+                                  className="flex justify-between"
+                                >
+                                  {[
+                                    { label: "Bajo", value: 1 },
+                                    { label: "Moderado", value: 2 },
+                                    { label: "Alto", value: 3 },
+                                  ].map(({ label, value }) => (
+                                    <div
+                                      key={value}
+                                      className="flex flex-col items-center"
                                     >
-                                      <span className="text-lg font-semibold">
-                                        {label}
-                                      </span>
-                                    </Label>
-                                  </div>
-                                ))}
-                              </RadioGroup>
-                            </CardContent>
-                          </Card>
+                                      <RadioGroupItem
+                                        value={value.toString()}
+                                        id={label}
+                                        className="sr-only"
+                                      />
+                                      <Label
+                                        htmlFor={label}
+                                        className="cursor-pointer"
+                                      >
+                                        <span className="text-lg font-semibold">
+                                          {label}
+                                        </span>
+                                      </Label>
+                                    </div>
+                                  ))}
+                                </RadioGroup>
+                              </CardContent>
+                            </Card>
+                          </motion.div>
                         )}
                       {!hasEntryForToday &&
                         trustLevel !== null &&
                         happinessLevel === null && (
-                          <Card className="mb-6">
-                            <CardHeader>
-                              <CardTitle className="text-lg">
-                                ¿Cómo fue el nivel de felicidad de tu perro hoy?
-                              </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                              <RadioGroup
-                                onValueChange={(value) =>
-                                  handleHappinessChange(Number(value))
-                                }
-                                className="flex justify-between"
-                              >
-                                {[
-                                  { label: "Bajo", value: 1 },
-                                  { label: "Moderado", value: 2 },
-                                  { label: "Alto", value: 3 },
-                                ].map(({ label, value }) => (
-                                  <div
-                                    key={value}
-                                    className="flex flex-col items-center"
-                                  >
-                                    <RadioGroupItem
-                                      value={value.toString()}
-                                      id={label}
-                                      className="sr-only"
-                                    />
-                                    <Label
-                                      htmlFor={label}
-                                      className="cursor-pointer"
+                          <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.2 }}
+                          >
+                            <Card className="mb-6">
+                              <CardHeader>
+                                <CardTitle className="text-lg">
+                                  ¿Cómo fue el nivel de felicidad de tu perro
+                                  hoy?
+                                </CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                <RadioGroup
+                                  onValueChange={(value) =>
+                                    handleHappinessChange(Number(value))
+                                  }
+                                  className="flex justify-between"
+                                >
+                                  {[
+                                    { label: "Bajo", value: 1 },
+                                    { label: "Moderado", value: 2 },
+                                    { label: "Alto", value: 3 },
+                                  ].map(({ label, value }) => (
+                                    <div
+                                      key={value}
+                                      className="flex flex-col items-center"
                                     >
-                                      <span className="text-lg font-semibold">
-                                        {label}
-                                      </span>
-                                    </Label>
-                                  </div>
-                                ))}
-                              </RadioGroup>
-                            </CardContent>
-                          </Card>
+                                      <RadioGroupItem
+                                        value={value.toString()}
+                                        id={label}
+                                        className="sr-only"
+                                      />
+                                      <Label
+                                        htmlFor={label}
+                                        className="cursor-pointer"
+                                      >
+                                        <span className="text-lg font-semibold">
+                                          {label}
+                                        </span>
+                                      </Label>
+                                    </div>
+                                  ))}
+                                </RadioGroup>
+                              </CardContent>
+                            </Card>
+                          </motion.div>
                         )}
 
                       {hasEntryForToday && happinessLevel !== null && (
-                        <Card className="w-full  mx-auto">
-                          <CardHeader className="text-center">
-                            <CardTitle className="text-2xl font-bold flex items-center justify-center gap-2">
-                              <PawPrint className="w-6 h-6" />
-                              Resumen de salud emocional
-                              <PawPrint className="w-6 h-6" />
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="text-center mb-4">
-                              <p className="text-lg font-semibold text-primary">
-                                ¡Gracias por registrar la salud emocional de tu
-                                perro, vuelve mañana!
-                              </p>
-                            </div>
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.5, delay: 0.2 }}
+                        >
+                          <Card className="w-full  mx-auto">
+                            <CardHeader className="text-center">
+                              <CardTitle className="text-2xl font-bold flex items-center justify-center gap-2">
+                                Resumen de salud emocional{" "}
+                                <Badge className="text-sm">
+                                  {formattedDate}
+                                </Badge>
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="text-center mb-4">
+                                <p className="text-lg font-semibold text-primary">
+                                  ¡Gracias por registrar la salud emocional de
+                                  tu perro, vuelve mañana!
+                                </p>
+                              </div>
 
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4">
-                              {attributes.map((attribute) => (
-                                <Card
-                                  key={attribute.name}
-                                  className="overflow-hidden transition-all duration-300 ease-in-out hover:shadow-lg hover:bg-primary/5 hover:-translate-y-1"
-                                >
-                                  <CardContent className="p-4">
-                                    <div className="text-center">
-                                      <strong className="text-lg">
-                                        {attribute.name}:
-                                      </strong>
-                                      <div className="mt-2 text-md">
-                                        {descriptionMap[attribute.value] ||
-                                          attribute.value}
+                              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4">
+                                {attributes.map((attribute) => (
+                                  <Card
+                                    key={attribute.name}
+                                    className="overflow-hidden transition-all duration-300 ease-in-out hover:shadow-lg hover:bg-primary/5 hover:-translate-y-1"
+                                  >
+                                    <CardContent className="p-4">
+                                      <div className="text-center">
+                                        <strong className="text-lg">
+                                          {attribute.name}:
+                                        </strong>
+                                        <div className="mt-2 text-md">
+                                          {descriptionMap[attribute.value] ||
+                                            attribute.value}
+                                        </div>
                                       </div>
-                                    </div>
-                                  </CardContent>
-                                </Card>
-                              ))}
+                                    </CardContent>
+                                  </Card>
+                                ))}
+                              </div>
+                            </CardContent>
+                            <div className="flex justify-end pr-4 pb-4">
+                              <button
+                                onClick={() => {
+                                  setIsAlertOpen(true);
+                                }}
+                                className="text-red-500 hover:text-red-700 text-sm"
+                              >
+                                <Trash className="h-4 w-4" />
+                              </button>
                             </div>
-                          </CardContent>
-                          <div className="flex justify-end pr-4 pb-4">
-                            <button
-                              onClick={() => {
-                                setIsAlertOpen(true);
-                              }}
-                              className="text-red-500 hover:text-red-700 text-sm"
-                            >
-                              <Trash className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </Card>
+                          </Card>
+                        </motion.div>
                       )}
                     </>
                   )}
