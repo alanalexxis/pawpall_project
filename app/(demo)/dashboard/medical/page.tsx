@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import PlaceholderContent from "@/components/demo/placeholder-content";
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import {
   Breadcrumb,
@@ -11,12 +10,11 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
-import SleepContent from "@/components/demo/sleep-content";
 import MedicalContent from "@/components/demo/medical-content";
 
 export default function TagsPage() {
   return (
-    <ContentLayout title="Sueño">
+    <ContentLayout title="Historial médico">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

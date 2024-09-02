@@ -9,12 +9,11 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import PetProfileContent from "@/components/demo/pet-profile-content";
 import GroomingContent from "@/components/demo/grooming-content";
 
 export default function PetsPage() {
   return (
-    <ContentLayout title="Pets">
+    <ContentLayout title="Estética">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -30,7 +29,7 @@ export default function PetsPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Aseo</BreadcrumbPage>
+            <BreadcrumbPage>Estética</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

@@ -1,6 +1,4 @@
 import Link from "next/link";
-
-import PlaceholderContent from "@/components/demo/placeholder-content";
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import {
   Breadcrumb,
@@ -15,7 +13,7 @@ import EmotionsContent from "@/components/demo/emotions-content";
 
 export default function TagsPage() {
   return (
-    <ContentLayout title="Sueño">
+    <ContentLayout title="Emociones">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

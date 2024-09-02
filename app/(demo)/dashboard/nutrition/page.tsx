@@ -14,7 +14,7 @@ import NutritionContent from "@/components/demo/nutrition-content";
 
 export default function TagsPage() {
   return (
-    <ContentLayout title="Tags">
+    <ContentLayout title="Nutrición">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

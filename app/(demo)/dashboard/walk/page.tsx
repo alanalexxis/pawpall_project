@@ -14,7 +14,7 @@ import WalkContent from "@/components/demo/walk-content";
 
 export default function TagsPage() {
   return (
-    <ContentLayout title="Sueño">
+    <ContentLayout title="Paseos">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
