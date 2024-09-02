@@ -304,13 +304,13 @@ export default function Emotions() {
 
             return {
               date,
-              emociones: moodPercentage,
+              ánimo: moodPercentage,
             };
           } else {
             // Si no hay datos para ese día, devuelve un valor de humor predeterminado (por ejemplo, 0)
             return {
               date,
-              emociones: 0, // O el valor que consideres apropiado
+              ánimo: 0, // O el valor que consideres apropiado
             };
           }
         });
@@ -324,7 +324,12 @@ export default function Emotions() {
   return (
     <>
       {showConfetti && (
-        <Confetti width={width} height={height} recycle={false} />
+        <div
+          className="fixed inset-0 z-50 pointer-events-none"
+          style={{ overflow: "hidden" }}
+        >
+          <Confetti width={width} height={height} recycle={false} />
+        </div>
       )}
       <div className="w-full max-w-4xl mx-auto space-y-6 p-4">
         <motion.div
@@ -400,7 +405,7 @@ export default function Emotions() {
                           <Tooltip />
                           <Line
                             type="monotone"
-                            dataKey="emociones"
+                            dataKey="ánimo"
                             stroke="#8884d8"
                             strokeWidth={2}
                           />
