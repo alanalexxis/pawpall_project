@@ -79,8 +79,11 @@ export default function Sleep() {
   const [logToDelete, setLogToDelete] = useState<number | null>(null); // Estado para el log a eliminar
   const [isAlertOpen, setIsAlertOpen] = useState(false); // Estado para el modal
 
-  // Fetch sleep logs when component mounts or selectedPet changes
   const fetchSleepLogs = async () => {
+    if (!selectedPet || !selectedPet.id) {
+      return; // No hacer nada si no hay una mascota seleccionada
+    }
+
     const { data, error } = await supabase
       .from("sleep_patterns")
       .select("*")
@@ -110,9 +113,10 @@ export default function Sleep() {
   };
 
   useEffect(() => {
-    fetchSleepLogs();
-  }, [selectedPet.id]);
-
+    if (selectedPet && selectedPet.id) {
+      fetchSleepLogs();
+    }
+  }, [selectedPet]);
   const getCurrentDateTimeForSupabase = () => {
     return new Date().toISOString(); // Formato ISO 8601
   };
@@ -750,23 +754,26 @@ export default function Sleep() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.4 }}
         >
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl">
-                Patrón de sueño semanal
-              </CardTitle>
-              <CardDescription>
-                Visualización de las horas de sueño por día
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-6">
-              <Bar
-                data={chartData}
-                options={chartOptions}
-                className="max-h-80"
-              />
-            </CardContent>
-          </Card>
+          {" "}
+          {selectedPet && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-2xl">
+                  Patrón de sueño semanal
+                </CardTitle>
+                <CardDescription>
+                  Visualización de las horas de sueño por día
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                <Bar
+                  data={chartData}
+                  options={chartOptions}
+                  className="max-h-80"
+                />
+              </CardContent>
+            </Card>
+          )}
         </motion.div>
 
         <motion.div
@@ -775,36 +782,38 @@ export default function Sleep() {
           transition={{ duration: 0.5, delay: 0.6 }}
           className="mt-8"
         >
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl">
-                Recomendaciones de sueño
-              </CardTitle>
-              <CardDescription>
-                Consejos para mejorar el descanso de tu perro
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-4">
-                <li className="flex items-start space-x-2">
-                  <Moon className="w-5 h-5 text-primary mt-1" />
-                  <span>Mantén un horario de sueño constante</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <Sun className="w-5 h-5 text-primary mt-1" />
-                  <span>
-                    Asegúrate de que tenga suficiente ejercicio durante el día
-                  </span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <Dog className="w-5 h-5 text-primary mt-1" />
-                  <span>
-                    Proporciona un lugar cómodo y tranquilo para dormir
-                  </span>
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
+          {selectedPet && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-2xl">
+                  Recomendaciones de sueño
+                </CardTitle>
+                <CardDescription>
+                  Consejos para mejorar el descanso de tu perro
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-4">
+                  <li className="flex items-start space-x-2">
+                    <Moon className="w-5 h-5 text-primary mt-1" />
+                    <span>Mantén un horario de sueño constante</span>
+                  </li>
+                  <li className="flex items-start space-x-2">
+                    <Sun className="w-5 h-5 text-primary mt-1" />
+                    <span>
+                      Asegúrate de que tenga suficiente ejercicio durante el día
+                    </span>
+                  </li>
+                  <li className="flex items-start space-x-2">
+                    <Dog className="w-5 h-5 text-primary mt-1" />
+                    <span>
+                      Proporciona un lugar cómodo y tranquilo para dormir
+                    </span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          )}
         </motion.div>
       </motion.div>
       <motion.div
@@ -813,14 +822,16 @@ export default function Sleep() {
         transition={{ duration: 0.5, delay: 0.6 }}
         className="mt-8"
       >
-        <Alert className="max-w-screen-lg">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Atención</AlertTitle>
-          <AlertDescription>
-            Si notas cambios significativos en los patrones de sueño de tu
-            perro, consulta con tu veterinario.
-          </AlertDescription>
-        </Alert>
+        {selectedPet && (
+          <Alert className="max-w-screen-lg">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Atención</AlertTitle>
+            <AlertDescription>
+              Si notas cambios significativos en los patrones de sueño de tu
+              perro, consulta con tu veterinario.
+            </AlertDescription>
+          </Alert>
+        )}
       </motion.div>
     </div>
   );

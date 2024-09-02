@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -15,7 +14,6 @@ import {
   Meh,
   Smile,
   Dog,
-  PawPrint,
   RocketIcon,
   Trash,
 } from "lucide-react";
@@ -60,23 +58,20 @@ export default function Emotions() {
   const [happinessLevel, setHappinessLevel] = useState(null);
   const { width, height } = useWindowSize();
   const [showConfetti, setShowConfetti] = useState(false);
-  const [mood, setMood] = useState(90);
+
   const [moodHistory, setMoodHistory] = useState([]);
   const [dailyMood, setDailyMood] = useState(null);
   const [hasEntryForToday, setHasEntryForToday] = useState(false);
   const [isAlertOpen, setIsAlertOpen] = useState(false); // Estado para el modal
   const [selectedDate, setSelectedDate] = useState(new Date());
-  useEffect(() => {
-    const mockData = Array.from({ length: 7 }, (_, i) => ({
-      date: new Date(
-        Date.now() - (6 - i) * 24 * 60 * 60 * 1000
-      ).toLocaleDateString(),
-      mood: Math.floor(Math.random() * 100),
-    }));
-    setMoodHistory(mockData);
-  }, []);
+
+  const [reload, setReload] = useState(false); // Estado de recarga
 
   useEffect(() => {
+    if (!selectedPet || !selectedPet.id) {
+      return; // No hacer nada si no hay una mascota seleccionada
+    }
+
     const fetchData = async () => {
       const today = new Date().toISOString().split("T")[0];
       const { data, error } = await supabase
@@ -105,24 +100,13 @@ export default function Emotions() {
     };
 
     fetchData();
-  }, [selectedPet.id]);
+  }, [selectedPet, reload]); // Cambia `selectedPet.id` por `selectedPet` en la dependencia
 
   useEffect(() => {
     if (happinessLevel !== null) {
       insertEmotions();
     }
   }, [happinessLevel]);
-
-  const updateMood = (value) => {
-    setMood((prevMood) => {
-      const newMood = Math.max(0, Math.min(100, prevMood + value));
-      setMoodHistory((prev) => [
-        ...prev.slice(-6),
-        { date: new Date().toLocaleDateString(), mood: newMood },
-      ]);
-      return newMood;
-    });
-  };
 
   const getMoodIcon = (moodValue) => {
     if (moodValue == 0) return <Smile className="w-16 h-16 text-green-500" />;
@@ -201,6 +185,7 @@ export default function Emotions() {
           description: "La información de emociones se guardó con éxito.",
         });
         setHasEntryForToday(true);
+        setReload(!reload); // Cambia el estado de recarga
       }
     }
   };
@@ -224,7 +209,6 @@ export default function Emotions() {
     return Math.round(moodPercentage);
   };
   const moodPercentage = calculateMoodPercentage();
-
   const handleDelete = async () => {
     const today = new Date().toISOString().split("T")[0];
     const { error } = await supabase
@@ -253,6 +237,7 @@ export default function Emotions() {
       setHappinessLevel(null);
       setDailyMood(null);
       setHasEntryForToday(false);
+      setReload(!reload); // Cambia el estado de recarga
     }
   };
   // Formatear la fecha seleccionada
@@ -261,6 +246,81 @@ export default function Emotions() {
     month: "2-digit",
     year: "numeric",
   });
+
+  useEffect(() => {
+    if (!selectedPet || !selectedPet.id) {
+      return; // No hacer nada si no hay una mascota seleccionada
+    }
+    const fetchMoodHistory = async () => {
+      const today = new Date();
+      const sevenDaysAgo = new Date(today);
+      sevenDaysAgo.setDate(today.getDate() - 6);
+
+      const { data, error } = await supabase
+        .from("emotions")
+        .select(
+          "date, energy_level, calm_level, curiosity_level, affection_level, trust_level, happiness_level, mood_level"
+        )
+        .eq("pet_id", selectedPet.id)
+        .gte("date", sevenDaysAgo.toISOString().split("T")[0]);
+
+      if (error) {
+        console.error("Error fetching mood history:", error);
+      } else {
+        // Crear un array para asegurarse de que cada día tenga un registro, incluso si está vacío
+        const moodHistoryData = Array.from({ length: 7 }, (_, i) => {
+          const date = new Date(
+            Date.now() - (6 - i) * 24 * 60 * 60 * 1000
+          ).toLocaleDateString("es-ES", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          });
+
+          // Buscar si hay datos para la fecha actual
+          const entry = data.find((item) => {
+            const entryDate = new Date(item.date).toLocaleDateString("es-ES", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            });
+            return entryDate === date;
+          });
+
+          if (entry) {
+            const totalAttributes =
+              entry.energy_level +
+              entry.calm_level +
+              entry.curiosity_level +
+              entry.affection_level +
+              entry.trust_level +
+              entry.happiness_level +
+              entry.mood_level;
+
+            const maxPossibleValue = 21;
+            const moodPercentage = Math.round(
+              (totalAttributes / maxPossibleValue) * 100
+            );
+
+            return {
+              date,
+              emociones: moodPercentage,
+            };
+          } else {
+            // Si no hay datos para ese día, devuelve un valor de humor predeterminado (por ejemplo, 0)
+            return {
+              date,
+              emociones: 0, // O el valor que consideres apropiado
+            };
+          }
+        });
+
+        setMoodHistory(moodHistoryData);
+      }
+    };
+
+    fetchMoodHistory();
+  }, [selectedPet, reload]); // C
   return (
     <>
       {showConfetti && (
@@ -336,11 +396,11 @@ export default function Emotions() {
                       <ResponsiveContainer width="100%" height={200}>
                         <LineChart data={moodHistory}>
                           <XAxis dataKey="date" />
-                          <YAxis />
+                          <YAxis domain={[0, 100]} />
                           <Tooltip />
                           <Line
                             type="monotone"
-                            dataKey="mood"
+                            dataKey="emociones"
                             stroke="#8884d8"
                             strokeWidth={2}
                           />
@@ -782,9 +842,13 @@ export default function Emotions() {
                   )}
                 </>
               ) : (
-                <p className="text-center text-lg font-semibold">
-                  Selecciona una mascota para ver el estado de ánimo.
-                </p>
+                <div className="text-center p-8">
+                  <Dog className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                  <p className="text-lg text-muted-foreground">
+                    Por favor, selecciona una mascota para ver los detalles de
+                    sueño.
+                  </p>
+                </div>
               )}
             </CardContent>
           </Card>
