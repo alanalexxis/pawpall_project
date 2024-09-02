@@ -17,6 +17,7 @@ import {
   Dog,
   PawPrint,
   RocketIcon,
+  Trash,
 } from "lucide-react";
 import {
   LineChart,
@@ -36,6 +37,16 @@ import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { createClient } from "@/utils/supabase/client";
 import { toast } from "../ui/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
 
 export default function Emotions() {
   const supabase = createClient();
@@ -52,7 +63,7 @@ export default function Emotions() {
   const [moodHistory, setMoodHistory] = useState([]);
   const [dailyMood, setDailyMood] = useState(null);
   const [hasEntryForToday, setHasEntryForToday] = useState(false);
-
+  const [isAlertOpen, setIsAlertOpen] = useState(false); // Estado para el modal
   useEffect(() => {
     const mockData = Array.from({ length: 7 }, (_, i) => ({
       date: new Date(
@@ -211,6 +222,37 @@ export default function Emotions() {
     return Math.round(moodPercentage);
   };
   const moodPercentage = calculateMoodPercentage();
+
+  const handleDelete = async () => {
+    const today = new Date().toISOString().split("T")[0];
+    const { error } = await supabase
+      .from("emotions")
+      .delete()
+      .eq("pet_id", selectedPet.id)
+      .eq("date", today);
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "¡Error al eliminar!",
+        description: "No se pudo eliminar el registro de emociones.",
+      });
+    } else {
+      toast({
+        title: "¡Éxito!",
+        description: "Información eliminada con éxito.",
+      });
+      // Restablecer los estados locales
+      setEnergyLevel(null);
+      setCalmLevel(null);
+      setCuriosityLevel(null);
+      setAffectionLevel(null);
+      setTrustLevel(null);
+      setHappinessLevel(null);
+      setDailyMood(null);
+      setHasEntryForToday(false);
+    }
+  };
 
   return (
     <>
@@ -644,6 +686,7 @@ export default function Emotions() {
                                 perro, vuelve mañana!
                               </p>
                             </div>
+
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4">
                               {attributes.map((attribute) => (
                                 <Card
@@ -665,6 +708,16 @@ export default function Emotions() {
                               ))}
                             </div>
                           </CardContent>
+                          <div className="flex justify-end pr-4 pb-4">
+                            <button
+                              onClick={() => {
+                                setIsAlertOpen(true);
+                              }}
+                              className="text-red-500 hover:text-red-700 text-sm"
+                            >
+                              <Trash className="h-4 w-4" />
+                            </button>
+                          </div>
                         </Card>
                       )}
                     </>
@@ -678,6 +731,28 @@ export default function Emotions() {
             </CardContent>
           </Card>
         </motion.div>
+        <AlertDialog
+          open={isAlertOpen} // Abre el modal si isAlertOpen es true
+          onOpenChange={(open) => setIsAlertOpen(open)} // Controla el estado del modal
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>¿Estás absolutamente seguro?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta acción no se puede deshacer. Esto eliminará permanentemente
+                el registro de alimentación.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setIsAlertOpen(false)}>
+                Cancelar
+              </AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete}>
+                Eliminar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </>
   );
