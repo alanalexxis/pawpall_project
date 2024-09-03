@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,6 +46,7 @@ import * as z from "zod";
 import { cn } from "@/lib/utils";
 import { toast } from "../ui/use-toast";
 import { createClient } from "@/utils/supabase/client";
+import { useLoadScript } from "@react-google-maps/api";
 
 const formSchema = z.object({
   dateTime: z.date().refine((value) => value instanceof Date, {
@@ -56,6 +57,8 @@ const formSchema = z.object({
 export default function Walk() {
   const supabase = createClient();
   const { selectedPet } = useSelectedPet();
+  const [origin, setOrigin] = useState("");
+  const [destination, setDestination] = useState("");
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {},
@@ -70,7 +73,9 @@ export default function Walk() {
       const { error } = await supabase.from("walks").insert([
         {
           pet_id: selectedPet.id,
-          day: timestamp, // Enviar la fecha y hora como timestamptz
+          day: timestamp, // Fecha y hora como timestamptz
+          origin: origin, // Dirección de origen
+          destination: destination, // Dirección de destino
         },
       ]);
 
@@ -197,6 +202,13 @@ export default function Walk() {
         return null;
     }
   };
+  // dance arounding to fix stupid performance warning
+  const libraries = ["places"] as Libraries;
+  const libRef = useRef(libraries);
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+    libraries: libRef.current,
+  });
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 p-4">
@@ -292,15 +304,23 @@ export default function Walk() {
                               </FormItem>
                             )}
                           />
-                          <Button type="submit">Programar paseo</Button>
-                          <GoogleMapRouteComponent />
+                          {isLoaded ? (
+                            <>
+                              <GoogleMapRouteComponent
+                                onOriginChange={setOrigin}
+                                onDestinationChange={setDestination}
+                              />
+                            </>
+                          ) : (
+                            <div>loading...</div>
+                          )}
                           <div className="grid grid-cols-2 gap-4"></div>
+                          <CardFooter>
+                            <Button type="submit">Programar paseo</Button>
+                          </CardFooter>
                         </form>
                       </Form>
                     </CardContent>
-                    <CardFooter>
-                      <Button type="submit">Programar paseo</Button>
-                    </CardFooter>
                   </Card>
                 </motion.div>
                 <motion.div

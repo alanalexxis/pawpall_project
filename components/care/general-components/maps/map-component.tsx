@@ -18,7 +18,10 @@ const containerStyle = {
   height: "400px",
 };
 
-export default function GoogleMapRouteComponent() {
+export default function GoogleMapRouteComponent({
+  onOriginChange,
+  onDestinationChange,
+}) {
   const [directions, setDirections] = useState(null);
   const [travelTime, setTravelTime] = useState(null);
   const [distance, setDistance] = useState(null);
@@ -56,18 +59,23 @@ export default function GoogleMapRouteComponent() {
         setTravelTime(route.duration.text);
         setDistance(route.distance.text);
         setRouteCalculated(true);
-        geocodeLatLng({ lat: origin.lat, lng: origin.lng }, setOriginAddress);
+        geocodeLatLng({ lat: origin.lat, lng: origin.lng }, (address) => {
+          setOriginAddress(address);
+          onOriginChange(address); // Update origin in parent component
+        });
         geocodeLatLng(
           { lat: destination.lat, lng: destination.lng },
-          setDestinationAddress
+          (address) => {
+            setDestinationAddress(address);
+            onDestinationChange(address); // Update destination in parent component
+          }
         );
       } else {
         console.error("Directions request failed due to " + response?.status);
       }
     },
-    [destination, origin, geocodeLatLng]
+    [destination, origin, geocodeLatLng, onOriginChange, onDestinationChange]
   );
-
   const handleSetDestination = () => {
     if (window.google && window.google.maps) {
       const geocoder = new window.google.maps.Geocoder();
@@ -156,40 +164,36 @@ export default function GoogleMapRouteComponent() {
         <CardTitle>Planificador de ruta de paseos.</CardTitle>
       </CardHeader>
       <CardContent>
-        <LoadScript
-          googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}
-          libraries={["places"]}
-        >
-          {isLoading ? (
-            <div className="flex justify-center items-center h-[400px]">
-              <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary"></div>
-            </div>
-          ) : (
-            <GoogleMap
-              mapContainerStyle={containerStyle}
-              center={
-                origin || { lat: 37.437041393899676, lng: -4.191635586788259 }
-              }
-              zoom={15}
-              onClick={handleMapClick}
-            >
-              {origin && <Marker position={origin} />}
-              {origin && destination && !routeCalculated && (
-                <DirectionsService
-                  options={{
-                    destination: destination,
-                    origin: origin,
-                    travelMode: "WALKING",
-                  }}
-                  callback={directionsCallback}
-                />
-              )}
-              {directions && (
-                <DirectionsRenderer options={{ directions: directions }} />
-              )}
-            </GoogleMap>
-          )}
-        </LoadScript>
+        {isLoading ? (
+          <div className="flex justify-center items-center h-[400px]">
+            <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary"></div>
+          </div>
+        ) : (
+          <GoogleMap
+            mapContainerStyle={containerStyle}
+            center={
+              origin || { lat: 37.437041393899676, lng: -4.191635586788259 }
+            }
+            zoom={15}
+            onClick={handleMapClick}
+          >
+            {origin && <Marker position={origin} />}
+            {origin && destination && !routeCalculated && (
+              <DirectionsService
+                options={{
+                  destination: destination,
+                  origin: origin,
+                  travelMode: "WALKING",
+                }}
+                callback={directionsCallback}
+              />
+            )}
+            {directions && (
+              <DirectionsRenderer options={{ directions: directions }} />
+            )}
+          </GoogleMap>
+        )}
+
         <div className="mt-4 space-y-4">
           <div className="flex items-center space-x-2">
             <MapPin className="text-primary" />

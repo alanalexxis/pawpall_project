@@ -94,7 +94,7 @@ export default function Grooming() {
 
     fetchActivities();
   }, [selectedPet, supabase]);
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => { 
     e.preventDefault();
 
     if (newActivity.type && newActivity.date && selectedPet) {
