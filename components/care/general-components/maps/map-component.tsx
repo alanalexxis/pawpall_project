@@ -21,7 +21,25 @@ const containerStyle = {
 export default function GoogleMapRouteComponent({
   onOriginChange,
   onDestinationChange,
+  onDistanceChange,
+  onTotalTimeChange,
+  clearDirections,
 }) {
+  // Función para limpiar las direcciones
+  const handleClearDirections = () => {
+    setDirections(null);
+    setRouteCalculated(false);
+    setDestination(null);
+    setDestinationAddress("");
+    setTravelTime(null);
+  };
+
+  useEffect(() => {
+    if (clearDirections) {
+      clearDirections(handleClearDirections);
+    }
+  }, [clearDirections]);
+
   const [directions, setDirections] = useState(null);
   const [travelTime, setTravelTime] = useState(null);
   const [distance, setDistance] = useState(null);
@@ -58,23 +76,36 @@ export default function GoogleMapRouteComponent({
         const route = response.routes[0].legs[0];
         setTravelTime(route.duration.text);
         setDistance(route.distance.text);
+
+        // Call the parent component's callbacks with the new values
+        onTotalTimeChange(route.duration.text);
+        onDistanceChange(route.distance.text);
+
         setRouteCalculated(true);
         geocodeLatLng({ lat: origin.lat, lng: origin.lng }, (address) => {
           setOriginAddress(address);
-          onOriginChange(address); // Update origin in parent component
+          onOriginChange(address);
         });
         geocodeLatLng(
           { lat: destination.lat, lng: destination.lng },
           (address) => {
             setDestinationAddress(address);
-            onDestinationChange(address); // Update destination in parent component
+            onDestinationChange(address);
           }
         );
       } else {
         console.error("Directions request failed due to " + response?.status);
       }
     },
-    [destination, origin, geocodeLatLng, onOriginChange, onDestinationChange]
+    [
+      destination,
+      origin,
+      geocodeLatLng,
+      onOriginChange,
+      onDestinationChange,
+      onDistanceChange,
+      onTotalTimeChange,
+    ]
   );
   const handleSetDestination = () => {
     if (window.google && window.google.maps) {

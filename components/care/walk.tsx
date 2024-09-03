@@ -52,18 +52,21 @@ const formSchema = z.object({
   dateTime: z.date().refine((value) => value instanceof Date, {
     message: "Debe seleccionar una fecha y hora válidas.",
   }),
+  total_time: z.string().min(1, "El tiempo total es requerido."),
 });
-
 export default function Walk() {
   const supabase = createClient();
   const { selectedPet } = useSelectedPet();
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
+  const [distance, setDistance] = useState("");
+  const [total_time, setTotalTime] = useState("");
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {},
   });
-
+  const { reset } = form;
+  const clearDirectionsRef = useRef(null);
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       // Convertir la fecha y hora seleccionada a formato ISO string
@@ -76,12 +79,22 @@ export default function Walk() {
           day: timestamp, // Fecha y hora como timestamptz
           origin: origin, // Dirección de origen
           destination: destination, // Dirección de destino
+          distance: distance,
+          total_time: total_time,
         },
       ]);
-
+      if (clearDirectionsRef.current) {
+        clearDirectionsRef.current();
+      }
       if (error) throw error;
 
-      // Puedes agregar lógica adicional aquí si es necesario
+      toast({
+        title: "¡Éxito!",
+        description: "Paseo programado con éxito.",
+      });
+
+      // Limpiar los campos del formulario
+      reset(); // Resetea el formulario a sus valores por defecto
     } catch (error) {
       console.error("Error al programar el paseo:", error);
     }
@@ -186,6 +199,10 @@ export default function Walk() {
       totalWalks: completedWalks.length,
       dominantMood,
     };
+  };
+
+  const handleDistanceChange = (newDistance) => {
+    setDistance(newDistance);
   };
 
   const weeklySummary = calculateWeeklySummary();
@@ -306,9 +323,33 @@ export default function Walk() {
                           />
                           {isLoaded ? (
                             <>
-                              <GoogleMapRouteComponent
-                                onOriginChange={setOrigin}
-                                onDestinationChange={setDestination}
+                              <FormField
+                                control={form.control}
+                                name="total_time"
+                                render={({ field, fieldState }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <GoogleMapRouteComponent
+                                        onOriginChange={setOrigin}
+                                        onDestinationChange={setDestination}
+                                        onDistanceChange={handleDistanceChange}
+                                        onTotalTimeChange={(value) => {
+                                          field.onChange(value);
+                                          setTotalTime(value);
+                                        }}
+                                        clearDirections={(clearFunc) => {
+                                          clearDirectionsRef.current =
+                                            clearFunc;
+                                        }}
+                                      />
+                                    </FormControl>
+                                    {fieldState.error && (
+                                      <p className="text-red-700 text-sm">
+                                        {"Seleccione una ubicación de destino."}
+                                      </p>
+                                    )}
+                                  </FormItem>
+                                )}
                               />
                             </>
                           ) : (
