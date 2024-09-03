@@ -13,9 +13,11 @@ export function TimePickerDemo({ date, setDate }: TimePickerDemoProps) {
   const hourRef = React.useRef<HTMLInputElement>(null);
 
   const handleTimeChange = (hours: number, minutes: number) => {
-    const newDate = new Date();
+    const newDate = date ? new Date(date) : new Date(); // Usa la fecha existente si está definida
     newDate.setHours(hours);
     newDate.setMinutes(minutes);
+    newDate.setSeconds(0, 0); // Establece los segundos y milisegundos a 0
+
     setDate(newDate);
   };
 

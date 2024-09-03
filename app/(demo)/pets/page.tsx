@@ -14,7 +14,7 @@ import PetProfileContent from "@/components/demo/pet-profile-content";
 
 export default function PetsPage() {
   return (
-    <ContentLayout title="Pets">
+    <ContentLayout title="Mis mascotas">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

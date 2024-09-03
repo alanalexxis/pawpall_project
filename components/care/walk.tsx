@@ -30,10 +30,58 @@ import {
   MehIcon,
   Dog,
 } from "lucide-react";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 import { useSelectedPet } from "@/contexts/selectedPetContext";
 import { motion } from "framer-motion";
+import GoogleMapRouteComponent from "./general-components/maps/map-component";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "../ui/form";
+import { Popover } from "@radix-ui/react-popover";
+import { PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Calendar } from "../ui/calendar";
+import { TimePickerDemo } from "../appointments/time-picker";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { cn } from "@/lib/utils";
+import { toast } from "../ui/use-toast";
+import { createClient } from "@/utils/supabase/client";
+
+const formSchema = z.object({
+  dateTime: z.date().refine((value) => value instanceof Date, {
+    message: "Debe seleccionar una fecha y hora válidas.",
+  }),
+});
 
 export default function Walk() {
+  const supabase = createClient();
+  const { selectedPet } = useSelectedPet();
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {},
+  });
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      // Convertir la fecha y hora seleccionada a formato ISO string
+      const timestamp = values.dateTime.toISOString();
+
+      // Enviar los datos a la tabla "walks" en Supabase
+      const { error } = await supabase.from("walks").insert([
+        {
+          pet_id: selectedPet.id,
+          day: timestamp, // Enviar la fecha y hora como timestamptz
+        },
+      ]);
+
+      if (error) throw error;
+
+      // Puedes agregar lógica adicional aquí si es necesario
+    } catch (error) {
+      console.error("Error al programar el paseo:", error);
+    }
+  }
+
   const [walks, setWalks] = useState([
     {
       id: 1,
@@ -41,20 +89,6 @@ export default function Walk() {
       time: "09:00",
       duration: "30",
       location: "Parque Central",
-    },
-    {
-      id: 2,
-      day: "Miércoles",
-      time: "16:00",
-      duration: "45",
-      location: "Playa Canina",
-    },
-    {
-      id: 3,
-      day: "Sábado",
-      time: "10:00",
-      duration: "60",
-      location: "Sendero del Bosque",
     },
   ]);
 
@@ -65,20 +99,6 @@ export default function Walk() {
       distance: 2.5,
       mood: "feliz",
       notes: "Jugó mucho con otros perros",
-    },
-    {
-      id: 2,
-      date: "2023-05-03",
-      distance: 3.0,
-      mood: "neutral",
-      notes: "Día caluroso, se cansó rápido",
-    },
-    {
-      id: 3,
-      date: "2023-05-06",
-      distance: 4.0,
-      mood: "feliz",
-      notes: "Excelente energía hoy",
     },
   ]);
 
@@ -177,7 +197,7 @@ export default function Walk() {
         return null;
     }
   };
-  const { selectedPet } = useSelectedPet();
+
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 p-4">
       <motion.div
@@ -219,77 +239,67 @@ export default function Walk() {
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <form onSubmit={addWalk} className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="day">Día</Label>
-                            <Select
-                              name="day"
-                              onValueChange={(value) =>
-                                handleSelectChange("day", value)
-                              }
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Selecciona un día" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {[
-                                  "Lunes",
-                                  "Martes",
-                                  "Miércoles",
-                                  "Jueves",
-                                  "Viernes",
-                                  "Sábado",
-                                  "Domingo",
-                                ].map((day) => (
-                                  <SelectItem key={day} value={day}>
-                                    {day}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="time">Hora</Label>
-                            <Input
-                              type="time"
-                              id="time"
-                              name="time"
-                              value={newWalk.time}
-                              onChange={handleInputChange}
-                            />
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="duration">Duración (minutos)</Label>
-                            <Input
-                              type="number"
-                              id="duration"
-                              name="duration"
-                              value={newWalk.duration}
-                              onChange={handleInputChange}
-                              min="15"
-                              max="120"
-                              step="15"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="location">Ubicación</Label>
-                            <Input
-                              type="text"
-                              id="location"
-                              name="location"
-                              value={newWalk.location}
-                              onChange={handleInputChange}
-                              placeholder="Ej: Parque Central"
-                            />
-                          </div>
-                        </div>
-                      </form>
+                      <Form {...form}>
+                        <form
+                          onSubmit={form.handleSubmit(onSubmit)}
+                          className="space-y-4"
+                        >
+                          <FormField
+                            control={form.control}
+                            name="dateTime"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Seleccione una fecha</FormLabel>
+                                <Popover>
+                                  <FormControl>
+                                    <PopoverTrigger asChild>
+                                      <Button
+                                        variant="outline"
+                                        className={cn(
+                                          "w-full justify-start text-left font-normal",
+                                          !field.value &&
+                                            "text-muted-foreground"
+                                        )}
+                                      >
+                                        <CalendarIcon className="mr-2 h-4 w-4" />
+
+                                        {field.value ? (
+                                          format(field.value, "PPP HH:mm:ss", {
+                                            locale: es,
+                                          })
+                                        ) : (
+                                          <span>Selecciona una fecha</span>
+                                        )}
+                                      </Button>
+                                    </PopoverTrigger>
+                                  </FormControl>
+                                  <PopoverContent className="w-auto p-0">
+                                    <Calendar
+                                      mode="single"
+                                      selected={field.value}
+                                      onSelect={field.onChange}
+                                      initialFocus
+                                      locale={es}
+                                    />
+                                    <div className="p-3 border-t border-border">
+                                      <TimePickerDemo
+                                        setDate={field.onChange}
+                                        date={field.value}
+                                      />
+                                    </div>
+                                  </PopoverContent>
+                                </Popover>
+                              </FormItem>
+                            )}
+                          />
+                          <Button type="submit">Programar paseo</Button>
+                          <GoogleMapRouteComponent />
+                          <div className="grid grid-cols-2 gap-4"></div>
+                        </form>
+                      </Form>
                     </CardContent>
                     <CardFooter>
-                      <Button onClick={addWalk}>Agregar paseo</Button>
+                      <Button type="submit">Programar paseo</Button>
                     </CardFooter>
                   </Card>
                 </motion.div>
