@@ -480,7 +480,7 @@ export default function Sleep() {
         transition={{ duration: 0.5 }}
       >
         <Card className="w-full max-w-4xl mx-auto mb-8">
-          <CardHeader className="bg-primary text-primary-foreground">
+          <CardHeader className="bg-[conic-gradient(at_bottom_left,_var(--tw-gradient-stops))] from-yellow-200 via-emerald-200 to-yellow-200 text-primary-foreground">
             <CardTitle className="text-2xl flex items-center gap-2">
               <Dog className="w-8 h-8" />
               {selectedPet

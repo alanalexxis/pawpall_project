@@ -164,7 +164,7 @@ export default function Medical() {
         transition={{ duration: 0.5 }}
       >
         <Card>
-          <CardHeader className="bg-primary text-primary-foreground">
+          <CardHeader className="bg-[conic-gradient(at_bottom_left,_var(--tw-gradient-stops))] from-yellow-200 via-emerald-200 to-yellow-200 text-primary-foreground">
             <CardTitle className="text-2xl flex items-center gap-2">
               <Dog className="w-6 h-6" />
               {selectedPet

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
 import {
   Card,
   CardContent,
@@ -29,8 +30,13 @@ import {
   FrownIcon,
   MehIcon,
   Dog,
+  XIcon,
+  CheckIcon,
+  NotebookPen,
+  CheckCircle2Icon,
+  XCircleIcon,
 } from "lucide-react";
-import { format } from "date-fns";
+import { format, subDays } from "date-fns";
 import { es } from "date-fns/locale";
 import { useSelectedPet } from "@/contexts/selectedPetContext";
 import { motion } from "framer-motion";
@@ -47,6 +53,9 @@ import { cn } from "@/lib/utils";
 import { toast } from "../ui/use-toast";
 import { createClient } from "@/utils/supabase/client";
 import { useLoadScript } from "@react-google-maps/api";
+import CompletedWalkDialog from "./general-components/maps/walk-dialog";
+import { Badge } from "../ui/badge";
+import { Toast } from "@radix-ui/react-toast";
 
 const formSchema = z.object({
   dateTime: z.date().refine((value) => value instanceof Date, {
@@ -61,6 +70,7 @@ export default function Walk() {
   const [destination, setDestination] = useState("");
   const [distance, setDistance] = useState("");
   const [total_time, setTotalTime] = useState("");
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {},
@@ -81,6 +91,7 @@ export default function Walk() {
           destination: destination, // Dirección de destino
           distance: distance,
           total_time: total_time,
+          completed: 1,
         },
       ]);
       if (clearDirectionsRef.current) {
@@ -95,109 +106,37 @@ export default function Walk() {
 
       // Limpiar los campos del formulario
       reset(); // Resetea el formulario a sus valores por defecto
+      await fetchScheduledWalks();
     } catch (error) {
       console.error("Error al programar el paseo:", error);
     }
   }
 
-  const [walks, setWalks] = useState([
-    {
-      id: 1,
-      day: "Lunes",
-      time: "09:00",
-      duration: "30",
-      location: "Parque Central",
-    },
-  ]);
+  const [walks, setWalks] = useState([]);
 
-  const [completedWalks, setCompletedWalks] = useState([
-    {
-      id: 1,
-      date: "2023-05-01",
-      distance: 2.5,
-      mood: "feliz",
-      notes: "Jugó mucho con otros perros",
-    },
-  ]);
-
-  const [newWalk, setNewWalk] = useState({
-    day: "",
-    time: "",
-    duration: "",
-    location: "",
-  });
-
-  const [newCompletedWalk, setNewCompletedWalk] = useState({
-    date: "",
-    distance: "",
-    mood: "",
-    notes: "",
-  });
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewWalk((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleCompletedWalkInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewCompletedWalk((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSelectChange = (name, value) => {
-    setNewWalk((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleCompletedWalkSelectChange = (name, value) => {
-    setNewCompletedWalk((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const addWalk = (e) => {
-    e.preventDefault();
-    if (newWalk.day && newWalk.time && newWalk.duration && newWalk.location) {
-      setWalks((prev) => [...prev, { id: Date.now(), ...newWalk }]);
-      setNewWalk({ day: "", time: "", duration: "", location: "" });
-    }
-  };
-
-  const addCompletedWalk = (e) => {
-    e.preventDefault();
-    if (
-      newCompletedWalk.date &&
-      newCompletedWalk.distance &&
-      newCompletedWalk.mood
-    ) {
-      setCompletedWalks((prev) => [
-        ...prev,
-        { id: Date.now(), ...newCompletedWalk },
-      ]);
-      setNewCompletedWalk({ date: "", distance: "", mood: "", notes: "" });
-    }
-  };
-
-  const deleteWalk = (id) => {
-    setWalks((prev) => prev.filter((walk) => walk.id !== id));
-  };
+  const [completedWalks, setCompletedWalks] = useState([]);
 
   const calculateWeeklySummary = () => {
-    const totalDistance = completedWalks.reduce(
+    const now = new Date();
+    const oneWeekAgo = subDays(now, 7);
+
+    const weeklyCompletedWalks = walks.filter(
+      (walk) =>
+        walk.completed === 3 &&
+        new Date(walk.day) >= oneWeekAgo &&
+        new Date(walk.day) <= now
+    );
+
+    const totalDistance = weeklyCompletedWalks.reduce(
       (sum, walk) => sum + Number(walk.distance),
       0
     );
-    const averageDistance = totalDistance / completedWalks.length;
-    const moodCounts = completedWalks.reduce((counts, walk) => {
-      counts[walk.mood] = (counts[walk.mood] || 0) + 1;
-      return counts;
-    }, {});
-    const dominantMood = Object.entries(moodCounts).reduce((a, b) =>
-      a[1] > b[1] ? a : b
-    )[0];
+    const averageDistance = totalDistance / weeklyCompletedWalks.length;
 
     return {
       totalDistance: totalDistance.toFixed(1),
       averageDistance: averageDistance.toFixed(1),
-      totalWalks: completedWalks.length,
-      dominantMood,
+      totalWalks: weeklyCompletedWalks.length,
     };
   };
 
@@ -209,11 +148,11 @@ export default function Walk() {
 
   const getMoodIcon = (mood) => {
     switch (mood) {
-      case "feliz":
+      case 1:
         return <SmileIcon className="text-green-500" />;
-      case "neutral":
+      case 2:
         return <MehIcon className="text-yellow-500" />;
-      case "triste":
+      case 3:
         return <FrownIcon className="text-red-500" />;
       default:
         return null;
@@ -227,6 +166,85 @@ export default function Walk() {
     libraries: libRef.current,
   });
 
+  const fetchScheduledWalks = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("walks")
+        .select("*")
+        .eq("pet_id", selectedPet.id);
+
+      if (error) throw error;
+
+      setWalks(data);
+    } catch (error) {
+      console.error("Error al obtener los paseos programados:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedPet) {
+      fetchScheduledWalks();
+    }
+  }, [selectedPet]);
+  const moodLabels = {
+    1: "Feliz",
+    2: "Neutral",
+    3: "Triste",
+  };
+  const getStatusBadge = (completed: number) => {
+    if (completed === 3) {
+      return (
+        <Badge
+          variant="outline"
+          className="bg-green-50 text-green-700 border-green-200"
+        >
+          <CheckCircle2Icon className="w-3 h-3 mr-1" />
+          Completado
+        </Badge>
+      );
+    } else if (completed === 2) {
+      return (
+        <Badge
+          variant="outline"
+          className="bg-red-50 text-red-700 border-red-200"
+        >
+          <XCircleIcon className="w-3 h-3 mr-1" />
+          Rechazado
+        </Badge>
+      );
+    } else if (completed === 1) {
+      return (
+        <Badge
+          variant="outline"
+          className="bg-yellow-50 text-yellow-700 border-yellow-200"
+        >
+          <ClockIcon className="w-3 h-3 mr-1" />
+          Pendiente
+        </Badge>
+      );
+    }
+    return null;
+  };
+  const handleReject = async (walkId) => {
+    try {
+      const { error } = await supabase
+        .from("walks")
+        .update({ completed: 2 })
+        .eq("id", walkId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Paseo rechazado.",
+        description: "El paseo ha sido marcado como rechazado.",
+      });
+
+      // Actualizar la lista de paseos programados
+      await fetchScheduledWalks();
+    } catch (error) {
+      console.error("Error al rechazar el paseo:", error);
+    }
+  };
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 p-4">
       <motion.div
@@ -235,7 +253,7 @@ export default function Walk() {
         transition={{ duration: 0.5 }}
       >
         <Card>
-          <CardHeader className="bg-primary text-primary-foreground">
+          <CardHeader className="bg-[conic-gradient(at_bottom_left,_var(--tw-gradient-stops))] from-yellow-200 via-emerald-200 to-yellow-200 text-primary-foreground">
             <CardTitle className="text-2xl flex items-center gap-2">
               <Dog className="w-6 h-6" />
               {selectedPet
@@ -369,46 +387,101 @@ export default function Walk() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.4 }}
                 >
-                  <h2 className="text-xl font-semibold my-4">
-                    Paseos programados
-                  </h2>
-                  <div className="space-y-4">
-                    {walks.map((walk) => (
-                      <Card key={walk.id}>
-                        <CardContent className="flex items-center justify-between p-4">
-                          <div className="flex items-center space-x-4">
-                            <CalendarIcon className="text-blue-500" />
-                            <div>
-                              <p className="font-medium">{walk.day}</p>
-                              <div className="flex items-center text-sm text-gray-500">
-                                <ClockIcon className="mr-1 h-4 w-4" />
-                                <span>
-                                  {walk.time} - {walk.duration} min
-                                </span>
-                              </div>
-                              <div className="flex items-center text-sm text-gray-500">
-                                <MapPinIcon className="mr-1 h-4 w-4" />
-                                <span>{walk.location}</span>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex space-x-2">
-                            <Button variant="outline" size="icon">
-                              <PencilIcon className="h-4 w-4" />
-                              <span className="sr-only">Editar paseo</span>
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              onClick={() => deleteWalk(walk.id)}
+                  <div className="container mx-auto px-4 py-8">
+                    <h2 className="text-2xl font-semibold mb-6">
+                      Paseos programados
+                    </h2>
+                    <div className="space-y-4">
+                      {walks.filter((walk) => walk.completed === 1).length >
+                      0 ? (
+                        walks
+                          .filter((walk) => walk.completed === 1) // Filter walks with completed = 1
+                          .map((walk) => (
+                            <Card
+                              key={walk.id}
+                              className="overflow-hidden hover:shadow-md transition-shadow duration-200"
                             >
-                              <TrashIcon className="h-4 w-4" />
-                              <span className="sr-only">Eliminar paseo</span>
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
+                              <div className="bg-[conic-gradient(at_top_left,_var(--tw-gradient-stops))] from-yellow-200 via-emerald-200 to-yellow-200 p-4 text-primary-foreground">
+                                <div className="flex items-center justify-between flex-wrap gap-2">
+                                  <div className="flex items-center space-x-2">
+                                    <CalendarIcon className="h-5 w-5" />
+                                    <p className="font-medium">
+                                      {format(
+                                        new Date(walk.day),
+                                        "EEEE - dd/MM/yyyy",
+                                        { locale: es }
+                                      )}
+                                    </p>
+                                  </div>
+                                  {getStatusBadge(walk.completed)}
+                                </div>
+                              </div>
+                              <CardContent className="p-6">
+                                <div className="flex flex-col space-y-4">
+                                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
+                                    <div className="flex items-start space-x-4">
+                                      <div>
+                                        <div className="flex items-center text-sm text-muted-foreground mt-1">
+                                          <ClockIcon className="mr-2 h-4 w-4" />
+                                          <span>
+                                            {format(
+                                              new Date(walk.day),
+                                              "h:mm a",
+                                              { locale: es }
+                                            )}{" "}
+                                            - {walk.total_time} -{" "}
+                                            {walk.distance}
+                                          </span>
+                                        </div>
+                                        <div className="flex items-center text-sm text-muted-foreground mt-1">
+                                          <MapPinIcon className="mr-2 h-4 w-4" />
+                                          <span>{walk.destination}</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                      <CompletedWalkDialog
+                                        walkId={walk.id}
+                                        fetchScheduledWalks={
+                                          fetchScheduledWalks
+                                        }
+                                      />
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => handleReject(walk.id)}
+                                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                      >
+                                        <XIcon className="h-4 w-4 mr-2" />
+                                        Rechazar
+                                      </Button>
+                                      <Button
+                                        size="icon"
+                                        variant="outline"
+                                        onClick={() => handleDelete(walk.id)}
+                                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                      >
+                                        <TrashIcon className="h-4 w-4" />
+                                        <span className="sr-only">
+                                          Eliminar paseo
+                                        </span>
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))
+                      ) : (
+                        <Card className="text-center p-8">
+                          <Dog className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+                          <p className="text-lg text-gray-500">
+                            No hay paseos programados. ¡Empieza a registrar
+                            paseos para verlos aquí!
+                          </p>
+                        </Card>
+                      )}
+                    </div>
                   </div>
                 </motion.div>
               </TabsContent>
@@ -417,84 +490,6 @@ export default function Walk() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2 }}
-                >
-                  <Card className="mb-8">
-                    <CardHeader>
-                      <CardTitle>Registrar paseo completado</CardTitle>
-                      <CardDescription>
-                        Ingresa los detalles del paseo realizado
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <form onSubmit={addCompletedWalk} className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="date">Fecha</Label>
-                            <Input
-                              type="date"
-                              id="date"
-                              name="date"
-                              value={newCompletedWalk.date}
-                              onChange={handleCompletedWalkInputChange}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="distance">Distancia (km)</Label>
-                            <Input
-                              type="number"
-                              id="distance"
-                              name="distance"
-                              value={newCompletedWalk.distance}
-                              onChange={handleCompletedWalkInputChange}
-                              step="0.1"
-                              min="0"
-                            />
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="mood">
-                            Estado de ánimo del perro
-                          </Label>
-                          <Select
-                            name="mood"
-                            onValueChange={(value) =>
-                              handleCompletedWalkSelectChange("mood", value)
-                            }
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Selecciona el estado de ánimo" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="feliz">Feliz</SelectItem>
-                              <SelectItem value="neutral">Neutral</SelectItem>
-                              <SelectItem value="triste">Triste</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="notes">Notas adicionales</Label>
-                          <Input
-                            type="text"
-                            id="notes"
-                            name="notes"
-                            value={newCompletedWalk.notes}
-                            onChange={handleCompletedWalkInputChange}
-                            placeholder="Observaciones, incidentes, etc."
-                          />
-                        </div>
-                      </form>
-                    </CardContent>
-                    <CardFooter>
-                      <Button onClick={addCompletedWalk}>
-                        Registrar paseo
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.4 }}
                 >
                   <Card className="mb-8">
                     <CardHeader>
@@ -545,40 +540,83 @@ export default function Walk() {
                   </Card>
                 </motion.div>
 
-                <h2 className="text-xl font-semibold mb-4">
-                  Historial de paseos recientes
-                </h2>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.6 }}
+                  transition={{ duration: 0.5, delay: 0.4 }}
                 >
-                  <div className="space-y-4">
-                    {completedWalks.map((walk) => (
-                      <Card key={walk.id}>
-                        <CardContent className="flex items-center justify-between p-4">
-                          <div className="flex items-center space-x-4">
-                            <CalendarIcon className="text-blue-500" />
-                            <div>
-                              <p className="font-medium">{walk.date}</p>
-                              <div className="flex items-center text-sm text-gray-500">
-                                <ActivityIcon className="mr-1 h-4 w-4" />
-                                <span>{walk.distance} km</span>
-                              </div>
-                              <div className="flex items-center text-sm text-gray-500">
-                                {getMoodIcon(walk.mood)}
-                                <span className="ml-1 capitalize">
-                                  {walk.mood}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            <p>{walk.notes}</p>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
+                  <div className="container mx-auto px-4 py-8">
+                    <h2 className="text-2xl font-semibold mb-6">
+                      Paseos completados
+                    </h2>
+                    <div className="space-y-4">
+                      {walks.filter(
+                        (walk) => walk.completed === 2 || walk.completed === 3
+                      ).length > 0 ? (
+                        walks
+                          .filter(
+                            (walk) =>
+                              walk.completed === 2 || walk.completed === 3
+                          )
+                          .map((walk) => (
+                            <Card className="overflow-hidden transition-all hover:shadow-lg">
+                              <CardContent className="p-0">
+                                <div className="bg-[conic-gradient(at_top_left,_var(--tw-gradient-stops))] from-yellow-200 via-emerald-200 to-yellow-200 p-4 text-primary-foreground">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-2">
+                                      <CalendarIcon className="h-5 w-5" />
+                                      <p className="font-semibold">
+                                        {format(
+                                          new Date(walk.day),
+                                          "EEEE - dd/MM/yyyy",
+                                          { locale: es }
+                                        )}
+                                      </p>
+                                    </div>
+                                    {getStatusBadge(walk.completed)}
+                                  </div>
+                                </div>
+                                <div className="p-6 space-y-6">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-2">
+                                      {getMoodIcon(walk.mood)}
+                                      <span className="text-sm font-medium capitalize">
+                                        {moodLabels[walk.mood] || ""}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                                      <ActivityIcon className="h-4 w-4" />
+                                      <span>
+                                        {walk.distance} - {walk.total_time}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <div className="flex items-start space-x-2">
+                                      <MapPinIcon className="h-4 w-4 mt-1 text-primary" />
+                                      <p className="text-sm">
+                                        {walk.destination}
+                                      </p>
+                                    </div>
+                                    <div className="flex items-start space-x-2">
+                                      <NotebookPen className="h-4 w-4 mt-1 text-primary" />
+                                      <p className="text-sm line-clamp-3">
+                                        {walk.notes}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))
+                      ) : (
+                        <Card className="text-center p-8">
+                          <p className="text-lg text-muted-foreground">
+                            No hay paseos recientes completados.
+                          </p>
+                        </Card>
+                      )}
+                    </div>
                   </div>
                 </motion.div>
               </TabsContent>

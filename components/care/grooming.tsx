@@ -94,7 +94,7 @@ export default function Grooming() {
 
     fetchActivities();
   }, [selectedPet, supabase]);
-  const handleSubmit = async (e: React.FormEvent) => { 
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (newActivity.type && newActivity.date && selectedPet) {
@@ -311,7 +311,7 @@ export default function Grooming() {
         transition={{ duration: 0.5 }}
       >
         <Card className="w-full max-w-4xl mx-auto">
-          <CardHeader className="bg-primary text-primary-foreground">
+          <CardHeader className="bg-[conic-gradient(at_bottom_left,_var(--tw-gradient-stops))] from-yellow-200 via-emerald-200 to-yellow-200 text-primary-foreground">
             <CardTitle className="text-2xl flex items-center gap-2">
               <Dog className="w-8 h-8" />
               {selectedPet
