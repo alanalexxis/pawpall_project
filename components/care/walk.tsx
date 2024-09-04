@@ -114,8 +114,6 @@ export default function Walk() {
 
   const [walks, setWalks] = useState([]);
 
-  const [completedWalks, setCompletedWalks] = useState([]);
-
   const calculateWeeklySummary = () => {
     const now = new Date();
     const oneWeekAgo = subDays(now, 7);
@@ -127,16 +125,30 @@ export default function Walk() {
         new Date(walk.day) <= now
     );
 
-    const totalDistance = weeklyCompletedWalks.reduce(
-      (sum, walk) => sum + Number(walk.distance),
-      0
-    );
+    const totalDistance = weeklyCompletedWalks.reduce((sum, walk) => {
+      const distanceValue = parseFloat(walk.distance.split(" ")[0]);
+      return sum + distanceValue;
+    }, 0);
+
     const averageDistance = totalDistance / weeklyCompletedWalks.length;
+
+    const moodCounts = weeklyCompletedWalks.reduce(
+      (counts, walk) => {
+        counts[walk.mood] = (counts[walk.mood] || 0) + 1;
+        return counts;
+      },
+      { 1: 0, 2: 0, 3: 0 }
+    );
+
+    const dominantMood = Object.keys(moodCounts).reduce((a, b) =>
+      moodCounts[a] > moodCounts[b] ? a : b
+    );
 
     return {
       totalDistance: totalDistance.toFixed(1),
       averageDistance: averageDistance.toFixed(1),
       totalWalks: weeklyCompletedWalks.length,
+      dominantMood: parseInt(dominantMood, 10),
     };
   };
 
@@ -530,7 +542,7 @@ export default function Walk() {
                           </p>
                           <div className="flex items-center">
                             <p className="text-2xl font-bold mr-2">
-                              {weeklySummary.dominantMood}
+                              {moodLabels[weeklySummary.dominantMood]}
                             </p>
                             {getMoodIcon(weeklySummary.dominantMood)}
                           </div>
