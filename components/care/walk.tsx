@@ -35,6 +35,8 @@ import {
   NotebookPen,
   CheckCircle2Icon,
   XCircleIcon,
+  CalculatorIcon,
+  FootprintsIcon,
 } from "lucide-react";
 import { format, subDays } from "date-fns";
 import { es } from "date-fns/locale";
@@ -503,50 +505,46 @@ export default function Walk() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2 }}
                 >
-                  <Card className="mb-8">
+                  <Card className="w-full max-w-3xl">
                     <CardHeader>
-                      <CardTitle>Resumen semanal</CardTitle>
+                      <CardTitle className="text-2xl font-bold">
+                        Resumen semanal
+                      </CardTitle>
                       <CardDescription>
                         Estadísticas de los paseos de esta semana
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm font-medium text-gray-500">
-                            Distancia total
-                          </p>
-                          <p className="text-2xl font-bold">
-                            {weeklySummary.totalDistance} km
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-500">
-                            Promedio por paseo
-                          </p>
-                          <p className="text-2xl font-bold">
-                            {weeklySummary.averageDistance} km
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-500">
-                            Total de paseos
-                          </p>
-                          <p className="text-2xl font-bold">
-                            {weeklySummary.totalWalks}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-500">
-                            Estado de ánimo dominante
-                          </p>
-                          <div className="flex items-center">
-                            <p className="text-2xl font-bold mr-2">
-                              {moodLabels[weeklySummary.dominantMood]}
-                            </p>
-                            {getMoodIcon(weeklySummary.dominantMood)}
-                          </div>
-                        </div>
+                      <div className="grid grid-cols-2 gap-6">
+                        <StatItem
+                          icon={
+                            <MapPinIcon className="h-6 w-6 text-blue-500" />
+                          }
+                          label="Distancia total"
+                          value={`${weeklySummary.totalDistance} km`}
+                        />
+                        <StatItem
+                          icon={
+                            <CalculatorIcon className="h-6 w-6 text-green-500" />
+                          }
+                          label="Promedio por paseo"
+                          value={`${weeklySummary.averageDistance} km`}
+                        />
+                        <StatItem
+                          icon={
+                            <FootprintsIcon className="h-6 w-6 text-purple-500" />
+                          }
+                          label="Total de paseos"
+                          value={weeklySummary.totalWalks}
+                        />
+                        <StatItem
+                          icon={
+                            <SmileIcon className="h-6 w-6 text-yellow-500" />
+                          }
+                          label="Estado de ánimo dominante"
+                          value={moodLabels[weeklySummary.dominantMood]}
+                          extraContent={getMoodIcon(weeklySummary.dominantMood)}
+                        />
                       </div>
                     </CardContent>
                   </Card>
@@ -644,6 +642,20 @@ export default function Walk() {
           )}
         </CardContent>
       </motion.div>
+    </div>
+  );
+}
+function StatItem({ icon, label, value, extraContent }) {
+  return (
+    <div className="flex items-center space-x-4 bg-gray-50 p-4 rounded-lg">
+      {icon}
+      <div>
+        <p className="text-sm font-medium text-gray-500">{label}</p>
+        <div className="flex items-center space-x-2">
+          <p className="text-2xl font-bold">{value}</p>
+          {extraContent}
+        </div>
+      </div>
     </div>
   );
 }
