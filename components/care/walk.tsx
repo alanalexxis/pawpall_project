@@ -57,7 +57,16 @@ import { createClient } from "@/utils/supabase/client";
 import { useLoadScript } from "@react-google-maps/api";
 import CompletedWalkDialog from "./general-components/maps/walk-dialog";
 import { Badge } from "../ui/badge";
-import { Toast } from "@radix-ui/react-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
 
 const formSchema = z.object({
   dateTime: z.date().refine((value) => value instanceof Date, {
@@ -72,7 +81,8 @@ export default function Walk() {
   const [destination, setDestination] = useState("");
   const [distance, setDistance] = useState("");
   const [total_time, setTotalTime] = useState("");
-
+  const [isAlertOpen, setIsAlertOpen] = useState(false); // Estado para el modal
+  const [selectedWalk, setSelectedWalk] = useState(null);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {},
@@ -257,6 +267,28 @@ export default function Walk() {
       await fetchScheduledWalks();
     } catch (error) {
       console.error("Error al rechazar el paseo:", error);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!selectedWalk) return;
+
+    const { error } = await supabase
+      .from("walks")
+      .delete()
+      .eq("id", selectedWalk.id);
+
+    if (error) {
+      console.error("Error al eliminar el registro:", error);
+      alert("Hubo un error al eliminar el registro.");
+    } else {
+      setIsAlertOpen(false); // Cierra el modal después de eliminar
+      // Actualizar la lista de paseos programados
+      await fetchScheduledWalks();
+      toast({
+        title: "¡Éxito!",
+        description: "Información eliminada con éxito.",
+      });
     }
   };
   return (
@@ -472,7 +504,10 @@ export default function Walk() {
                                       <Button
                                         size="icon"
                                         variant="outline"
-                                        onClick={() => handleDelete(walk.id)}
+                                        onClick={() => {
+                                          setSelectedWalk(walk);
+                                          setIsAlertOpen(true);
+                                        }}
                                         className="text-red-600 hover:text-red-700 hover:bg-red-50"
                                       >
                                         <TrashIcon className="h-4 w-4" />
@@ -498,6 +533,30 @@ export default function Walk() {
                     </div>
                   </div>
                 </motion.div>
+                <AlertDialog
+                  open={isAlertOpen} // Abre el modal si isAlertOpen es true
+                  onOpenChange={(open) => setIsAlertOpen(open)} // Controla el estado del modal
+                >
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        ¿Estás absolutamente seguro?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Esta acción no se puede deshacer. Esto eliminará
+                        permanentemente el registro de alimentación.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel onClick={() => setIsAlertOpen(false)}>
+                        Cancelar
+                      </AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete}>
+                        Eliminar
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </TabsContent>
               <TabsContent value="monitor">
                 <motion.div
