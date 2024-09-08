@@ -373,7 +373,9 @@ export default function Walk() {
                                       onSelect={field.onChange}
                                       initialFocus
                                       locale={es}
+                                      disabled={{ before: new Date() }} // Deshabilita fechas anteriores a hoy
                                     />
+
                                     <div className="p-3 border-t border-border">
                                       <TimePickerDemo
                                         setDate={field.onChange}
