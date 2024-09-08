@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle, Dog, Edit, Trash2 } from "lucide-react";
+import { AlertCircle, Dog, Edit, PawPrint, Trash2 } from "lucide-react";
 import {
   LineChart,
   Line,
@@ -22,6 +22,19 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import {
+  Building2,
+  User,
+  FileText,
+  MapPin,
+  Phone,
+  PhoneCall,
+  Mail,
+  Dna,
+  Calendar,
+  Fingerprint,
+  Palette,
+} from "lucide-react";
 import { useSelectedPet } from "@/contexts/selectedPetContext";
 import { motion } from "framer-motion";
 
@@ -73,9 +86,10 @@ export default function Medical() {
   const [newItem, setNewItem] = useState("");
   const [editingItem, setEditingItem] = useState(null);
   const [vetInfo, setVetInfo] = useState({
-    name: "Dr. García",
-    phone: "123-456-7890",
-    email: "dr.garcia@vetclinic.com",
+    name: "Dr. Griselda Gutiérrez Ramírez",
+    phone: "+52 99 8346 2585",
+    email: "griseldithaGutierrez@gmail.com",
+    direction: "Calle Vicente Guerrero #3, Barrio San Felipe, Tila chiapas",
   });
 
   const addItem = (category) => {
@@ -173,7 +187,7 @@ export default function Medical() {
             </CardTitle>
             <CardDescription className="text-primary-foreground/80">
               {selectedPet
-                ? `Raza: Chow Chow | Edad: ${dogInfo.age} años | Peso actual: ${dogInfo.weight} kg`
+                ? `Raza: Chow Chow | Edad: ${selectedPet.age} años | Peso actual: ${selectedPet.weight} kg`
                 : " Mantén a tu perro saludable y feliz."}
             </CardDescription>
           </CardHeader>
@@ -319,26 +333,143 @@ export default function Medical() {
             transition={{ duration: 0.5, delay: 0.6 }}
           >
             {selectedPet && (
-              <Card className="mt-6">
-                <CardHeader>
-                  <CardTitle>Información del veterinario</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p>
-                    <strong>Nombre:</strong> {vetInfo.name}
-                  </p>
-                  <p>
-                    <strong>Teléfono:</strong> {vetInfo.phone}
-                  </p>
-                  <p>
-                    <strong>Email:</strong> {vetInfo.email}
-                  </p>
-                </CardContent>
+              <Card className="w-full mt-6 mx-auto overflow-hidden">
+                <Tabs defaultValue="clinic" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="clinic">
+                      Datos de la Clínica
+                    </TabsTrigger>
+                    <TabsTrigger value="pet">Datos de la Mascota</TabsTrigger>
+                    <TabsTrigger value="owner">Datos del Dueño</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="clinic">
+                    <ClinicData />
+                  </TabsContent>
+                  <TabsContent value="pet">
+                    <PetData />
+                  </TabsContent>
+                  <TabsContent value="owner">
+                    <OwnerData />
+                  </TabsContent>
+                </Tabs>
               </Card>
             )}
           </motion.div>
         </CardContent>
       </motion.div>
     </Card>
+  );
+}
+
+function ClinicData() {
+  return (
+    <div className="space-y-6 p-6 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+CjxyZWN0IHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgZmlsbD0id2hpdGUiPjwvcmVjdD4KPHBhdGggZD0iTTAgMEw2MCA2ME0wIDYwTDYwIDAiIHN0cm9rZT0iI2YwZjBmMCIgc3Ryb2tlLXdpZHRoPSIxIj48L3BhdGg+Cjwvc3ZnPg==')] dark:bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+CjxyZWN0IHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgZmlsbD0iIzFmMjkzNyI+PC9yZWN0Pgo8cGF0aCBkPSJNMCAwTDYwIDYwTTAgNjBMNjAgMCIgc3Ryb2tlPSIjMmEzNjQ2IiBzdHJva2Utd2lkdGg9IjEiPjwvcGF0aD4KPC9zdmc+')]">
+      <div className="bg-primary/10 dark:bg-primary/20 p-6 rounded-lg relative">
+        <h2 className="text-3xl font-bold text-primary dark:text-primary-foreground">
+          Clínica Veterinaria San Francisco
+        </h2>
+        <PawPrint className="absolute top-4 right-4 w-24 h-24 text-primary/20 dark:text-primary-foreground/20" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <InfoItem
+          icon={User}
+          label="Médico Veterinario"
+          value="Dr. Juan Pérez García"
+        />
+        <InfoItem icon={FileText} label="Cédula Profesional" value="12345678" />
+        <InfoItem
+          icon={MapPin}
+          label="Dirección"
+          value="Calle Principal 123, Colonia Centro, Ciudad de México, CP 12345"
+        />
+        <InfoItem icon={Phone} label="Teléfono" value="+52 (55) 1234-5678" />
+        <InfoItem
+          icon={PhoneCall}
+          label="Emergencias"
+          value="+52 (55) 8765-4321"
+        />
+        <InfoItem
+          icon={Mail}
+          label="Correo Electrónico"
+          value="info@clinicavetsanfrancisco.com"
+        />
+      </div>
+    </div>
+  );
+}
+
+function PetData() {
+  return (
+    <div className="space-y-6 p-6 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+CjxyZWN0IHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgZmlsbD0id2hpdGUiPjwvcmVjdD4KPHBhdGggZD0iTTAgMEw2MCA2ME0wIDYwTDYwIDAiIHN0cm9rZT0iI2YwZjBmMCIgc3Ryb2tlLXdpZHRoPSIxIj48L3BhdGg+Cjwvc3ZnPg==')] dark:bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+CjxyZWN0IHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgZmlsbD0iIzFmMjkzNyI+PC9yZWN0Pgo8cGF0aCBkPSJNMCAwTDYwIDYwTTAgNjBMNjAgMCIgc3Ryb2tlPSIjMmEzNjQ2IiBzdHJva2Utd2lkdGg9IjEiPjwvcGF0aD4KPC9zdmc+')]">
+      <div className="bg-primary/10 dark:bg-primary/20 p-6 rounded-lg relative">
+        <h2 className="text-3xl font-bold text-primary dark:text-primary-foreground">
+          Datos de la Mascota
+        </h2>
+        <PawPrint className="absolute top-4 right-4 w-24 h-24 text-primary/20 dark:text-primary-foreground/20" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <InfoItem icon={User} label="Nombre" value="Max" />
+        <InfoItem icon={Dna} label="Especie" value="Canino" />
+        <InfoItem icon={Dna} label="Raza" value="Labrador Retriever" />
+        <InfoItem icon={Palette} label="Color" value="Dorado" />
+        <InfoItem icon={User} label="Sexo" value="Macho" />
+        <InfoItem
+          icon={Calendar}
+          label="Fecha de Nacimiento"
+          value="15/05/2020"
+        />
+        <InfoItem
+          icon={Fingerprint}
+          label="Número de Microchip"
+          value="123456789012345"
+        />
+        <InfoItem
+          icon={FileText}
+          label="Señas Particulares"
+          value="Mancha blanca en el pecho"
+        />
+      </div>
+    </div>
+  );
+}
+
+function OwnerData() {
+  return (
+    <div className="space-y-6 p-6 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+CjxyZWN0IHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgZmlsbD0id2hpdGUiPjwvcmVjdD4KPHBhdGggZD0iTTAgMEw2MCA2ME0wIDYwTDYwIDAiIHN0cm9rZT0iI2YwZjBmMCIgc3Ryb2tlLXdpZHRoPSIxIj48L3BhdGg+Cjwvc3ZnPg==')] dark:bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+CjxyZWN0IHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgZmlsbD0iIzFmMjkzNyI+PC9yZWN0Pgo8cGF0aCBkPSJNMCAwTDYwIDYwTTAgNjBMNjAgMCIgc3Ryb2tlPSIjMmEzNjQ2IiBzdHJva2Utd2lkdGg9IjEiPjwvcGF0aD4KPC9zdmc+')]">
+      <div className="bg-primary/10 dark:bg-primary/20 p-6 rounded-lg relative">
+        <h2 className="text-3xl font-bold text-primary dark:text-primary-foreground">
+          Datos del Dueño
+        </h2>
+        <User className="absolute top-4 right-4 w-24 h-24 text-primary/20 dark:text-primary-foreground/20" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <InfoItem icon={User} label="Nombre" value="Ana García Rodríguez" />
+        <InfoItem
+          icon={MapPin}
+          label="Dirección"
+          value="Av. Insurgentes Sur 1234, Col. Del Valle, Ciudad de México, CP 03100"
+        />
+        <InfoItem icon={Phone} label="Teléfono" value="+52 (55) 9876-5432" />
+        <InfoItem
+          icon={Mail}
+          label="Correo Electrónico"
+          value="ana.garcia@email.com"
+        />
+      </div>
+    </div>
+  );
+}
+
+function InfoItem({ icon: Icon, label, value }) {
+  return (
+    <div className="flex items-start space-x-3 p-3 rounded-lg bg-white dark:bg-gray-800 shadow-sm">
+      <Icon className="w-5 h-5 text-primary dark:text-primary-foreground mt-0.5" />
+      <div>
+        <p className="font-semibold text-sm text-muted-foreground dark:text-gray-400">
+          {label}
+        </p>
+        <p className="text-sm dark:text-gray-200">{value}</p>
+      </div>
+    </div>
   );
 }
