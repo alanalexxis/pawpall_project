@@ -245,7 +245,7 @@ export function AccountForm() {
           name="city"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Ciudad</FormLabel>
+              <FormLabel>Dirección</FormLabel>
               <FormControl>
                 <Input {...field} value={field.value ?? city ?? ""} />
               </FormControl>

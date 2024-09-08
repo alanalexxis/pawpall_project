@@ -37,6 +37,7 @@ import {
 } from "lucide-react";
 import { useSelectedPet } from "@/contexts/selectedPetContext";
 import { motion } from "framer-motion";
+import { createClient } from "@/utils/supabase/client";
 
 export default function Medical() {
   const [dogInfo, setDogInfo] = useState({
@@ -163,7 +164,49 @@ export default function Medical() {
       </ul>
     </ScrollArea>
   );
+
   const { selectedPet } = useSelectedPet();
+
+  // Estado para los datos del dueño
+  const [ownerData, setOwnerData] = useState({
+    userFullName: null,
+    city: null,
+    email: null,
+    cellphone: null,
+  });
+
+  useEffect(() => {
+    const fetchUserAndProfile = async () => {
+      const supabase = createClient();
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError) {
+        console.error("Error fetching user:", userError.message);
+        return;
+      }
+
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      if (profileError) {
+        console.error("Error fetching profile:", profileError.message);
+      } else {
+        setOwnerData({
+          userFullName: profile?.full_name ?? null,
+          city: profile?.city ?? null,
+          email: profile?.email ?? null,
+          cellphone: profile?.cellphone ?? null,
+        });
+      }
+    };
+    fetchUserAndProfile();
+  }, []);
   return (
     <Card className="w-full max-w-4xl mx-auto">
       <motion.div
@@ -331,10 +374,10 @@ export default function Medical() {
                 <Tabs defaultValue="clinic" className="w-full">
                   <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="clinic">
-                      Datos de la Clínica
+                      Datos de la clínica
                     </TabsTrigger>
-                    <TabsTrigger value="pet">Datos de la Mascota</TabsTrigger>
-                    <TabsTrigger value="owner">Datos del Dueño</TabsTrigger>
+                    <TabsTrigger value="pet">Datos de la mascota</TabsTrigger>
+                    <TabsTrigger value="owner">Datos del dueño</TabsTrigger>
                   </TabsList>
                   <TabsContent value="clinic">
                     <ClinicData />
@@ -343,7 +386,7 @@ export default function Medical() {
                     <PetData />
                   </TabsContent>
                   <TabsContent value="owner">
-                    <OwnerData />
+                    <OwnerData ownerData={ownerData} />
                   </TabsContent>
                 </Tabs>
               </Card>
@@ -398,7 +441,7 @@ function PetData() {
     <div className="space-y-6 p-6 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+CjxyZWN0IHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgZmlsbD0id2hpdGUiPjwvcmVjdD4KPHBhdGggZD0iTTAgMEw2MCA2ME0wIDYwTDYwIDAiIHN0cm9rZT0iI2YwZjBmMCIgc3Ryb2tlLXdpZHRoPSIxIj48L3BhdGg+Cjwvc3ZnPg==')] dark:bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+CjxyZWN0IHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgZmlsbD0iIzFmMjkzNyI+PC9yZWN0Pgo8cGF0aCBkPSJNMCAwTDYwIDYwTTAgNjBMNjAgMCIgc3Ryb2tlPSIjMmEzNjQ2IiBzdHJva2Utd2lkdGg9IjEiPjwvcGF0aD4KPC9zdmc+')]">
       <div className="bg-primary/10 dark:bg-primary/20 p-6 rounded-lg relative">
         <h2 className="text-3xl font-bold text-primary dark:text-primary-foreground">
-          Datos de la Mascota
+          Datos de la mascota
         </h2>
         <PawPrint className="absolute top-4 right-4 w-24 h-24 text-primary/20 dark:text-primary-foreground/20" />
       </div>
@@ -407,17 +450,23 @@ function PetData() {
         <InfoItem icon={Dna} label="Especie" value="Canino" />
         <InfoItem icon={Dna} label="Raza" value={selectedPet.breed} />
         <InfoItem icon={Palette} label="Color" value="Dorado" />
-        <InfoItem icon={User} label="Sexo" value={selectedPet.gender} />
+        <InfoItem
+          icon={User}
+          label="Sexo"
+          value={
+            selectedPet.gender === "Male"
+              ? "Macho"
+              : selectedPet.gender === "Female"
+              ? "Hembra"
+              : selectedPet.gender
+          }
+        />
         <InfoItem
           icon={Calendar}
           label="Fecha de Nacimiento"
-          value="15/05/2020"
+          value={selectedPet.birthdate}
         />
-        <InfoItem
-          icon={Fingerprint}
-          label="Número de Microchip"
-          value="123456789012345"
-        />
+        <InfoItem icon={Fingerprint} label="Número de Microchip" value="N/A" />
         <InfoItem
           icon={FileText}
           label="Señas Particulares"
@@ -428,27 +477,23 @@ function PetData() {
   );
 }
 
-function OwnerData() {
+function OwnerData({ ownerData }) {
   return (
     <div className="space-y-6 p-6 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+CjxyZWN0IHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgZmlsbD0id2hpdGUiPjwvcmVjdD4KPHBhdGggZD0iTTAgMEw2MCA2ME0wIDYwTDYwIDAiIHN0cm9rZT0iI2YwZjBmMCIgc3Ryb2tlLXdpZHRoPSIxIj48L3BhdGg+Cjwvc3ZnPg==')] dark:bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+CjxyZWN0IHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgZmlsbD0iIzFmMjkzNyI+PC9yZWN0Pgo8cGF0aCBkPSJNMCAwTDYwIDYwTTAgNjBMNjAgMCIgc3Ryb2tlPSIjMmEzNjQ2IiBzdHJva2Utd2lkdGg9IjEiPjwvcGF0aD4KPC9zdmc+')]">
       <div className="bg-primary/10 dark:bg-primary/20 p-6 rounded-lg relative">
         <h2 className="text-3xl font-bold text-primary dark:text-primary-foreground">
-          Datos del Dueño
+          Datos del dueño
         </h2>
         <User className="absolute top-4 right-4 w-24 h-24 text-primary/20 dark:text-primary-foreground/20" />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <InfoItem icon={User} label="Nombre" value="Ana García Rodríguez" />
-        <InfoItem
-          icon={MapPin}
-          label="Dirección"
-          value="Av. Insurgentes Sur 1234, Col. Del Valle, Ciudad de México, CP 03100"
-        />
-        <InfoItem icon={Phone} label="Teléfono" value="+52 (55) 9876-5432" />
+        <InfoItem icon={User} label="Nombre" value={ownerData.userFullName} />
+        <InfoItem icon={MapPin} label="Dirección" value={ownerData.city} />
+        <InfoItem icon={Phone} label="Teléfono" value={ownerData.cellphone} />
         <InfoItem
           icon={Mail}
           label="Correo Electrónico"
-          value="ana.garcia@email.com"
+          value={ownerData.email}
         />
       </div>
     </div>
