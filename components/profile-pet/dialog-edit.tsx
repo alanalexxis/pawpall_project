@@ -78,14 +78,15 @@ export function DialogEdit({ pet, onSave }) {
       setDescription(pet.description);
       setSelectedRazaId(pet.breed_id);
       setTags(pet.tags || []);
-      setImagePath(pet.image_url || null);
+      setImagePath(pet.image_url ? pet.image_url.split("/").pop() : null); // Extraer solo el nombre del archivo
       setPetWeight(pet.weight); // Incluye el peso en el estado local
     }
   }, [pet]);
 
   const handleFileUpload = async (filePath: string) => {
-    setImagePath(filePath);
+    setImagePath(filePath.split("/").pop()); // Extraer solo el nombre del archivo
   };
+
   const handleSubmit = async () => {
     if (!pet) {
       console.error("No se ha proporcionado una mascota para editar.");
@@ -126,7 +127,7 @@ export function DialogEdit({ pet, onSave }) {
         breed_id: result.data.razaId,
         profile_id: user.id,
         tags: result.data.tags,
-        image_url: imagePath,
+        image_url: imagePath ? `public/${imagePath}` : null, // Asegúrate de enviar la URL correcta
         weight: result.data.weight,
       })
       .eq("id", pet.id);

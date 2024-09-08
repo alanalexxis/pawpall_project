@@ -85,12 +85,6 @@ export default function Medical() {
 
   const [newItem, setNewItem] = useState("");
   const [editingItem, setEditingItem] = useState(null);
-  const [vetInfo, setVetInfo] = useState({
-    name: "Dr. Griselda Gutiérrez Ramírez",
-    phone: "+52 99 8346 2585",
-    email: "griseldithaGutierrez@gmail.com",
-    direction: "Calle Vicente Guerrero #3, Barrio San Felipe, Tila chiapas",
-  });
 
   const addItem = (category) => {
     if (newItem.trim() !== "") {
@@ -374,24 +368,24 @@ function ClinicData() {
         <InfoItem
           icon={User}
           label="Médico Veterinario"
-          value="Dr. Juan Pérez García"
+          value="Dra. Griselda Gutiérrez Ramírez"
         />
         <InfoItem icon={FileText} label="Cédula Profesional" value="12345678" />
         <InfoItem
           icon={MapPin}
           label="Dirección"
-          value="Calle Principal 123, Colonia Centro, Ciudad de México, CP 12345"
+          value="Calle Vicente Guerrero #3, Barrio San Felipe, Tila, Chiapas, CP 29910"
         />
-        <InfoItem icon={Phone} label="Teléfono" value="+52 (55) 1234-5678" />
+        <InfoItem icon={Phone} label="Teléfono" value="+52 99-8346-2585" />
         <InfoItem
           icon={PhoneCall}
           label="Emergencias"
-          value="+52 (55) 8765-4321"
+          value="+52 91-9145-5929"
         />
         <InfoItem
           icon={Mail}
           label="Correo Electrónico"
-          value="info@clinicavetsanfrancisco.com"
+          value="GriseldithaGutierrez@gmail.com"
         />
       </div>
     </div>
@@ -399,6 +393,7 @@ function ClinicData() {
 }
 
 function PetData() {
+  const { selectedPet } = useSelectedPet();
   return (
     <div className="space-y-6 p-6 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+CjxyZWN0IHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgZmlsbD0id2hpdGUiPjwvcmVjdD4KPHBhdGggZD0iTTAgMEw2MCA2ME0wIDYwTDYwIDAiIHN0cm9rZT0iI2YwZjBmMCIgc3Ryb2tlLXdpZHRoPSIxIj48L3BhdGg+Cjwvc3ZnPg==')] dark:bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+CjxyZWN0IHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgZmlsbD0iIzFmMjkzNyI+PC9yZWN0Pgo8cGF0aCBkPSJNMCAwTDYwIDYwTTAgNjBMNjAgMCIgc3Ryb2tlPSIjMmEzNjQ2IiBzdHJva2Utd2lkdGg9IjEiPjwvcGF0aD4KPC9zdmc+')]">
       <div className="bg-primary/10 dark:bg-primary/20 p-6 rounded-lg relative">
@@ -408,11 +403,11 @@ function PetData() {
         <PawPrint className="absolute top-4 right-4 w-24 h-24 text-primary/20 dark:text-primary-foreground/20" />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <InfoItem icon={User} label="Nombre" value="Max" />
+        <InfoItem icon={User} label="Nombre" value={selectedPet.name} />
         <InfoItem icon={Dna} label="Especie" value="Canino" />
-        <InfoItem icon={Dna} label="Raza" value="Labrador Retriever" />
+        <InfoItem icon={Dna} label="Raza" value={selectedPet.breed} />
         <InfoItem icon={Palette} label="Color" value="Dorado" />
-        <InfoItem icon={User} label="Sexo" value="Macho" />
+        <InfoItem icon={User} label="Sexo" value={selectedPet.gender} />
         <InfoItem
           icon={Calendar}
           label="Fecha de Nacimiento"
