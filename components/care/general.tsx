@@ -218,8 +218,8 @@ export default function CareGeneral() {
     ];
   } else {
     nextMeals = [
-      { id: 1, date: "2023-06-15", time: "23:50", type: "Desayuno" },
-      { id: 2, date: "2023-06-15", time: "23:00", type: "Cena" },
+      { id: 1, date: "2023-06-15", time: "08:00", type: "Desayuno" },
+      { id: 2, date: "2023-06-15", time: "18:00", type: "Cena" },
     ];
   }
 
