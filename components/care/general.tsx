@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { differenceInMonths } from "date-fns"; // Asegúrate de tener date-fns instalado
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -67,6 +68,7 @@ import Appointment from "../appointments/appointment";
 import { useSelectedPet } from "@/contexts/selectedPetContext";
 import FinalAppointment from "./general-components/final-appointment";
 import { TooltipProvider } from "../ui/tooltip";
+import { createClient } from "@/utils/supabase/client";
 // Simulamos datos de paseos para la demostración
 const pendingWalks = [
   { id: 1, date: "2023-06-10", duration: 30 },
@@ -84,9 +86,166 @@ const weeklyActivity = [
   { day: "D", km: 2.7 },
 ];
 export default function CareGeneral() {
-  const [foodAmount, setFoodAmount] = useState(200);
-  const [exerciseMinutes, setExerciseMinutes] = useState(30);
+  const supabase = createClient();
   const { selectedPet } = useSelectedPet();
+  const [totalgrams, setTotalgrams] = useState(0);
+  const [totalMeals, setTotalMeals] = useState(0);
+  const [weeklyFeeding, setWeeklyFeeding] = useState([
+    { day: "L", grams: 0 },
+    { day: "M", grams: 0 },
+    { day: "X", grams: 0 },
+    { day: "J", grams: 0 },
+    { day: "V", grams: 0 },
+    { day: "S", grams: 0 },
+    { day: "D", grams: 0 },
+  ]);
+  //obtener gramos, comidas semanales y llenar grafica de comidas
+  useEffect(() => {
+    const fetchTotalGramsAndMeals = async () => {
+      if (!selectedPet) return;
+
+      const { id: petId } = selectedPet;
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+      const { data, error } = await supabase
+        .from("pet_nutrition")
+        .select("food_amount, created_at")
+        .eq("pet_id", petId)
+        .gte("created_at", oneWeekAgo.toISOString());
+
+      if (error) {
+        console.error("Error fetching pet nutrition data:", error);
+        return;
+      }
+
+      const total = data.reduce((sum, record) => sum + record.food_amount, 0);
+      setTotalgrams(total);
+      setTotalMeals(data.length);
+
+      // Inicializar un objeto para almacenar la cantidad de comida por día
+      const feedingByDay = {
+        L: 0,
+        M: 0,
+        X: 0,
+        J: 0,
+        V: 0,
+        S: 0,
+        D: 0,
+      };
+
+      // Iterar sobre los datos y sumar la cantidad de comida a los días correspondientes
+      data.forEach((record) => {
+        const date = new Date(record.created_at);
+        const day = date.getDay(); // 0 (Domingo) - 6 (Sábado)
+        const dayMap = ["D", "L", "M", "X", "J", "V", "S"];
+        const dayLetter = dayMap[day];
+        feedingByDay[dayLetter] += record.food_amount;
+      });
+
+      // Actualizar el estado weeklyFeeding con los datos procesados
+      setWeeklyFeeding([
+        { day: "L", grams: feedingByDay.L },
+        { day: "M", grams: feedingByDay.M },
+        { day: "X", grams: feedingByDay.X },
+        { day: "J", grams: feedingByDay.J },
+        { day: "V", grams: feedingByDay.V },
+        { day: "S", grams: feedingByDay.S },
+        { day: "D", grams: feedingByDay.D },
+      ]);
+    };
+
+    fetchTotalGramsAndMeals();
+  }, [selectedPet]);
+  const chartData = {
+    labels: weeklyFeeding.map((day) => day.day),
+    datasets: [
+      {
+        label: "Gramos de comida",
+        data: weeklyFeeding.map((day) => day.grams),
+        backgroundColor: "rgba(34, 197, 94, 0.5)", // Tailwind green-500 with opacity
+        borderColor: "rgb(34, 197, 94)", // Tailwind green-500
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: false,
+      },
+      title: {
+        display: false,
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: "Gramos",
+        },
+      },
+    },
+  };
+
+  const calculateAgeInMonths = (birthdate) => {
+    const birthDate = new Date(birthdate);
+    const currentDate = new Date();
+    return differenceInMonths(currentDate, birthDate);
+  };
+
+  const ageInMonths = selectedPet
+    ? calculateAgeInMonths(selectedPet.birthdate)
+    : 0;
+
+  let nextMeals = [];
+
+  if (ageInMonths <= 3) {
+    nextMeals = [
+      { id: 1, date: "2023-06-15", time: "07:00", type: "Desayuno" },
+      { id: 2, date: "2023-06-15", time: "11:00", type: "Almuerzo" },
+      { id: 3, date: "2023-06-15", time: "15:00", type: "Merienda" },
+      { id: 4, date: "2023-06-15", time: "19:00", type: "Cena" },
+    ];
+  } else if (ageInMonths <= 11) {
+    nextMeals = [
+      { id: 1, date: "2023-06-15", time: "08:00", type: "Desayuno" },
+      { id: 2, date: "2023-06-15", time: "13:00", type: "Almuerzo" },
+      { id: 3, date: "2023-06-15", time: "18:00", type: "Cena" },
+    ];
+  } else {
+    nextMeals = [
+      { id: 1, date: "2023-06-15", time: "23:50", type: "Desayuno" },
+      { id: 2, date: "2023-06-15", time: "23:00", type: "Cena" },
+    ];
+  }
+
+  // Obtener la fecha y hora actual
+  const currentTime = new Date();
+  const currentHour = currentTime.getHours();
+
+  // Filtrar comidas pendientes del día actual
+  const pendingMealsToday = nextMeals.filter((meal) => {
+    const mealTime = new Date();
+    const [hours, minutes] = meal.time.split(":").map(Number);
+    mealTime.setHours(hours, minutes);
+    return mealTime > currentTime;
+  });
+
+  // Si no hay comidas pendientes, mostrar las del día siguiente
+  const mealsToShow =
+    pendingMealsToday.length > 0
+      ? pendingMealsToday
+      : nextMeals.map((meal) => {
+          const tomorrow = new Date();
+          tomorrow.setDate(currentTime.getDate() + 1);
+          meal.date = tomorrow.toISOString().split("T")[0]; // Actualizar la fecha a mañana
+          return meal;
+        });
+
   // Datos de ejemplo - reemplaza con datos reales en tu aplicación
   const totalKm = 23.5;
   const totalTime = 240;
@@ -140,56 +299,6 @@ export default function CareGeneral() {
     },
   };
   // Datos de ejemplo - reemplaza con datos reales en tu aplicación
-  const totalGrams = 2350;
-  const totalMeals = 21;
-  const weeklyFeeding = [
-    { day: "L", grams: 320 },
-    { day: "M", grams: 350 },
-    { day: "X", grams: 280 },
-    { day: "J", grams: 410 },
-    { day: "V", grams: 390 },
-    { day: "S", grams: 330 },
-    { day: "D", grams: 270 },
-  ];
-  const nextMeals = [
-    { id: 1, date: "2023-06-15", time: "08:00", type: "Desayuno" },
-    { id: 2, date: "2023-06-15", time: "13:00", type: "Almuerzo" },
-    { id: 3, date: "2023-06-15", time: "19:00", type: "Cena" },
-  ];
-
-  const chartData = {
-    labels: weeklyFeeding.map((day) => day.day),
-    datasets: [
-      {
-        label: "Gramos de comida",
-        data: weeklyFeeding.map((day) => day.grams),
-        backgroundColor: "rgba(34, 197, 94, 0.5)", // Tailwind green-500 with opacity
-        borderColor: "rgb(34, 197, 94)", // Tailwind green-500
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        display: false,
-      },
-      title: {
-        display: false,
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: "Gramos",
-        },
-      },
-    },
-  };
 
   ///
   const [weight, setWeight] = useState(70);
@@ -369,7 +478,7 @@ export default function CareGeneral() {
               <div className="flex justify-between items-center">
                 <div className="space-y-1">
                   <p className="text-sm font-medium">Total semanal</p>
-                  <p className="text-2xl font-bold">{totalGrams} g</p>
+                  <p className="text-2xl font-bold">{totalgrams} g</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm font-medium">Comidas</p>
@@ -387,33 +496,41 @@ export default function CareGeneral() {
                 </div>
               </div>
 
-              <div className="space-y-2 ">
+              <div className="space-y-2">
                 <h3 className="font-semibold flex items-center">
                   <Calendar className="mr-2 h-4 w-4" />
                   Próxima comida
                 </h3>
-                {nextMeals.length > 0 ? (
-                  <div className="flex justify-between items-center bg-muted p-2 rounded">
-                    <span className="flex items-center">
-                      <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
-                      {nextMeals[0].time}
-                    </span>
-                    <span>{nextMeals[0].type}</span>
+                {pendingMealsToday.length > 0 ? (
+                  <div>
+                    {pendingMealsToday.slice(0, 1).map((meal) => (
+                      <div
+                        key={meal.id}
+                        className="flex justify-between items-center bg-muted p-2 rounded"
+                      >
+                        <span className="flex items-center">
+                          <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
+                          {meal.time}
+                        </span>
+                        <span>{meal.type}</span>
+                      </div>
+                    ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground">
-                    No hay comidas programadas
+                  <p className="flex justify-between items-center bg-muted p-2 rounded">
+                    No hay comidas pendientes
                   </p>
                 )}
               </div>
 
+              {/* Próximas comidas */}
               <div className="space-y-2">
                 <h3 className="font-semibold flex items-center">
                   <Apple className="mr-2 h-4 w-4" />
                   Próximas comidas
                 </h3>
                 <ul className="space-y-2">
-                  {nextMeals.slice(1).map((meal) => (
+                  {mealsToShow.slice(0).map((meal) => (
                     <li
                       key={meal.id}
                       className="flex justify-between items-center text-sm"
@@ -428,7 +545,7 @@ export default function CareGeneral() {
                 </ul>
               </div>
 
-              <Link href="/dashboard/feeding" className="block">
+              <Link href="/dashboard/nutrition" className="block">
                 <Button variant="outline" className="w-full">
                   Administrar alimentación
                 </Button>
@@ -494,7 +611,7 @@ export default function CareGeneral() {
                   Paseos pendientes
                 </h3>
                 <ul className="space-y-2">
-                  {pendingWalks.slice(1).map((walk) => (
+                  {pendingWalks.slice(0).map((walk) => (
                     <li
                       key={walk.id}
                       className="flex justify-between items-center text-sm"
