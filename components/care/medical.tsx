@@ -19,11 +19,10 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
   ResponsiveContainer,
+  Tooltip as RechartsTooltip, // Renombramos el Tooltip de recharts
 } from "recharts";
 import {
-  Building2,
   User,
   FileText,
   MapPin,
@@ -38,43 +37,22 @@ import {
 import { useSelectedPet } from "@/contexts/selectedPetContext";
 import { motion } from "framer-motion";
 import { createClient } from "@/utils/supabase/client";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
 
 export default function Medical() {
-  const [dogInfo, setDogInfo] = useState({
-    name: "Teddy",
-    breed: "Labrador",
-    age: 5,
-    weight: 30,
-  });
-
   const [medicalRecords, setMedicalRecords] = useState({
-    vacunas: [
-      { id: 1, name: "Rabia", date: "2023-01-01", nextDue: "2024-01-01" },
-      { id: 2, name: "Parvovirus", date: "2023-03-15", nextDue: "2024-03-15" },
-    ],
-    medicamentos: [
-      {
-        id: 1,
-        name: "Antiparasitario",
-        frequency: "Mensual",
-        nextDue: "2023-07-01",
-      },
-      { id: 2, name: "Vitaminas", frequency: "Diario" },
-    ],
-    alergias: [
-      { id: 1, name: "Pollo" },
-      { id: 2, name: "Polen" },
-    ],
+    vacunas: [],
+    medicamentos: [],
+    alergias: [],
     enfermedades: [{ id: 1, name: "Otitis - 2023-05-10" }],
-    citas: [
-      { id: 1, date: "2023-07-15", reason: "Chequeo anual", completed: false },
-      {
-        id: 2,
-        date: "2023-05-10",
-        reason: "Tratamiento otitis",
-        completed: true,
-      },
-    ],
+
+    citas: [],
+
     weightHistory: [
       { date: "2023-01-01", weight: 28 },
       { date: "2023-03-01", weight: 29 },
@@ -126,42 +104,79 @@ export default function Medical() {
   };
 
   const renderList = (category, items) => (
-    <ScrollArea className="h-[200px] w-full rounded-md border p-4">
-      <ul className="space-y-2">
-        {items.map((item) => (
-          <li
-            key={item.id}
-            className="flex items-center justify-between text-sm"
-          >
-            <span>
-              {item.name}
-              {item.date && ` - ${item.date}`}
-              {item.nextDue && isOverdue(item.nextDue) && (
-                <AlertCircle
-                  className="inline ml-2 text-destructive"
-                  size={16}
-                />
-              )}
-            </span>
-            <div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setEditingItem(item)}
-              >
-                <Edit size={16} />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => deleteItem(category, item.id)}
-              >
-                <Trash2 size={16} />
-              </Button>
-            </div>
-          </li>
-        ))}
-      </ul>
+    <ScrollArea className="h-[400px] w-full rounded-md border">
+      <div className="p-4 space-y-4">
+        {items.map((item) => {
+          const isItemOverdue = isOverdue(item.nextDue || item.next_due);
+          return (
+            <Card
+              key={item.id}
+              className={`p-4 transition-colors ${
+                isItemOverdue
+                  ? "bg-destructive/10 hover:bg-destructive/20"
+                  : "hover:bg-accent"
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <h3 className="text-sm font-medium flex items-center">
+                    {item.name}
+                    {isItemOverdue && (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <AlertCircle
+                              className="ml-2 text-destructive"
+                              size={18}
+                            />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Atrasada</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    )}
+                  </h3>
+                  {item.date && (
+                    <p className="text-xs text-muted-foreground">
+                      Date: {item.date}
+                    </p>
+                  )}
+                  {(item.nextDue || item.next_due) && (
+                    <p
+                      className={`text-xs ${
+                        isItemOverdue
+                          ? "text-destructive font-semibold"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      Next due: {item.nextDue || item.next_due}
+                    </p>
+                  )}
+                </div>
+                <div className="flex space-x-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setEditingItem(item)}
+                    className="hover:bg-primary/20"
+                  >
+                    <Edit size={16} />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => deleteItem(category, item.id)}
+                    className="hover:bg-destructive/20"
+                  >
+                    <Trash2 size={16} />
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          );
+        })}
+      </div>
     </ScrollArea>
   );
 
@@ -207,6 +222,119 @@ export default function Medical() {
     };
     fetchUserAndProfile();
   }, []);
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      const supabase = createClient();
+      const { data: appointments, error } = await supabase
+        .from("appointments")
+        .select("*")
+        .eq("pet_id", selectedPet.id); // Filtrar por pet_id
+
+      if (error) {
+        console.error("Error fetching appointments:", error.message);
+      } else {
+        setMedicalRecords((prev) => ({
+          ...prev,
+          citas: appointments,
+        }));
+      }
+    };
+
+    if (selectedPet) {
+      fetchAppointments();
+    }
+  }, [selectedPet]); // Dependencia en selectedPet
+  useEffect(() => {
+    const fetchVaccinations = async () => {
+      const supabase = createClient();
+      const { data: vaccinations, error } = await supabase
+        .from("vaccinations")
+        .select("*")
+        .eq("pet_id", selectedPet.id); // Filtrar por pet_id
+
+      if (error) {
+        console.error("Error fetching vaccinations:", error.message);
+      } else {
+        setMedicalRecords((prev) => ({
+          ...prev,
+          vacunas: vaccinations,
+        }));
+      }
+    };
+
+    if (selectedPet) {
+      fetchVaccinations();
+    }
+  }, [selectedPet]); // Dependencia en selectedPet
+
+  useEffect(() => {
+    const fetchMedications = async () => {
+      const supabase = createClient();
+      const { data: medications, error } = await supabase
+        .from("medications")
+        .select("*")
+        .eq("pet_id", selectedPet.id); // Filtrar por pet_id
+
+      if (error) {
+        console.error("Error fetching vaccinations:", error.message);
+      } else {
+        setMedicalRecords((prev) => ({
+          ...prev,
+          medicamentos: medications,
+        }));
+      }
+    };
+
+    if (selectedPet) {
+      fetchMedications();
+    }
+  }, [selectedPet]); // Dependencia en selectedPet
+
+  useEffect(() => {
+    const fetchAllergies = async () => {
+      const supabase = createClient();
+      const { data: allergies, error } = await supabase
+        .from("allergies")
+        .select("*")
+        .eq("pet_id", selectedPet.id); // Filtrar por pet_id
+
+      if (error) {
+        console.error("Error fetching allergies:", error.message);
+      } else {
+        setMedicalRecords((prev) => ({
+          ...prev,
+          alergias: allergies,
+        }));
+      }
+    };
+
+    if (selectedPet) {
+      fetchAllergies();
+    }
+  }, [selectedPet]); // Dependencia en selectedPet
+
+  useEffect(() => {
+    const fetchDiseases = async () => {
+      const supabase = createClient();
+      const { data: diseases, error } = await supabase
+        .from("diseases")
+        .select("*")
+        .eq("pet_id", selectedPet.id); // Filtrar por pet_id
+
+      if (error) {
+        console.error("Error fetching diseases:", error.message);
+      } else {
+        setMedicalRecords((prev) => ({
+          ...prev,
+          enfermedades: diseases,
+        }));
+      }
+    };
+
+    if (selectedPet) {
+      fetchDiseases();
+    }
+  }, [selectedPet]); // Dependencia en selectedPet
   return (
     <Card className="w-full max-w-4xl mx-auto">
       <motion.div
@@ -266,7 +394,7 @@ export default function Medical() {
                                 category.slice(1)}
                             </CardTitle>
                             <CardDescription>
-                              Historial de {category} de {dogInfo.name}
+                              Historial de {category} de {selectedPet.name}
                             </CardDescription>
                           </CardHeader>
                           <CardContent className="space-y-4">
@@ -314,7 +442,7 @@ export default function Medical() {
                     <CardHeader>
                       <CardTitle>Historial de peso</CardTitle>
                       <CardDescription>
-                        Seguimiento del peso de {dogInfo.name}
+                        Seguimiento del peso de {selectedPet.name}
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -324,7 +452,7 @@ export default function Medical() {
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="date" />
                             <YAxis />
-                            <Tooltip />
+                            <RechartsTooltip />
                             <Line
                               type="monotone"
                               dataKey="weight"
