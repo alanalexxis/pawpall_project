@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 import CareGeneral from "../care/general";
 
-export default function PlaceholderContent() {
+export default function CareGeneralContent() {
   return (
     <Card className="rounded-lg border-none mt-6">
       <CardContent className="p-6">

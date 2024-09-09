@@ -10,7 +10,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import CareGeneral from "@/components/care/general";
+
+import CareGeneralContent from "@/components/demo/care-general-content";
 
 export default function DashboardPage() {
   return (
@@ -28,7 +29,7 @@ export default function DashboardPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <CareGeneral />
+      <CareGeneralContent />
     </ContentLayout>
   );
 }

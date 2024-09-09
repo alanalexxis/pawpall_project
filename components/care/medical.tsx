@@ -139,7 +139,7 @@ export default function Medical() {
                   </h3>
                   {item.date && (
                     <p className="text-xs text-muted-foreground">
-                      Date: {item.date}
+                      Fecha de aplicación: {item.date}
                     </p>
                   )}
                   {(item.nextDue || item.next_due) && (
@@ -150,7 +150,12 @@ export default function Medical() {
                           : "text-muted-foreground"
                       }`}
                     >
-                      Next due: {item.nextDue || item.next_due}
+                      Próxima aplicación: {item.nextDue || item.next_due}
+                    </p>
+                  )}
+                  {category === "medicamentos" && item.frequency && (
+                    <p className="text-xs text-muted-foreground">
+                      Frecuencia: {item.frequency}
                     </p>
                   )}
                 </div>
