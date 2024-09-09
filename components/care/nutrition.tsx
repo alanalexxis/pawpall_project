@@ -369,6 +369,9 @@ export default function Nutrition() {
       return newDate;
     });
   };
+  const formatWeight = (weight) => {
+    return weight % 1 === 0 ? weight.toString() : weight.toFixed(2);
+  };
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 p-4">
@@ -453,8 +456,8 @@ export default function Nutrition() {
                           Peso recomendado
                         </p>
                         <p className="font-medium">
-                          {idealWeight.minWeightCurrent} kg y{" "}
-                          {idealWeight.maxWeightCurrent} kg
+                          {formatWeight(idealWeight.minWeightCurrent)} kg y{" "}
+                          {formatWeight(idealWeight.maxWeightCurrent)} kg
                         </p>
                       </div>
                     </div>
