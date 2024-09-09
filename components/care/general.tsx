@@ -96,6 +96,15 @@ export default function CareGeneral() {
     { day: "S", grams: 0 },
     { day: "D", grams: 0 },
   ]);
+  const [weeklyActivity, setWeeklyActivity] = useState([
+    { day: "L", km: 0 },
+    { day: "M", km: 0 },
+    { day: "X", km: 0 },
+    { day: "J", km: 0 },
+    { day: "V", km: 0 },
+    { day: "S", km: 0 },
+    { day: "D", km: 0 },
+  ]);
   //obtener gramos, comidas semanales y llenar grafica de comidas
   useEffect(() => {
     const fetchTotalGramsAndMeals = async () => {
@@ -243,8 +252,7 @@ export default function CareGeneral() {
           return meal;
         });
 
-  // Obtener kilómetros caminados en la semana
-  // Obtener kilómetros caminados en la semana
+  // Obtener kilómetros caminados y tiempo total en la semana
   useEffect(() => {
     const fetchTotalKm = async () => {
       if (!selectedPet) return;
@@ -285,6 +293,38 @@ export default function CareGeneral() {
         return sum + minutes;
       }, 0);
 
+      // Inicializar un objeto para almacenar los kilómetros por día
+      const activityByDay = {
+        L: 0,
+        M: 0,
+        X: 0,
+        J: 0,
+        V: 0,
+        S: 0,
+        D: 0,
+      };
+
+      // Iterar sobre los datos y sumar los kilómetros a los días correspondientes
+      data.forEach((record) => {
+        const date = new Date(record.day);
+        const day = date.getDay(); // 0 (Domingo) - 6 (Sábado)
+        const dayMap = ["D", "L", "M", "X", "J", "V", "S"];
+        const dayLetter = dayMap[day];
+        const distance = parseFloat(record.distance.replace(" km", ""));
+        activityByDay[dayLetter] += distance;
+      });
+
+      // Actualizar el estado weeklyActivity con los datos procesados
+      setWeeklyActivity([
+        { day: "L", km: activityByDay.L },
+        { day: "M", km: activityByDay.M },
+        { day: "X", km: activityByDay.X },
+        { day: "J", km: activityByDay.J },
+        { day: "V", km: activityByDay.V },
+        { day: "S", km: activityByDay.S },
+        { day: "D", km: activityByDay.D },
+      ]);
+
       setTotalKm(totalKm);
       setTotalTime(totalTime);
     };
@@ -315,15 +355,6 @@ export default function CareGeneral() {
     fetchPendingWalks();
   }, [selectedPet]);
 
-  const weeklyActivity = [
-    { day: "L", km: 3.2 },
-    { day: "M", km: 4.5 },
-    { day: "X", km: 2.8 },
-    { day: "J", km: 5.1 },
-    { day: "V", km: 3.9 },
-    { day: "S", km: 2.3 },
-    { day: "D", km: 1.7 },
-  ];
   const maxKm = Math.max(...weeklyActivity.map((day) => day.km));
 
   const chartDataActivity = {
@@ -667,26 +698,31 @@ export default function CareGeneral() {
                   </p>
                 )}
               </div>
-
               <div className="space-y-2">
                 <h3 className="font-semibold flex items-center">
                   <MapPin className="mr-2 h-4 w-4" />
                   Paseos pendientes
                 </h3>
-                <ul className="space-y-2">
-                  {pendingWalks.slice(0).map((walk) => (
-                    <li
-                      key={walk.id}
-                      className="flex justify-between items-center text-sm"
-                    >
-                      <span className="flex items-center">
-                        <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
-                        {new Date(walk.day).toLocaleDateString()}
-                      </span>
-                      <span>{walk.total_time}</span>
-                    </li>
-                  ))}
-                </ul>
+                {pendingWalks.length > 0 ? (
+                  <ul className="space-y-2">
+                    {pendingWalks.map((walk) => (
+                      <li
+                        key={walk.id}
+                        className="flex justify-between items-center text-sm"
+                      >
+                        <span className="flex items-center">
+                          <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
+                          {new Date(walk.day).toLocaleDateString()}
+                        </span>
+                        <span>{walk.total_time}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No hay paseos pendientes
+                  </p>
+                )}
               </div>
 
               <Link href="/dashboard/walk" className="block">
