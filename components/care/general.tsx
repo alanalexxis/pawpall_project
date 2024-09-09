@@ -69,12 +69,6 @@ import { useSelectedPet } from "@/contexts/selectedPetContext";
 import FinalAppointment from "./general-components/final-appointment";
 import { TooltipProvider } from "../ui/tooltip";
 import { createClient } from "@/utils/supabase/client";
-// Simulamos datos de paseos para la demostración
-const pendingWalks = [
-  { id: 1, date: "2023-06-10", duration: 30 },
-  { id: 2, date: "2023-06-11", duration: 45 },
-  { id: 3, date: "2023-06-12", duration: 20 },
-];
 
 const weeklyActivity = [
   { day: "L", km: 2.1 },
@@ -90,6 +84,9 @@ export default function CareGeneral() {
   const { selectedPet } = useSelectedPet();
   const [totalgrams, setTotalgrams] = useState(0);
   const [totalMeals, setTotalMeals] = useState(0);
+  const [totalKm, setTotalKm] = useState(0);
+  const [totalTime, setTotalTime] = useState(0);
+  const [pendingWalks, setPendingWalks] = useState([]);
   const [weeklyFeeding, setWeeklyFeeding] = useState([
     { day: "L", grams: 0 },
     { day: "M", grams: 0 },
@@ -246,9 +243,78 @@ export default function CareGeneral() {
           return meal;
         });
 
-  // Datos de ejemplo - reemplaza con datos reales en tu aplicación
-  const totalKm = 23.5;
-  const totalTime = 240;
+  // Obtener kilómetros caminados en la semana
+  // Obtener kilómetros caminados en la semana
+  useEffect(() => {
+    const fetchTotalKm = async () => {
+      if (!selectedPet) return;
+
+      const { id: petId } = selectedPet;
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+      const { data, error } = await supabase
+        .from("walks")
+        .select("distance, total_time, day")
+        .eq("pet_id", petId)
+        .eq("completed", 3)
+        .gte("day", oneWeekAgo.toISOString());
+
+      if (error) {
+        console.error("Error fetching walks data:", error);
+        return;
+      }
+
+      const totalKm = data.reduce((sum, record) => {
+        const distance = parseFloat(record.distance.replace(" km", ""));
+        return sum + distance;
+      }, 0);
+
+      const totalTime = data.reduce((sum, record) => {
+        const timeParts = record.total_time.split(" ");
+        let minutes = 0;
+        for (let i = 0; i < timeParts.length; i += 2) {
+          const value = parseInt(timeParts[i]);
+          const unit = timeParts[i + 1];
+          if (unit === "h") {
+            minutes += value * 60;
+          } else if (unit === "min") {
+            minutes += value;
+          }
+        }
+        return sum + minutes;
+      }, 0);
+
+      setTotalKm(totalKm);
+      setTotalTime(totalTime);
+    };
+
+    fetchTotalKm();
+  }, [selectedPet]);
+  // Obtener paseos pendientes
+  useEffect(() => {
+    const fetchPendingWalks = async () => {
+      if (!selectedPet) return;
+
+      const { id: petId } = selectedPet;
+
+      const { data, error } = await supabase
+        .from("walks")
+        .select("id, day, total_time, completed")
+        .eq("pet_id", petId)
+        .eq("completed", 1);
+
+      if (error) {
+        console.error("Error fetching pending walks data:", error);
+        return;
+      }
+
+      setPendingWalks(data);
+    };
+
+    fetchPendingWalks();
+  }, [selectedPet]);
+
   const weeklyActivity = [
     { day: "L", km: 3.2 },
     { day: "M", km: 4.5 },
@@ -259,11 +325,6 @@ export default function CareGeneral() {
     { day: "D", km: 1.7 },
   ];
   const maxKm = Math.max(...weeklyActivity.map((day) => day.km));
-  const pendingWalks = [
-    { id: 1, date: "2023-06-15", duration: 30 },
-    { id: 2, date: "2023-06-17", duration: 45 },
-    { id: 3, date: "2023-06-20", duration: 60 },
-  ];
 
   const chartDataActivity = {
     labels: weeklyActivity.map((day) => day.day),
@@ -568,7 +629,9 @@ export default function CareGeneral() {
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm font-medium">Tiempo total</p>
-                  <p className="text-2xl font-bold">{totalTime} min</p>
+                  <p className="text-2xl font-bold">
+                    {Math.floor(totalTime / 60)} h {totalTime % 60} min
+                  </p>
                 </div>
               </div>
 
@@ -594,9 +657,9 @@ export default function CareGeneral() {
                   <div className="flex justify-between items-center bg-muted p-2 rounded">
                     <span className="flex items-center">
                       <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
-                      {new Date(pendingWalks[0].date).toLocaleDateString()}
+                      {new Date(pendingWalks[0].day).toLocaleDateString()}
                     </span>
-                    <span>{pendingWalks[0].duration} min</span>
+                    <span>{pendingWalks[0].total_time}</span>
                   </div>
                 ) : (
                   <p className="text-sm text-muted-foreground">
@@ -618,9 +681,9 @@ export default function CareGeneral() {
                     >
                       <span className="flex items-center">
                         <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
-                        {new Date(walk.date).toLocaleDateString()}
+                        {new Date(walk.day).toLocaleDateString()}
                       </span>
-                      <span>{walk.duration} min</span>
+                      <span>{walk.total_time}</span>
                     </li>
                   ))}
                 </ul>
