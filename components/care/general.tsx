@@ -68,6 +68,7 @@ import {
   Zap,
   CheckCircle,
   XCircle,
+  X,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -571,26 +572,51 @@ export default function CareGeneral() {
     },
   };
   useEffect(() => {
-    const fetchAppointments = async () => {
-      if (!selectedPet) return;
-
-      const { id: petId } = selectedPet;
-
-      const { data, error } = await supabase
-        .from("appointments")
-        .select("reason, date, status")
-        .eq("pet_id", petId);
-
-      if (error) {
-        console.error("Error fetching appointments:", error);
-        return;
-      }
-
-      setAppointments(data);
-    };
-
     fetchAppointments();
   }, [selectedPet]);
+
+  const fetchAppointments = async () => {
+    if (!selectedPet) return;
+
+    const { id: petId } = selectedPet;
+
+    const { data, error } = await supabase
+      .from("appointments")
+      .select("id, reason, date, status")
+      .eq("pet_id", petId);
+
+    if (error) {
+      console.error("Error fetching appointments:", error);
+      return;
+    }
+
+    setAppointments(data);
+  };
+
+  const cancelAppointment = async (appointmentId) => {
+    const { error } = await supabase
+      .from("appointments")
+      .update({ status: 3 })
+      .eq("id", appointmentId);
+
+    if (error) {
+      console.error("Error cancelling appointment:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description:
+          "No se pudo cancelar la cita. Por favor, intente de nuevo.",
+      });
+      return;
+    }
+
+    toast({
+      title: "Cita cancelada",
+      description: "La cita ha sido cancelada exitosamente.",
+    });
+
+    fetchAppointments();
+  };
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -608,7 +634,7 @@ export default function CareGeneral() {
   const getStatusText = (status) => {
     switch (status) {
       case 1:
-        return "Pendiente de aprobación";
+        return "Pendiente";
       case 2:
         return "Aprobada";
       case 3:
@@ -982,10 +1008,10 @@ export default function CareGeneral() {
             </CardHeader>
             <CardContent>
               {appointments.length > 0 ? (
-                <ul className="space-y-2">
-                  {appointments.map((appointment, index) => (
+                <ul className="space-y-4">
+                  {appointments.map((appointment) => (
                     <li
-                      key={index}
+                      key={appointment.id}
                       className="flex justify-between items-center"
                     >
                       <span className="flex items-center">
@@ -999,19 +1025,39 @@ export default function CareGeneral() {
                             </TooltipContent>
                           </Tooltipp>
                         </TooltipProvider>
-                        <span className="ml-2 capitalize">
-                          {appointment.reason}
-                        </span>
+                        <span className="ml-2">{appointment.reason}</span>
                       </span>
-                      <Badge variant="outline">
-                        {new Date(appointment.date).toLocaleDateString(
-                          "es-ES",
-                          {
-                            day: "numeric",
-                            month: "long",
-                          }
+                      <div className="flex items-center space-x-2">
+                        <Badge variant="outline">
+                          {new Date(appointment.date).toLocaleDateString(
+                            "es-ES",
+                            {
+                              day: "numeric",
+                              month: "long",
+                            }
+                          )}
+                        </Badge>
+                        {appointment.status !== 3 && (
+                          <TooltipProvider>
+                            <Tooltipp>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() =>
+                                    cancelAppointment(appointment.id)
+                                  }
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Cancelar cita</p>
+                              </TooltipContent>
+                            </Tooltipp>
+                          </TooltipProvider>
                         )}
-                      </Badge>
+                      </div>
                     </li>
                   ))}
                 </ul>
@@ -1020,6 +1066,9 @@ export default function CareGeneral() {
                   No hay citas programadas
                 </p>
               )}
+              <TooltipProvider delayDuration={0}>
+                <FinalAppointment />
+              </TooltipProvider>
             </CardContent>
           </Card>
 
