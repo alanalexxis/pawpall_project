@@ -87,6 +87,7 @@ export default function CareGeneral() {
   const [totalTime, setTotalTime] = useState(0);
   const [pendingWalks, setPendingWalks] = useState([]);
   const [appointments, setAppointments] = useState([]);
+  const [groomingActivities, setGroomingActivities] = useState([]);
   const [weeklyFeeding, setWeeklyFeeding] = useState([
     { day: "L", grams: 0 },
     { day: "M", grams: 0 },
@@ -643,6 +644,33 @@ export default function CareGeneral() {
         return "Desconocido";
     }
   };
+  useEffect(() => {
+    const fetchGroomingActivities = async () => {
+      if (!selectedPet) return;
+
+      const { id: petId } = selectedPet;
+
+      const { data, error } = await supabase
+        .from("grooming_activities")
+        .select("type, date")
+        .eq("pet_id", petId);
+
+      if (error) {
+        console.error("Error fetching grooming activities:", error);
+        return;
+      }
+
+      // Asegurarse de que las fechas se traten correctamente sin horas
+      const adjustedData = data.map((activity) => ({
+        ...activity,
+        date: new Date(activity.date + "T00:00:00"), // Añade un tiempo fijo para evitar problemas
+      }));
+
+      setGroomingActivities(adjustedData);
+    };
+
+    fetchGroomingActivities();
+  }, [selectedPet]);
 
   const optionsSleep = {
     responsive: true,
@@ -1083,18 +1111,20 @@ export default function CareGeneral() {
               <div>
                 <h3 className="text-lg font-semibold mb-2">Próximos baños</h3>
                 <ul className="space-y-2">
-                  <li className="flex justify-between items-center">
-                    <span>Baño y corte</span>
-                    <Badge variant="outline">10 de Julio</Badge>
-                  </li>
-                  <li className="flex justify-between items-center">
-                    <span>Baño y desparasitación</span>
-                    <Badge variant="outline">25 de Julio</Badge>
-                  </li>
-                  <li className="flex justify-between items-center">
-                    <span>Baño y cepillado</span>
-                    <Badge variant="outline">8 de Agosto</Badge>
-                  </li>
+                  {groomingActivities.map((activity, index) => (
+                    <li
+                      key={index}
+                      className="flex justify-between items-center"
+                    >
+                      <span>{activity.type}</span>
+                      <Badge variant="outline">
+                        {new Date(activity.date).toLocaleDateString("es-ES", {
+                          day: "numeric",
+                          month: "long",
+                        })}
+                      </Badge>
+                    </li>
+                  ))}
                 </ul>
               </div>
 
