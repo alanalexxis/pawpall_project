@@ -69,16 +69,7 @@ import { useSelectedPet } from "@/contexts/selectedPetContext";
 import FinalAppointment from "./general-components/final-appointment";
 import { TooltipProvider } from "../ui/tooltip";
 import { createClient } from "@/utils/supabase/client";
-
-const weeklyActivity = [
-  { day: "L", km: 2.1 },
-  { day: "M", km: 1.8 },
-  { day: "M", km: 2.5 },
-  { day: "J", km: 1.9 },
-  { day: "V", km: 2.2 },
-  { day: "S", km: 3.0 },
-  { day: "D", km: 2.7 },
-];
+import { toast } from "../ui/use-toast";
 export default function CareGeneral() {
   const supabase = createClient();
   const { selectedPet } = useSelectedPet();
@@ -393,32 +384,155 @@ export default function CareGeneral() {
   // Datos de ejemplo - reemplaza con datos reales en tu aplicación
 
   ///
-  const [weight, setWeight] = useState(70);
+  const [weight, setWeight] = useState(0);
   const [weightData, setWeightData] = useState([]);
-
+  // Obtener datos de peso
   useEffect(() => {
-    // Generate sample data for the last 12 months
-    const sampleData = Array.from({ length: 12 }, () =>
-      Math.floor(Math.random() * (80 - 60 + 1) + 60)
-    );
-    setWeightData(sampleData);
-  }, []);
+    const fetchWeightData = async () => {
+      if (!selectedPet) return;
 
-  const handleWeightSubmit = (e) => {
+      const { id: petId } = selectedPet;
+
+      const { data, error } = await supabase
+        .from("weight_history")
+        .select("weight, created_at")
+        .eq("pet_id", petId) // No se ordena por fecha de creación
+        .order("created_at", { ascending: true }); // Mantén el orden que prefieras
+
+      if (error) {
+        console.error("Error fetching weight data:", error);
+        return;
+      }
+
+      if (data.length > 0) {
+        // Establece el peso más reciente
+        setWeight(data[data.length - 1].weight); // Usa el último registro como el más reciente
+      }
+
+      // Procesar los datos obtenidos
+      const processedData = data.map((record) => ({
+        weight: record.weight,
+        date: new Date(record.created_at).toLocaleDateString("default", {
+          month: "short",
+          year: "numeric",
+        }),
+      }));
+
+      setWeightData(processedData);
+    };
+
+    fetchWeightData();
+  }, [selectedPet]);
+
+  // Función para obtener los datos de peso
+  const fetchWeightData = async () => {
+    if (!selectedPet) return;
+
+    const { id: petId } = selectedPet;
+
+    const { data, error } = await supabase
+      .from("weight_history")
+      .select("weight, created_at")
+      .eq("pet_id", petId)
+      .order("created_at", { ascending: true }); // Mantén el orden que prefieras
+
+    if (error) {
+      console.error("Error fetching weight data:", error);
+      return;
+    }
+
+    if (data.length > 0) {
+      setWeight(data[data.length - 1].weight); // Usar el último registro para el peso más reciente
+    }
+
+    // Procesar los datos obtenidos
+    const processedData = data.map((record) => ({
+      weight: record.weight,
+      date: new Date(record.created_at).toLocaleDateString("default", {
+        month: "short",
+        year: "numeric",
+      }),
+    }));
+
+    setWeightData(processedData);
+  };
+
+  // Función para manejar la inserción o actualización del peso
+  const handleWeightSubmit = async (e) => {
     e.preventDefault();
-    setWeightData([...weightData.slice(1), weight]);
+    if (!selectedPet) return;
+
+    const { id: petId } = selectedPet;
+    const currentDate = new Date().toISOString().split("T")[0]; // Obtiene solo la fecha (YYYY-MM-DD)
+
+    // Verificar si ya existe un registro para el mismo día usando date_trunc
+    const { data: existingRecord, error: fetchError } = await supabase
+      .from("weight_history")
+      .select("*")
+      .eq("pet_id", petId)
+      .gte("created_at", `${currentDate}T00:00:00.000Z`)
+      .lte("created_at", `${currentDate}T23:59:59.999Z`); // Comparación explícita por fecha
+
+    if (fetchError) {
+      console.error("Error fetching weight data:", fetchError);
+      return;
+    }
+
+    if (existingRecord.length > 0) {
+      // Actualizar el registro existente si ya hay un registro en la fecha actual
+      const { error: updateError } = await supabase
+        .from("weight_history")
+        .update({ weight })
+        .eq("id", existingRecord[0].id); // Actualiza el registro por ID
+
+      if (updateError) {
+        console.error("Error updating weight data:", updateError);
+        return;
+      }
+    } else {
+      // Insertar un nuevo registro si no hay uno existente para hoy
+      const createdAt = new Date().toISOString();
+      const { error: insertError } = await supabase
+        .from("weight_history")
+        .insert([{ pet_id: petId, weight, created_at: createdAt }]);
+      toast({
+        title: "¡Éxito!",
+        description: "Información de peso guardada con éxito.",
+      });
+
+      if (insertError) {
+        console.error("Error inserting weight data:", insertError);
+        return;
+      }
+    }
+
+    // Actualizar el campo weight en la tabla pets
+    const { error: petUpdateError } = await supabase
+      .from("pets")
+      .update({ weight })
+      .eq("id", petId); // Actualiza el campo weight del pet en la tabla pets
+
+    if (petUpdateError) {
+      console.error("Error updating pet weight data:", petUpdateError);
+      return;
+    }
+
+    // Mostrar notificación de éxito para la actualización de pets
+    toast({
+      title: "¡Éxito!",
+      description: "El peso de la mascota se ha actualizado correctamente.",
+    });
+
+    // Llamar a fetchWeightData después de la inserción o actualización
+    await fetchWeightData();
   };
 
   const chartDataWeight = {
-    labels: Array.from({ length: 12 }, (_, i) => {
-      const date = new Date();
-      date.setMonth(date.getMonth() - (11 - i));
-      return date.toLocaleString("default", { month: "short" });
-    }),
+    labels: weightData.map((data) => data.date),
     datasets: [
       {
         label: "Peso (kg)",
-        data: weightData,
+        data: weightData.map((data) => data.weight),
         fill: false,
         borderColor: "rgb(34, 197, 94)", // Tailwind green-500
         tension: 0.1,

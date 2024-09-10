@@ -27,7 +27,7 @@ export default function AppointmentDialog() {
         className="w-96"
         onClick={() => setIsOpen(true)}
       >
-        Administrar medicamentos
+        Administrar cita veterinaria
       </Button>
 
       <AnimatePresence>
