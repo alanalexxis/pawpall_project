@@ -1008,7 +1008,7 @@ export default function CareGeneral() {
             </CardHeader>
             <CardContent>
               {appointments.length > 0 ? (
-                <ul className="space-y-4">
+                <ul className="space-y-2">
                   {appointments.map((appointment) => (
                     <li
                       key={appointment.id}
@@ -1130,12 +1130,13 @@ export default function CareGeneral() {
                   </div>
                 </div>
               </div>
+              <Link href="/dashboard/grooming" className="block">
+                <Button variant="outline" className="w-full">
+                  <Calendar className="mr-2 h-4 w-4" /> Administrar aseo
+                </Button>
+              </Link>
             </CardContent>
-            <CardFooter>
-              <Button variant="outline" className="w-full">
-                <Calendar className="mr-2 h-4 w-4" /> Administrar aseo
-              </Button>
-            </CardFooter>
+            <CardFooter></CardFooter>
           </Card>
           <Card className="w-full max-w-2xl">
             <CardHeader>
@@ -1180,12 +1181,12 @@ export default function CareGeneral() {
               <div className=" w-full">
                 <Bar options={optionsSleep} data={dataSleep} />
               </div>
+              <Link href="/dashboard/sleep" className="block">
+                <Button variant="outline" className="w-full">
+                  <Moon className="mr-2 h-4 w-4" /> Registrar sueño
+                </Button>
+              </Link>
             </CardContent>
-            <CardFooter className="flex justify-between">
-              <Button variant="outline" className="w-full">
-                <Moon className="mr-2 h-4 w-4" /> Registrar sueño
-              </Button>
-            </CardFooter>
           </Card>
         </div>
       )}
@@ -1236,12 +1237,12 @@ export default function CareGeneral() {
               <div className="h-96 w-full flex justify-center ">
                 <Radar options={optionsEmotions} data={dataEmotions} />
               </div>
+              <Link href="/dashboard/emotions" className="block">
+                <Button variant={"outline"} className="w-full">
+                  <Dog className="mr-2 h-4 w-4" /> Registrar emociones
+                </Button>
+              </Link>
             </CardContent>
-            <CardFooter className="flex justify-between">
-              <Button variant={"outline"} className="w-full">
-                <Dog className="mr-2 h-4 w-4" /> Registrar emociones
-              </Button>
-            </CardFooter>
           </Card>
         </div>
       )}
