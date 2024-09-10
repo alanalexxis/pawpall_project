@@ -16,6 +16,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Bar, Line, Radar } from "react-chartjs-2";
 import {
+  TooltipContent,
+  Tooltip as Tooltipp,
+  TooltipTrigger,
+} from "../ui/tooltip";
+import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
@@ -61,6 +66,8 @@ import {
   Moon,
   Sun,
   Zap,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -78,6 +85,7 @@ export default function CareGeneral() {
   const [totalKm, setTotalKm] = useState(0);
   const [totalTime, setTotalTime] = useState(0);
   const [pendingWalks, setPendingWalks] = useState([]);
+  const [appointments, setAppointments] = useState([]);
   const [weeklyFeeding, setWeeklyFeeding] = useState([
     { day: "L", grams: 0 },
     { day: "M", grams: 0 },
@@ -562,6 +570,53 @@ export default function CareGeneral() {
       },
     },
   };
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      if (!selectedPet) return;
+
+      const { id: petId } = selectedPet;
+
+      const { data, error } = await supabase
+        .from("appointments")
+        .select("reason, date, status")
+        .eq("pet_id", petId);
+
+      if (error) {
+        console.error("Error fetching appointments:", error);
+        return;
+      }
+
+      setAppointments(data);
+    };
+
+    fetchAppointments();
+  }, [selectedPet]);
+
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 1:
+        return <Clock className="h-4 w-4 text-yellow-500" />;
+      case 2:
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case 3:
+        return <XCircle className="h-4 w-4 text-red-500" />;
+      default:
+        return null;
+    }
+  };
+
+  const getStatusText = (status) => {
+    switch (status) {
+      case 1:
+        return "Pendiente de aprobación";
+      case 2:
+        return "Aprobada";
+      case 3:
+        return "Rechazada";
+      default:
+        return "Desconocido";
+    }
+  };
 
   const optionsSleep = {
     responsive: true,
@@ -911,16 +966,13 @@ export default function CareGeneral() {
                   <Badge>Diario</Badge>
                 </li>
               </ul>
-            </CardContent>
-            <CardFooter>
-              <Link href="/dashboard/medical">
-                <Button variant="outline" className="w-96">
+              <Link href="/dashboard/medical" className="block mt-6">
+                <Button variant="outline" className="w-full">
                   Administrar medicamentos
                 </Button>
               </Link>
-            </CardFooter>
+            </CardContent>
           </Card>
-
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center text-primary">
@@ -929,23 +981,48 @@ export default function CareGeneral() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-2">
-                <li className="flex justify-between items-center">
-                  <span>Revisión general</span>
-                  <Badge variant="outline">15 de Julio</Badge>
-                </li>
-                <li className="flex justify-between items-center">
-                  <span>Vacunación</span>
-                  <Badge variant="outline">3 de Agosto</Badge>
-                </li>
-              </ul>
+              {appointments.length > 0 ? (
+                <ul className="space-y-2">
+                  {appointments.map((appointment, index) => (
+                    <li
+                      key={index}
+                      className="flex justify-between items-center"
+                    >
+                      <span className="flex items-center">
+                        <TooltipProvider>
+                          <Tooltipp>
+                            <TooltipTrigger>
+                              {getStatusIcon(appointment.status)}
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{getStatusText(appointment.status)}</p>
+                            </TooltipContent>
+                          </Tooltipp>
+                        </TooltipProvider>
+                        <span className="ml-2 capitalize">
+                          {appointment.reason}
+                        </span>
+                      </span>
+                      <Badge variant="outline">
+                        {new Date(appointment.date).toLocaleDateString(
+                          "es-ES",
+                          {
+                            day: "numeric",
+                            month: "long",
+                          }
+                        )}
+                      </Badge>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  No hay citas programadas
+                </p>
+              )}
             </CardContent>
-            <CardFooter>
-              <TooltipProvider delayDuration={0}>
-                <FinalAppointment />
-              </TooltipProvider>
-            </CardFooter>
           </Card>
+
           <Card className="w-full max-w-2xl">
             <CardHeader>
               <CardTitle className="flex items-center text-primary">

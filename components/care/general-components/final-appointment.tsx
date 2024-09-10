@@ -24,7 +24,7 @@ export default function AppointmentDialog() {
     <div>
       <Button
         variant="outline"
-        className="w-96"
+        className="w-full mt-6"
         onClick={() => setIsOpen(true)}
       >
         Administrar cita veterinaria

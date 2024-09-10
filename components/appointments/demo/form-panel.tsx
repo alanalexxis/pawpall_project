@@ -61,6 +61,7 @@ export function FormPanel({
       note: notes,
       reason: appointmentReason,
       profile_id: user?.id,
+      status: 1,
     });
 
     if (error) {
