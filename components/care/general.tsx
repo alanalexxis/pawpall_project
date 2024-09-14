@@ -96,6 +96,16 @@ export default function CareGeneral() {
   const [totalBrushings, setTotalBrushings] = useState(0);
   const [sleepLog, setSleepLog] = useState<SleepEntry[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [averageHappiness, setAverageHappiness] = useState(0);
+  const [happinessDescription, setHappinessDescription] = useState("");
+  const [averageEmotions, setAverageEmotions] = useState({
+    happiness: 0,
+    energy: 0,
+    calm: 0,
+    curiosity: 0,
+    affection: 0,
+    trust: 0,
+  });
   const [weeklyFeeding, setWeeklyFeeding] = useState([
     { day: "L", grams: 0 },
     { day: "M", grams: 0 },
@@ -946,6 +956,129 @@ export default function CareGeneral() {
       },
     ],
   };
+
+  //calculae emociones
+
+  useEffect(() => {
+    const fetchAverageHappiness = async () => {
+      if (!selectedPet) return;
+
+      const { id: petId } = selectedPet;
+
+      const { data, error } = await supabase
+        .from("emotions")
+        .select("happiness_level")
+        .eq("pet_id", petId);
+
+      if (error) {
+        console.error("Error fetching happiness data:", error);
+        return;
+      }
+
+      if (data.length > 0) {
+        const totalHappiness = data.reduce(
+          (sum, record) => sum + record.happiness_level,
+          0
+        );
+        const average = totalHappiness / data.length;
+        const scaledAverage = average * 3.33; // Escalar de 1-3 a 0-10
+        setAverageHappiness(scaledAverage);
+        setHappinessDescription(mapHappinessToDescription(scaledAverage));
+      }
+    };
+
+    fetchAverageHappiness();
+  }, [selectedPet]);
+
+  const mapHappinessToDescription = (average) => {
+    if (average <= 2) return "Muy malo";
+    if (average <= 4) return "Malo";
+    if (average <= 6) return "Regular";
+    if (average <= 8) return "Bueno";
+    if (average <= 9) return "Muy bueno";
+    return "Excelente";
+  };
+  useEffect(() => {
+    const fetchAverageEmotions = async () => {
+      if (!selectedPet) return;
+
+      const { id: petId } = selectedPet;
+
+      const { data, error } = await supabase
+        .from("emotions")
+        .select(
+          "happiness_level, energy_level, calm_level, curiosity_level, affection_level, trust_level"
+        )
+        .eq("pet_id", petId);
+
+      if (error) {
+        console.error("Error fetching emotions data:", error);
+        return;
+      }
+
+      if (data.length > 0) {
+        const totalEmotions = data.reduce(
+          (totals, record) => {
+            totals.happiness += record.happiness_level;
+            totals.energy += record.energy_level;
+            totals.calm += record.calm_level;
+            totals.curiosity += record.curiosity_level;
+            totals.affection += record.affection_level;
+            totals.trust += record.trust_level;
+            return totals;
+          },
+          {
+            happiness: 0,
+            energy: 0,
+            calm: 0,
+            curiosity: 0,
+            affection: 0,
+            trust: 0,
+          }
+        );
+
+        const averages = {
+          happiness: (totalEmotions.happiness / data.length) * 3.33,
+          energy: (totalEmotions.energy / data.length) * 3.33,
+          calm: (totalEmotions.calm / data.length) * 3.33,
+          curiosity: (totalEmotions.curiosity / data.length) * 3.33,
+          affection: (totalEmotions.affection / data.length) * 3.33,
+          trust: (totalEmotions.trust / data.length) * 3.33,
+        };
+
+        setAverageEmotions(averages);
+      }
+    };
+
+    fetchAverageEmotions();
+  }, [selectedPet]);
+  const dataEmotions = {
+    labels: [
+      "Felicidad",
+      "Energía",
+      "Calma",
+      "Curiosidad",
+      "Afecto",
+      "Confianza",
+    ],
+    datasets: [
+      {
+        label: "Nivel emocional",
+        data: [
+          averageEmotions.happiness.toFixed(1),
+          averageEmotions.energy.toFixed(1),
+          averageEmotions.calm.toFixed(1),
+          averageEmotions.curiosity.toFixed(1),
+          averageEmotions.affection.toFixed(1),
+          averageEmotions.trust.toFixed(1),
+        ],
+        backgroundColor: "rgba(255, 99, 132, 0.2)",
+        borderColor: "rgba(255, 99, 132, 1)",
+        borderWidth: 1,
+      },
+    ],
+  };
+
   const optionsEmotions = {
     responsive: true,
     scales: {
@@ -966,26 +1099,6 @@ export default function CareGeneral() {
         text: "Emociones del perro promedio",
       },
     },
-  };
-
-  const dataEmotions = {
-    labels: [
-      "Felicidad",
-      "Energía",
-      "Calma",
-      "Curiosidad",
-      "Afecto",
-      "Confianza",
-    ],
-    datasets: [
-      {
-        label: "Nivel emocional",
-        data: [8, 7, 6, 9, 8, 7],
-        backgroundColor: "rgba(255, 99, 132, 0.2)",
-        borderColor: "rgba(255, 99, 132, 1)",
-        borderWidth: 1,
-      },
-    ],
   };
   return (
     <div className="max-w-4xl mx-auto p-4">
@@ -1491,7 +1604,9 @@ export default function CareGeneral() {
                       <p className="text-sm text-muted-foreground">
                         Felicidad promedio
                       </p>
-                      <p className="text-2xl font-bold">7.8/10</p>
+                      <p className="text-2xl font-bold">
+                        {averageHappiness.toFixed(1)}/10
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center">
@@ -1500,7 +1615,9 @@ export default function CareGeneral() {
                       <p className="text-sm text-muted-foreground">
                         Energía promedio
                       </p>
-                      <p className="text-2xl font-bold">6.9/10</p>
+                      <p className="text-2xl font-bold">
+                        {averageEmotions.energy.toFixed(1)}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center">
@@ -1509,7 +1626,9 @@ export default function CareGeneral() {
                       <p className="text-sm text-muted-foreground">
                         Estado general
                       </p>
-                      <p className="text-2xl font-bold">Muy bueno</p>
+                      <p className="text-2xl font-bold">
+                        {happinessDescription}
+                      </p>
                     </div>
                   </div>
                 </div>
