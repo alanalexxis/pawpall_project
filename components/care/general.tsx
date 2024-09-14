@@ -69,6 +69,7 @@ import {
   CheckCircle,
   XCircle,
   X,
+  Paintbrush,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -89,6 +90,8 @@ export default function CareGeneral() {
   const [appointments, setAppointments] = useState([]);
   const [groomingActivities, setGroomingActivities] = useState([]);
   const [totalBaths, setTotalBaths] = useState(0);
+  const [totalCuts, setTotalCuts] = useState(0);
+  const [totalBrushings, setTotalBrushings] = useState(0);
   const [weeklyFeeding, setWeeklyFeeding] = useState([
     { day: "L", grams: 0 },
     { day: "M", grams: 0 },
@@ -646,6 +649,7 @@ export default function CareGeneral() {
     }
   };
   // Obtener actividades de aseo
+  // Obtener actividades de aseo
   useEffect(() => {
     const fetchGroomingActivities = async () => {
       if (!selectedPet) return;
@@ -676,6 +680,23 @@ export default function CareGeneral() {
       ).length;
 
       setTotalBaths(bathsCount);
+
+      // Contar el total de cortes de pelo y uñas completados
+      const cutsCount = adjustedData.filter(
+        (activity) =>
+          (activity.type === "Corte de pelo" ||
+            activity.type === "Corte de uñas") &&
+          activity.completed === 2
+      ).length;
+
+      setTotalCuts(cutsCount);
+
+      // Contar el total de cepillados completados
+      const brushingsCount = adjustedData.filter(
+        (activity) => activity.type === "Cepillado" && activity.completed === 2
+      ).length;
+
+      setTotalBrushings(brushingsCount);
     };
 
     fetchGroomingActivities();
@@ -1139,15 +1160,13 @@ export default function CareGeneral() {
 
               <div>
                 <h3 className="text-lg font-semibold mb-2">
-                  Estadísticas de aseo
+                  Estadísticas de aseo mensual
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="flex items-center">
                     <Droplet className="mr-2 h-5 w-5 text-blue-500" />
                     <div>
-                      <p className="text-sm text-muted-foreground">
-                        Baños totales
-                      </p>
+                      <p className="text-sm text-muted-foreground">Baños</p>
                       <p className="text-2xl font-bold">{totalBaths}</p>
                     </div>
                   </div>
@@ -1155,16 +1174,16 @@ export default function CareGeneral() {
                     <Scissors className="mr-2 h-5 w-5 text-green-500" />
                     <div>
                       <p className="text-sm text-muted-foreground">Cortes</p>
-                      <p className="text-2xl font-bold">4</p>
+                      <p className="text-2xl font-bold">{totalCuts}</p>
                     </div>
                   </div>
                   <div className="flex items-center">
-                    <BarChart className="mr-2 h-5 w-5 text-purple-500" />
+                    <Paintbrush className="mr-2 h-5 w-5 text-purple-500" />
                     <div>
                       <p className="text-sm text-muted-foreground">
-                        Promedio mensual
+                        Cepillados
                       </p>
-                      <p className="text-2xl font-bold">2.7</p>
+                      <p className="text-2xl font-bold">{totalBrushings}</p>
                     </div>
                   </div>
                 </div>
