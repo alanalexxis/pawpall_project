@@ -88,6 +88,7 @@ export default function CareGeneral() {
   const [pendingWalks, setPendingWalks] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [groomingActivities, setGroomingActivities] = useState([]);
+  const [totalBaths, setTotalBaths] = useState(0);
   const [weeklyFeeding, setWeeklyFeeding] = useState([
     { day: "L", grams: 0 },
     { day: "M", grams: 0 },
@@ -644,6 +645,7 @@ export default function CareGeneral() {
         return "Desconocido";
     }
   };
+  // Obtener actividades de aseo
   useEffect(() => {
     const fetchGroomingActivities = async () => {
       if (!selectedPet) return;
@@ -652,7 +654,7 @@ export default function CareGeneral() {
 
       const { data, error } = await supabase
         .from("grooming_activities")
-        .select("type, date")
+        .select("type, date, completed")
         .eq("pet_id", petId);
 
       if (error) {
@@ -667,6 +669,13 @@ export default function CareGeneral() {
       }));
 
       setGroomingActivities(adjustedData);
+
+      // Contar el total de baños completados
+      const bathsCount = adjustedData.filter(
+        (activity) => activity.type === "Baño" && activity.completed === 2
+      ).length;
+
+      setTotalBaths(bathsCount);
     };
 
     fetchGroomingActivities();
@@ -1139,7 +1148,7 @@ export default function CareGeneral() {
                       <p className="text-sm text-muted-foreground">
                         Baños totales
                       </p>
-                      <p className="text-2xl font-bold">16</p>
+                      <p className="text-2xl font-bold">{totalBaths}</p>
                     </div>
                   </div>
                   <div className="flex items-center">
