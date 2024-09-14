@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { calculateSleepByDayOfWeek, SleepEntry } from "@/lib/utils"; // Importar la función y la interfaz
 import { differenceInMonths } from "date-fns"; // Asegúrate de tener date-fns instalado
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -20,6 +21,7 @@ import {
   Tooltip as Tooltipp,
   TooltipTrigger,
 } from "../ui/tooltip";
+
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -92,6 +94,8 @@ export default function CareGeneral() {
   const [totalBaths, setTotalBaths] = useState(0);
   const [totalCuts, setTotalCuts] = useState(0);
   const [totalBrushings, setTotalBrushings] = useState(0);
+  const [sleepLog, setSleepLog] = useState<SleepEntry[]>([]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [weeklyFeeding, setWeeklyFeeding] = useState([
     { day: "L", grams: 0 },
     { day: "M", grams: 0 },
@@ -702,6 +706,213 @@ export default function CareGeneral() {
     fetchGroomingActivities();
   }, [selectedPet]);
 
+  //calcular sueño
+  const fetchSleepLogs = async () => {
+    if (!selectedPet || !selectedPet.id) {
+      return; // No hacer nada si no hay una mascota seleccionada
+    }
+
+    const { data, error } = await supabase
+      .from("sleep_patterns")
+      .select("*")
+      .eq("pet_id", selectedPet.id)
+      .order("date", { ascending: false });
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Hubo un error al obtener los registros de sueño.",
+        variant: "destructive",
+      });
+    } else {
+      const formattedLogs = data.map((entry) => ({
+        id: entry.id,
+        duration: formatTimeFromSupabase(entry.total_time), // Convertir el formato
+        timestamp: new Date(entry.date).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        }),
+        date: new Date(entry.date), // Formato ISO para comparaciones
+        displayDate: new Date(entry.date).toLocaleDateString("es-ES"),
+      }));
+      setSleepLog(formattedLogs);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedPet && selectedPet.id) {
+      fetchSleepLogs();
+    }
+  }, [selectedPet]);
+  const getCurrentDateTimeForSupabase = () => {
+    return new Date().toISOString(); // Formato ISO 8601
+  };
+  const calculateNapsPerDay = (logs: SleepEntry[]) => {
+    const napsPerDay: Record<string, number> = {};
+
+    logs.forEach((entry) => {
+      const date = entry.displayDate;
+      if (!napsPerDay[date]) {
+        napsPerDay[date] = 0;
+      }
+      napsPerDay[date] += 1; // Contar una siesta para este día
+    });
+
+    return napsPerDay;
+  };
+  const getAgeInYears = (birthDate: Date) => {
+    const today = new Date();
+    const age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      return age - 1;
+    }
+    return age;
+  };
+
+  const formatTimeFromSupabase = (timeFloat: number) => {
+    // Convertir el número float en horas y minutos
+    const hours = Math.floor(timeFloat); // Parte entera como horas
+    const minutes = Math.round((timeFloat - hours) * 100); // Parte decimal como minutos
+
+    // Formatear horas y minutos para tener siempre dos dígitos
+    const formattedHours = hours.toString().padStart(2, "0");
+    const formattedMinutes = minutes.toString().padStart(2, "0");
+
+    // Combinar horas y minutos en el formato deseado
+    return `${formattedHours}:${formattedMinutes}`;
+  };
+
+  // Calcular el promedio de siestas por día
+  const calculateAverageNapsPerDay = (napsPerDay: Record<string, number>) => {
+    const totalDays = Object.keys(napsPerDay).length;
+    const totalNaps = Object.values(napsPerDay).reduce(
+      (acc, naps) => acc + naps,
+      0
+    );
+    const averageNaps = totalDays > 0 ? totalNaps / totalDays : 0;
+
+    return averageNaps.toFixed(1); // Redondear a un decimal
+  };
+
+  // Usar las funciones en tu componente
+  const napsPerDay = calculateNapsPerDay(sleepLog);
+  const averageNapsPerDay = calculateAverageNapsPerDay(napsPerDay);
+
+  //calular calidad del sueño
+  const getRecommendedSleep = (age: number) => {
+    let recommendedHours;
+    if (age < 1) {
+      recommendedHours = 18; // Horas recomendadas para cachorros
+    } else if (age < 7) {
+      recommendedHours = 12; // Horas recomendadas para adultos
+    } else {
+      recommendedHours = 14; // Horas recomendadas para mayores
+    }
+
+    return {
+      range: age < 1 ? "18-20 horas" : age < 7 ? "12-14 horas" : "14-18 horas",
+      nightly: age < 1 ? "10-12 horas" : age < 7 ? "8-10 horas" : "10-12 horas",
+      recommendedHours,
+    };
+  };
+  const getRecommendedNaps = (age: number) => {
+    if (age < 1) {
+      return "6-10 siestas de 30 minutos a 2 horas ";
+    } else if (age < 7) {
+      return "3-5 siestas, desde unos minutos hasta un par de horas";
+    } else {
+      return "4-6 siestas";
+    }
+  };
+
+  const age = selectedPet ? getAgeInYears(new Date(selectedPet.birthdate)) : 0;
+  const recommendedNaps = getRecommendedNaps(age);
+  const {
+    range: recommendedSleep,
+    nightly: nightlySleep,
+    recommendedHours,
+  } = getRecommendedSleep(age);
+
+  useEffect(() => {
+    // Inicializa la fecha seleccionada en la fecha de hoy
+    const today = new Date();
+    setSelectedDate(today);
+  }, []);
+  const calculateDailySleep = (logs: SleepEntry[]) => {
+    const dailySleep: Record<string, number> = {};
+
+    logs.forEach((entry) => {
+      const [hours, minutes] = entry.duration.split(":").map(Number);
+      const sleepMinutes =
+        (isNaN(hours) ? 0 : hours * 60) + (isNaN(minutes) ? 0 : minutes);
+      const date = entry.displayDate;
+
+      if (!dailySleep[date]) {
+        dailySleep[date] = 0;
+      }
+      dailySleep[date] += sleepMinutes;
+    });
+
+    return dailySleep;
+  };
+  const calculateAverageSleep = (dailySleep: Record<string, number>) => {
+    const totalDays = Object.keys(dailySleep).length;
+    const totalMinutes = Object.values(dailySleep).reduce(
+      (acc, minutes) => acc + minutes,
+      0
+    );
+    const averageMinutes = totalDays > 0 ? totalMinutes / totalDays : 0;
+    const averageHours = Math.floor(averageMinutes / 60);
+    const averageRemainingMinutes = Math.round(averageMinutes % 60); // Cambiado el nombre a averageRemainingMinutes
+
+    return { averageHours, averageRemainingMinutes };
+  };
+  const dailySleep = calculateDailySleep(sleepLog);
+  const { averageHours, averageRemainingMinutes } =
+    calculateAverageSleep(dailySleep);
+
+  const calculateSleepQuality = (
+    averageHours: number,
+    averageRemainingMinutes: number,
+    recommendedHours: number
+  ) => {
+    // Convertir promedio de sueño a un número decimal
+    const averageSleepHours = averageHours + averageRemainingMinutes / 60;
+
+    // Calcular porcentaje de sueño registrado respecto a las horas recomendadas
+    const percentage = Math.min(
+      Math.round((averageSleepHours / recommendedHours) * 100),
+      100
+    );
+
+    // Determinar la calidad del sueño basada en el porcentaje
+    let qualityMessage = "";
+
+    if (percentage >= 90) {
+      qualityMessage = "Excelente";
+    } else if (percentage >= 75) {
+      qualityMessage = "Bueno";
+    } else if (percentage >= 50) {
+      qualityMessage = "Aceptable";
+    } else {
+      qualityMessage = "Necesita mejorar";
+    }
+
+    return { percentage, qualityMessage };
+  };
+
+  // Usar la función en tu componente
+  const { percentage, qualityMessage } = calculateSleepQuality(
+    averageHours,
+    averageRemainingMinutes,
+    recommendedHours
+  );
+
   const optionsSleep = {
     responsive: true,
     plugins: {
@@ -714,16 +925,24 @@ export default function CareGeneral() {
       },
     },
   };
-
-  const labels = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+  // Preparar los datos para la gráfica
+  const sleepByDay = calculateSleepByDayOfWeek(sleepLog);
 
   const dataSleep = {
-    labels,
+    labels: ["L", "M", "X", "J", "V", "S", "D"],
     datasets: [
       {
         label: "Horas de sueño",
-        data: [12, 13, 14, 11, 13, 15, 14],
-        backgroundColor: "rgba(136, 132, 216, 0.5)",
+        data: [
+          sleepByDay.Mon,
+          sleepByDay.Tue,
+          sleepByDay.Wed,
+          sleepByDay.Thu,
+          sleepByDay.Fri,
+          sleepByDay.Sat,
+          sleepByDay.Sun,
+        ],
+        backgroundColor: "rgba(34, 197, 94, 0.5)", // Tailwind green-500 with opacity
       },
     ],
   };
@@ -1206,23 +1425,26 @@ export default function CareGeneral() {
             <CardContent className="space-y-6">
               <div>
                 <h3 className="text-lg font-semibold mb-2">Resumen de sueño</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex items-center">
                     <Clock className="mr-2 h-5 w-5 text-blue-500" />
                     <div>
                       <p className="text-sm text-muted-foreground">
                         Promedio diario
                       </p>
-                      <p className="text-2xl font-bold">13 horas</p>
+                      <p className="text-xl font-bold">
+                        {averageHours}.
+                        {averageRemainingMinutes.toString().padStart(2, "0")}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center">
                     <Sun className="mr-2 h-5 w-5 text-yellow-500" />
                     <div>
                       <p className="text-sm text-muted-foreground">
-                        Siestas diurnas
+                        Siestas promedio
                       </p>
-                      <p className="text-2xl font-bold">3-4</p>
+                      <p className="text-xl font-bold">{averageNapsPerDay}</p>
                     </div>
                   </div>
                   <div className="flex items-center">
@@ -1231,7 +1453,7 @@ export default function CareGeneral() {
                       <p className="text-sm text-muted-foreground">
                         Calidad de sueño
                       </p>
-                      <p className="text-2xl font-bold">Buena</p>
+                      <p className="text-xl font-bold">{qualityMessage}</p>
                     </div>
                   </div>
                 </div>
