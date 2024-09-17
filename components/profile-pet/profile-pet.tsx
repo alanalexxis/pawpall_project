@@ -75,8 +75,8 @@ export default function ProfilePet() {
 
       const { data: petsData, error: petsError } = await supabase
         .from("pets")
-        .select("*");
-
+        .select("*")
+        .eq("profile_id", profileId);
       if (petsError) {
         console.error("Error fetching pets:", petsError);
         return;
