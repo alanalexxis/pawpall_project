@@ -3,15 +3,12 @@ import { updateSession } from "@/utils/supabase/middleware";
 import { createClient } from "./utils/supabase/server";
 
 export async function middleware(request: NextRequest) {
-  const { session, response } = await updateSession(request);
+  const { user, response } = await updateSession(request);
   const url = request.nextUrl.clone();
 
-  // Si no hay sesión, redirige al login
-  if (!session) {
-    if (
-      url.pathname.startsWith("/dashboard") ||
-      url.pathname.startsWith("/admin/dashboard")
-    ) {
+  // Si no hay usuario, redirige al login
+  if (!user) {
+    if (url.pathname === "/dashboard" || url.pathname === "/admin/dashboard") {
       url.pathname = "/login";
       return NextResponse.redirect(url);
     }
@@ -21,7 +18,7 @@ export async function middleware(request: NextRequest) {
     const { data: profile, error } = await supabase
       .from("profiles")
       .select("range")
-      .eq("id", session.user.id)
+      .eq("id", user.id)
       .single();
 
     if (error) {
