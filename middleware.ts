@@ -8,10 +8,7 @@ export async function middleware(request: NextRequest) {
 
   // Si no hay sesión, redirige al login
   if (!session) {
-    if (
-      url.pathname === "https://www.pawpal.site/dashboard" ||
-      url.pathname === "/admin/dashboard"
-    ) {
+    if (url.pathname === "/dashboard" || url.pathname === "/admin/dashboard") {
       url.pathname = "/login";
       return NextResponse.redirect(url);
     }
