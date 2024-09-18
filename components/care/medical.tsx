@@ -357,7 +357,7 @@ export default function Medical() {
             </CardTitle>
             <CardDescription className="text-primary-foreground/80">
               {selectedPet
-                ? `Raza: Chow Chow | Edad: ${selectedPet.age} años | Peso actual: ${selectedPet.weight} kg`
+                ? `Raza: ${selectedPet.breed} | Edad: ${selectedPet.age} | Peso actual: ${selectedPet.weight} kg`
                 : " Mantén a tu perro saludable y feliz."}
             </CardDescription>
           </CardHeader>
@@ -611,6 +611,7 @@ function PetData() {
 }
 
 function OwnerData({ ownerData }) {
+  const { selectedPet } = useSelectedPet();
   return (
     <div className="space-y-6 p-6 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+CjxyZWN0IHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgZmlsbD0id2hpdGUiPjwvcmVjdD4KPHBhdGggZD0iTTAgMEw2MCA2ME0wIDYwTDYwIDAiIHN0cm9rZT0iI2YwZjBmMCIgc3Ryb2tlLXdpZHRoPSIxIj48L3BhdGg+Cjwvc3ZnPg==')] dark:bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+CjxyZWN0IHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgZmlsbD0iIzFmMjkzNyI+PC9yZWN0Pgo8cGF0aCBkPSJNMCAwTDYwIDYwTTAgNjBMNjAgMCIgc3Ryb2tlPSIjMmEzNjQ2IiBzdHJva2Utd2lkdGg9IjEiPjwvcGF0aD4KPC9zdmc+')]">
       <div className="bg-primary/10 dark:bg-primary/20 p-6 rounded-lg relative">
@@ -620,13 +621,13 @@ function OwnerData({ ownerData }) {
         <User className="absolute top-4 right-4 w-24 h-24 text-primary/20 dark:text-primary-foreground/20" />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <InfoItem icon={User} label="Nombre" value={ownerData.userFullName} />
-        <InfoItem icon={MapPin} label="Dirección" value={ownerData.city} />
-        <InfoItem icon={Phone} label="Teléfono" value={ownerData.cellphone} />
+        <InfoItem icon={User} label="Nombre" value={selectedPet.ownerName} />
+        <InfoItem icon={MapPin} label="Dirección" value={selectedPet.city} />
+        <InfoItem icon={Phone} label="Teléfono" value={selectedPet.cellphone} />
         <InfoItem
           icon={Mail}
           label="Correo Electrónico"
-          value={ownerData.email}
+          value={selectedPet.email}
         />
       </div>
     </div>
