@@ -35,12 +35,12 @@ export async function middleware(request: NextRequest) {
     }
 
     // Redirige a `/dashboard` si el rango es 1 y está en `/login`
-    if (url.pathname === "/login" && userRange === 1) {
+    if (url.pathname === "https://www.pawpal.site/login" && userRange === 1) {
       url.pathname = "/dashboard";
       return NextResponse.redirect(url);
     }
     // Redirige a `/dashboard` si el rango es 1 y está en `/login`
-    if (url.pathname === "/login" && userRange === 2) {
+    if (url.pathname === "https://www.pawpal.site/login" && userRange === 2) {
       url.pathname = "admin/dashboard";
       return NextResponse.redirect(url);
     }
