@@ -189,17 +189,17 @@ export const columns: ColumnDef<Appointment>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuLabel>Acciones</DropdownMenuLabel>
             <DropdownMenuItem
               onClick={() =>
                 navigator.clipboard.writeText(appointment.id.toString())
               }
             >
-              Copy appointment ID
+              Copiar ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View pet details</DropdownMenuItem>
-            <DropdownMenuItem>View owner details</DropdownMenuItem>
+            <DropdownMenuItem>Ver detalles de mascota</DropdownMenuItem>
+            <DropdownMenuItem>Ver detalles de dueño</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
@@ -315,12 +315,9 @@ export function AdvancedAppointmentTable() {
     setMedicalNote("");
 
     toast({
-      title:
-        actionType === "approve"
-          ? "Appointments Approved"
-          : "Appointments Rejected",
-      description: `${selectedRows.length} appointment(s) have been ${
-        actionType === "approve" ? "approved" : "rejected"
+      title: actionType === "approve" ? "Citas aprobadas" : "Citas rechazadas",
+      description: `${selectedRows.length} cita(s) han sido ${
+        actionType === "approve" ? "aprobadas" : "rechazadas"
       }.`,
       variant: actionType === "approve" ? "default" : "destructive",
     });
