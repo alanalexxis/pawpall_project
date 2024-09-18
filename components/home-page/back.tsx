@@ -27,7 +27,7 @@ export function AuroraBackgroundDemo() {
         <div className="font-extralight text-base md:text-4xl dark:text-neutral-200 py-4">
           El cuidado perfecto con Pawpal.
         </div>
-        <Link href="/login">
+        <Link href="/dashboard">
           <Button
             variant={"gooeyLeft"}
             className="text-lg bg-black dark:bg-white rounded-full w-fit text-white dark:text-black px-4 py-6"
