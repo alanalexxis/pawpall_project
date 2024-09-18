@@ -29,27 +29,6 @@ export function AuroraBackgroundDemo() {
     };
     fetchUser();
   }, [router, supabase]);
-  if (user !== null) {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen space-y-4">
-        <p>Has iniciado sesión... redirigiendo en un segundo...</p>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="44"
-          height="44"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className={cn("animate-spin")}
-        >
-          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-        </svg>
-      </div>
-    );
-  }
   return (
     <AuroraBackground backgroundImage={backgroundImage.src}>
       <motion.div
