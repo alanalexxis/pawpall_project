@@ -175,7 +175,6 @@ export const columns: ColumnDef<Appointment>[] = [
     accessorKey: "medical_note",
     header: "Nota médica",
   },
-
   {
     id: "actions",
     cell: ({ row }) => {
