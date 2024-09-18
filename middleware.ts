@@ -1,21 +1,49 @@
 import { NextRequest, NextResponse } from "next/server";
 import { updateSession } from "@/utils/supabase/middleware";
+import { createClient } from "./utils/supabase/server";
 
 export async function middleware(request: NextRequest) {
   const { session, response } = await updateSession(request);
   const url = request.nextUrl.clone();
 
-  // Protege la ruta `/dashboard`
-  if (url.pathname === "/dashboard" && !session) {
-    // Redirige al login si no hay sesión activa
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
-  }
+  // Si no hay sesión, redirige al login
+  if (!session) {
+    if (url.pathname === "/dashboard" || url.pathname === "/admin/dashboard") {
+      url.pathname = "/login";
+      return NextResponse.redirect(url);
+    }
+  } else {
+    // Obtener el rango del usuario desde el perfil
+    const supabase = createClient();
+    const { data: profile, error } = await supabase
+      .from("profiles")
+      .select("range")
+      .eq("id", session.user.id)
+      .single();
 
-  // Redirige a `/dashboard` si el usuario ya está autenticado y va a `/login`
-  if (url.pathname === "/login" && session) {
-    url.pathname = "/dashboard";
-    return NextResponse.redirect(url);
+    if (error) {
+      console.error("Error fetching user profile:", error);
+      return response;
+    }
+
+    const userRange = profile.range;
+
+    // Redirige a `/admin/dashboard` si el rango es 2
+    if (url.pathname === "/dashboard" && userRange === 2) {
+      url.pathname = "/admin/dashboard";
+      return NextResponse.redirect(url);
+    }
+
+    // Redirige a `/dashboard` si el rango es 1 y está en `/login`
+    if (url.pathname === "/login" && userRange === 1) {
+      url.pathname = "/dashboard";
+      return NextResponse.redirect(url);
+    }
+    // Redirige a `/dashboard` si el rango es 1 y está en `/login`
+    if (url.pathname === "/login" && userRange === 2) {
+      url.pathname = "admin/dashboard";
+      return NextResponse.redirect(url);
+    }
   }
 
   return response;
@@ -23,11 +51,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Aplica el middleware solo a rutas que requieren protección.
-     * Excluye archivos estáticos e imágenes.
-     */
-    "/dashboard",
-    "/login",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
