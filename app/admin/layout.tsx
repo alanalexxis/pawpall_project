@@ -1,5 +1,5 @@
 // components/admin-panel/demo-layout.tsx
-import AdminPanelLayout from "@/components/admin-panel/admin-panel-layout";
+import AdminPanelLayout from "@/components/admin-panel-admin/admin-panel-layout";
 import { UserProvider } from "@/contexts/userContext";
 
 export default function DemoLayout({

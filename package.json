@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm i && next build",
     "start": "next start",
     "lint": "next lint"
   },
@@ -48,6 +48,7 @@
     "@supabase/ssr": "^0.3.0",
     "@supabase/supabase-js": "^2.43.4",
     "@tailwindcss/typography": "^0.5.13",
+    "@tanstack/react-table": "^8.20.5",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
@@ -59,7 +60,7 @@
     "html-react-parser": "^5.1.12",
     "libphonenumber-js": "^1.11.7",
     "lucide-react": "^0.379.0",
-    "next": "14.2.3",
+    "next": "^14.2.3",
     "next-themes": "^0.3.0",
     "nextjs-toploader": "^1.6.12",
     "react": "^18",
@@ -74,6 +75,7 @@
     "react-wrap-balancer": "^1.1.1",
     "recharts": "^2.12.7",
     "shadcn-dropzone": "^0.2.1",
+    "sharp": "^0.33.5",
     "stripe": "^16.11.0",
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7",

@@ -28,7 +28,7 @@ type Group = {
   menus: Menu[];
 };
 
-export function getMenuListAdmin(pathname: string): Group[] {
+export function getMenuList(pathname: string): Group[] {
   return [
     {
       groupLabel: "",
@@ -78,37 +78,7 @@ export function getMenuListAdmin(pathname: string): Group[] {
         },
       ],
     },
-    {
-      groupLabel: "Mis mascotas",
-      menus: [
-        {
-          href: "/pets",
-          label: "Mis mascotas",
-          active: pathname.includes("/pets"),
-          icon: Dog,
-          submenus: [],
-        },
-      ],
-    },
-    {
-      groupLabel: "Contenido",
-      menus: [
-        {
-          href: "/guides",
-          label: "Guías",
-          active: pathname.includes("/guides"),
-          icon: SquarePen,
-          submenus: [],
-        },
-        {
-          href: "/breeds",
-          label: "Razas",
-          active: pathname.includes("/breeds"),
-          icon: BookA,
-          submenus: [],
-        },
-      ],
-    },
+
     {
       groupLabel: "Ajustes",
       menus: [

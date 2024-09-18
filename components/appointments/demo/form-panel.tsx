@@ -18,11 +18,20 @@ import { useSelectedPet } from "@/contexts/selectedPetContext";
 import { createClient } from "@/utils/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { getLocalTimeZone } from "@internationalized/date";
-
+// Define CalendarDate if it's a custom type
+type CalendarDate = {
+  year: number;
+  month: number;
+  day: number;
+};
 type FormPanelProps = {
   selectedDate: CalendarDate;
   selectedTime: string; // Añade el tiempo seleccionado como prop
   onClose: () => void; // Añade prop para manejar el cierre
+};
+// Define the Guest type if it's a custom type
+type Guest = {
+  email?: string; // Optional field
 };
 
 export function FormPanel({

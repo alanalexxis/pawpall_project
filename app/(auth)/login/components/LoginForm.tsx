@@ -121,8 +121,8 @@ export function LoginForm() {
         ))}
         <div className="absolute w-[600px] top-2/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center">
           <h2 className="text-3xl font-bold">
-            "Haz que cada momento con tu mascota sea especial. Únete y descubre
-            cómo hacerlo realidad."
+            &quot;Haz que cada momento con tu mascota sea especial. Únete y
+            descubre cómo hacerlo realidad.&quot;
           </h2>
           <blockquote className="text-sm italic mt-2">
             - Equipo de Pawpall

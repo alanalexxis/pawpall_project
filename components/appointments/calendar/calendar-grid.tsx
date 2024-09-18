@@ -42,7 +42,7 @@ export function CalendarGrid({
         </tr>
       </thead>
       <tbody>
-        {[...new Array(weeksInMonth).keys()].map((weekIndex) => (
+        {Array.from(new Array(weeksInMonth).keys()).map((weekIndex) => (
           <tr key={weekIndex}>
             {state.getDatesInWeek(weekIndex, startDate).map((date, index) => {
               if (!date) {

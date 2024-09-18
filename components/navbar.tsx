@@ -3,7 +3,7 @@
 import { MenuIcon } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
-import { Dialog, DialogClose } from "./ui/dialog";
+import { Dialog } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { NavigationMenu, NavigationMenuList } from "./ui/navigation-menu";
 import {
@@ -14,6 +14,7 @@ import {
 } from "./ui/sheet";
 import { ModeToggle } from "./Toggle";
 import LoginButton from "./LoginLogoutButton";
+import { DialogClose } from "@radix-ui/react-dialog";
 
 export function NavBar() {
   const handleScrollToSection = (

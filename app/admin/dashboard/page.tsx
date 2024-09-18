@@ -11,7 +11,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
-import CareGeneralContent from "@/components/demo/care-general-content";
+import AppointmentsContent from "@/components/demo/admin/appointments-content";
 
 export default function DashboardPage() {
   return (
@@ -29,7 +29,7 @@ export default function DashboardPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <CareGeneralContent />
+      <AppointmentsContent />
     </ContentLayout>
   );
 }

@@ -10,6 +10,7 @@ const LoginButton = () => {
   const [user, setUser] = useState<any>(null);
   const router = useRouter();
   const supabase = createClient();
+
   const handleSignout = async () => {
     const supabase = createClient();
     const { error } = await supabase.auth.signOut();

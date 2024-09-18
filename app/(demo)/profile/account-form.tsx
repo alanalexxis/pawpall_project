@@ -86,7 +86,7 @@ export function AccountForm() {
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("*")
-        .eq("id", user.id)
+        .eq("id", user?.id)
         .single();
 
       if (profileError) {
@@ -100,7 +100,9 @@ export function AccountForm() {
 
         form.reset({
           name: profile?.full_name ?? "",
-          dob: profile?.date_of_birth ? new Date(profile.date_of_birth) : null,
+          dob: profile?.date_of_birth
+            ? new Date(profile.date_of_birth)
+            : undefined,
           city: profile?.city ?? "",
           biography: profile?.biography ?? "", // Valor predeterminado para la biografía
           cellphone: profile?.cellphone ?? "",
@@ -160,9 +162,9 @@ export function AccountForm() {
       updateProfile(
         data.name,
         data.dob,
-        data.city,
-        data.biography,
-        data.cellphone
+        data.city ?? null, // Ensure city is string | null
+        data.biography ?? null,
+        data.cellphone ?? null
       );
     }
   }

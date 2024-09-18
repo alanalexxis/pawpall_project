@@ -122,7 +122,7 @@ export default function Appointment() {
             />
             <FormField
               control={form.control}
-              name="dateTime"
+              name="date"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Seleccione una fecha</FormLabel>
