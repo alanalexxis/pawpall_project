@@ -3,11 +3,11 @@ import { updateSession } from "@/utils/supabase/middleware";
 import { createClient } from "./utils/supabase/server";
 
 export async function middleware(request: NextRequest) {
-  const { user, response } = await updateSession(request);
+  const { session, response } = await updateSession(request);
   const url = request.nextUrl.clone();
 
-  // Si no hay usuario, redirige al login
-  if (!user) {
+  // Si no hay sesión, redirige al login
+  if (!session) {
     if (url.pathname === "/dashboard" || url.pathname === "/admin/dashboard") {
       url.pathname = "/login";
       return NextResponse.redirect(url);
@@ -18,12 +18,12 @@ export async function middleware(request: NextRequest) {
     const { data: profile, error } = await supabase
       .from("profiles")
       .select("range")
-      .eq("id", user.id)
+      .eq("id", session.user.id)
       .single();
 
     if (error) {
       console.error("Error fetching user profile:", error);
-      return response; // Consider returning a more informative response or status code
+      return response;
     }
 
     const userRange = profile.range;
@@ -39,10 +39,9 @@ export async function middleware(request: NextRequest) {
       url.pathname = "/dashboard";
       return NextResponse.redirect(url);
     }
-
-    // Redirige a `/admin/dashboard` si el rango es 2 y está en `/login`
+    // Redirige a `/dashboard` si el rango es 1 y está en `/login`
     if (url.pathname === "/login" && userRange === 2) {
-      url.pathname = "/admin/dashboard";
+      url.pathname = "admin/dashboard";
       return NextResponse.redirect(url);
     }
   }
