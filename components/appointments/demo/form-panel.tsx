@@ -62,10 +62,15 @@ export function FormPanel({
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    // Convert CalendarDate to Date object
+    const date = new Date(
+      selectedDate.year,
+      selectedDate.month - 1, // JavaScript months are 0-indexed
+      selectedDate.day
+    );
     const { error } = await supabase.from("appointments").insert({
       pet_id: selectedPet.id,
-      date: selectedDate.toDate(getLocalTimeZone()).toISOString(),
+      date: date.toISOString(), // Use the created Date object
       hour: selectedTime,
       note: notes,
       reason: appointmentReason,
