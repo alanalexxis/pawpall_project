@@ -1,34 +1,14 @@
 "use client";
 import backgroundImage from "@/public/images/image2.jpg";
 import { motion } from "framer-motion";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { AuroraBackground } from "./aurora-background";
 
 import SparklesText from "@/components/magicui/sparkles-text";
 import { Button } from "../ui/button";
 import Link from "next/link";
-import { createClient } from "@/utils/supabase/client";
-import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
 
 export function AuroraBackgroundDemo() {
-  const [user, setUser] = useState<any>(null);
-  const supabase = createClient();
-  const router = useRouter();
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
-      if (user) {
-        setTimeout(() => router.push("/dashboard"), 2000);
-      } else {
-      }
-    };
-    fetchUser();
-  }, [router, supabase]);
   return (
     <AuroraBackground backgroundImage={backgroundImage.src}>
       <motion.div
@@ -47,7 +27,7 @@ export function AuroraBackgroundDemo() {
         <div className="font-extralight text-base md:text-4xl dark:text-neutral-200 py-4">
           El cuidado perfecto con Pawpal.
         </div>
-        <Link href="/login" passHref>
+        <Link href="/login">
           <Button
             variant={"gooeyLeft"}
             className="text-lg bg-black dark:bg-white rounded-full w-fit text-white dark:text-black px-4 py-6"
