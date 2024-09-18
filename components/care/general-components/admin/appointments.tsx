@@ -225,19 +225,24 @@ export function AdvancedAppointmentTable() {
 
   useEffect(() => {
     const fetchAppointments = async () => {
-      const { data, error } = await supabase.from("appointments").select(`
-        id,
-        date,
-        reason,
-        status,
-        note,
-        hour,
-        pet_id,
-        profile_id,
-        pets (name),
-        profiles (full_name),
-        medical_note
-      `);
+      const { data, error } = await supabase
+        .from("appointments")
+        .select(
+          `
+          id,
+          date,
+          reason,
+          status,
+          note,
+          hour,
+          pet_id,
+          profile_id,
+          pets (name),
+          profiles (full_name),
+          medical_note
+        `
+        )
+        .order("id", { ascending: false }); // Orden descendente por ID
 
       if (error) {
         console.error("Error fetching appointments:", error);
