@@ -28,18 +28,6 @@ export function UserNav() {
   const { user, setUser } = useUser();
   const router = useRouter();
 
-  const handleSignout = async () => {
-    const supabase = createClient();
-    const { error } = await supabase.auth.signOut();
-
-    if (error) {
-      console.log(error);
-      // En vez de redirigir, podrías mostrar un mensaje de error o hacer otra cosa
-      return false;
-    }
-    return true;
-  };
-
   return (
     <DropdownMenu>
       <TooltipProvider disableHoverableContent>
@@ -104,10 +92,7 @@ export function UserNav() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="hover:cursor-pointer"
-          onClick={handleSignout}
-        >
+        <DropdownMenuItem className="hover:cursor-pointer">
           <Link href="/logout" className="flex items-center">
             <LogOut className="w-4 h-4 mr-3 text-muted-foreground" />
             Cerrar sesión
