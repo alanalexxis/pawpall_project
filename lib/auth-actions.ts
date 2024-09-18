@@ -69,5 +69,6 @@ export async function signInWithGoogle() {
     redirect("/error");
   }
 
-  redirect(data.url);
+  // Redirigir al usuario y forzar la recarga de la página
+  redirect("/?redirected=true");
 }
