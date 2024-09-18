@@ -8,7 +8,10 @@ export async function middleware(request: NextRequest) {
 
   // Si no hay sesión, redirige al login
   if (!session) {
-    if (url.pathname === "/dashboard" || url.pathname === "/admin/dashboard") {
+    if (
+      url.pathname.startsWith("/dashboard") ||
+      url.pathname.startsWith("/admin/dashboard")
+    ) {
       url.pathname = "/login";
       return NextResponse.redirect(url);
     }
@@ -23,7 +26,7 @@ export async function middleware(request: NextRequest) {
 
     if (error) {
       console.error("Error fetching user profile:", error);
-      return response;
+      return response; // Consider returning a more informative response or status code
     }
 
     const userRange = profile.range;
@@ -39,9 +42,10 @@ export async function middleware(request: NextRequest) {
       url.pathname = "/dashboard";
       return NextResponse.redirect(url);
     }
-    // Redirige a `/dashboard` si el rango es 1 y está en `/login`
+
+    // Redirige a `/admin/dashboard` si el rango es 2 y está en `/login`
     if (url.pathname === "/login" && userRange === 2) {
-      url.pathname = "admin/dashboard";
+      url.pathname = "/admin/dashboard";
       return NextResponse.redirect(url);
     }
   }
