@@ -43,6 +43,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
+import { toast } from "../ui/use-toast";
 
 export default function Medical() {
   const [medicalRecords, setMedicalRecords] = useState({
@@ -50,9 +51,7 @@ export default function Medical() {
     medicamentos: [],
     alergias: [],
     enfermedades: [{ id: 1, name: "Otitis - 2023-05-10" }],
-
     citas: [],
-
     weightHistory: [
       { date: "2023-01-01", weight: 28 },
       { date: "2023-03-01", weight: 29 },
@@ -64,8 +63,18 @@ export default function Medical() {
 
   const [newItem, setNewItem] = useState("");
   const [editingItem, setEditingItem] = useState(null);
+  const [userRange, setUserRange] = useState(null);
 
   const addItem = (category) => {
+    if (userRange === 1) {
+      toast({
+        title: "Error",
+        description:
+          "No tienes permisos para agregar elementos, consulta a tu veterinario",
+        variant: "destructive",
+      });
+      return;
+    }
     if (newItem.trim() !== "") {
       setMedicalRecords((prev) => ({
         ...prev,
@@ -83,6 +92,10 @@ export default function Medical() {
   };
 
   const deleteItem = (category, id) => {
+    if (userRange === 1) {
+      alert("No tienes permiso para eliminar elementos.");
+      return;
+    }
     setMedicalRecords((prev) => ({
       ...prev,
       [category]: prev[category].filter((item) => item.id !== id),
@@ -90,6 +103,10 @@ export default function Medical() {
   };
 
   const editItem = (category, id, newValue) => {
+    if (userRange === 1) {
+      alert("No tienes permiso para editar elementos.");
+      return;
+    }
     setMedicalRecords((prev) => ({
       ...prev,
       [category]: prev[category].map((item) =>
@@ -123,17 +140,7 @@ export default function Medical() {
                     {item.name}
                     {isItemOverdue && (
                       <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger>
-                            <AlertCircle
-                              className="ml-2 text-destructive"
-                              size={18}
-                            />
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Atrasada</p>
-                          </TooltipContent>
-                        </Tooltip>
+                        <Tooltip></Tooltip>
                       </TooltipProvider>
                     )}
                   </h3>
@@ -165,6 +172,7 @@ export default function Medical() {
                     size="sm"
                     onClick={() => setEditingItem(item)}
                     className="hover:bg-primary/20"
+                    disabled={userRange === 1}
                   >
                     <Edit size={16} />
                   </Button>
@@ -173,6 +181,7 @@ export default function Medical() {
                     size="sm"
                     onClick={() => deleteItem(category, item.id)}
                     className="hover:bg-destructive/20"
+                    disabled={userRange === 1}
                   >
                     <Trash2 size={16} />
                   </Button>
@@ -223,10 +232,12 @@ export default function Medical() {
           email: profile?.email ?? null,
           cellphone: profile?.cellphone ?? null,
         });
+        setUserRange(profile?.range ?? null);
       }
     };
     fetchUserAndProfile();
   }, []);
+
   useEffect(() => {
     const fetchAppointments = async () => {
       const supabase = createClient();
@@ -249,6 +260,7 @@ export default function Medical() {
       fetchAppointments();
     }
   }, [selectedPet]); // Dependencia en selectedPet
+
   useEffect(() => {
     const fetchVaccinations = async () => {
       const supabase = createClient();
@@ -646,4 +658,7 @@ function InfoItem({ icon: Icon, label, value }) {
       </div>
     </div>
   );
+}
+function setUserRange(arg0: any) {
+  throw new Error("Function not implemented.");
 }
