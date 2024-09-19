@@ -7,12 +7,23 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle, Dog, Edit, PawPrint, Trash2 } from "lucide-react";
+import {
+  AlertCircle,
+  CalendarCheck,
+  CalendarDaysIcon,
+  Dog,
+  Edit,
+  PawPrint,
+  PlusCircle,
+  Trash2,
+} from "lucide-react";
 import {
   LineChart,
   Line,
@@ -30,7 +41,6 @@ import {
   PhoneCall,
   Mail,
   Dna,
-  Calendar,
   Fingerprint,
   Palette,
 } from "lucide-react";
@@ -44,6 +54,19 @@ import {
   TooltipTrigger,
 } from "../ui/tooltip";
 import { toast } from "../ui/use-toast";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import React from "react";
+import { Calendar } from "../ui/calendar";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
 
 export default function Medical() {
   const [medicalRecords, setMedicalRecords] = useState({
@@ -57,15 +80,16 @@ export default function Medical() {
       { date: "2023-03-01", weight: 29 },
       { date: "2023-05-01", weight: 30 },
     ],
-    notes:
-      " tiene tendencia a comer muy rápido. Considerar usar un comedero lento.",
+    notes: "",
   });
 
   const [newItem, setNewItem] = useState("");
-  const [editingItem, setEditingItem] = useState(null);
   const [userRange, setUserRange] = useState(null);
+  const [nextDueDate, setNextDueDate] = useState("");
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const [categoryToDelete, setCategoryToDelete] = useState(null);
 
-  const addItem = (category) => {
+  const addItem = async (category) => {
     if (userRange === 1) {
       toast({
         title: "Error",
@@ -76,46 +100,163 @@ export default function Medical() {
       return;
     }
     if (newItem.trim() !== "") {
-      setMedicalRecords((prev) => ({
-        ...prev,
-        [category]: [
-          ...prev[category],
-          {
-            id: Date.now(),
-            name: newItem,
-            date: new Date().toISOString().split("T")[0],
-          },
-        ],
-      }));
+      const newItemData = {
+        pet_id: selectedPet.id,
+        name: newItem,
+        date: new Date().toISOString().split("T")[0], // Añadir la fecha actual
+        frequency: frequency, // Añadir la frecuencia
+        note: note, // Añadir la nota
+      };
+
+      if (category === "vacunas" && nextDueDate.trim() !== "") {
+        newItemData.next_due = nextDueDate;
+      }
+
+      const supabase = createClient();
+
+      if (category === "alergias") {
+        const { data, error } = await supabase
+          .from("allergies")
+          .insert([newItemData]);
+        toast({
+          title: "¡Éxito!",
+          description: "Información guardada con éxito.",
+        });
+
+        if (error) {
+          console.error("Error inserting allergy:", error.message);
+          return;
+        }
+
+        setMedicalRecords((prev) => ({
+          ...prev,
+          [category]: [...prev[category], newItemData],
+        }));
+      } else if (category === "enfermedades") {
+        const newDiseaseData = {
+          ...newItemData,
+          date: new Date().toISOString().split("T")[0],
+        };
+        const { data, error } = await supabase
+          .from("diseases")
+          .insert([newDiseaseData]);
+        toast({
+          title: "¡Éxito!",
+          description: "Información guardada con éxito.",
+        });
+
+        if (error) {
+          console.error("Error inserting disease:", error.message);
+          return;
+        }
+
+        setMedicalRecords((prev) => ({
+          ...prev,
+          [category]: [...prev[category], newDiseaseData],
+        }));
+      } else if (category === "vacunas") {
+        const { data, error } = await supabase
+          .from("vaccinations")
+          .insert([newItemData]);
+        toast({
+          title: "¡Éxito!",
+          description: "Información guardada con éxito.",
+        });
+
+        if (error) {
+          console.error("Error inserting vaccination:", error.message);
+          return;
+        }
+
+        setMedicalRecords((prev) => ({
+          ...prev,
+          [category]: [...prev[category], newItemData],
+        }));
+      } else if (category === "medicamentos") {
+        const { data, error } = await supabase
+          .from("medications")
+          .insert([newItemData]);
+        toast({
+          title: "¡Éxito!",
+          description: "Información guardada con éxito.",
+        });
+
+        if (error) {
+          console.error("Error inserting medication:", error.message);
+          return;
+        }
+
+        setMedicalRecords((prev) => ({
+          ...prev,
+          [category]: [...prev[category], newItemData],
+        }));
+      } else {
+        setMedicalRecords((prev) => ({
+          ...prev,
+          [category]: [...prev[category], newItemData],
+        }));
+      }
+
       setNewItem("");
+      setFrequency(""); // Resetear la frecuencia
+      setNote(""); // Resetear la nota
+      setNextDueDate(""); // Resetear la fecha de "next due"
+      setDate(undefined);
     }
   };
-
-  const deleteItem = (category, id) => {
+  const deleteItem = async (category, itemId) => {
     if (userRange === 1) {
-      alert("No tienes permiso para eliminar elementos.");
+      toast({
+        title: "Error",
+        description:
+          "No tienes permisos para eliminar elementos, consulta a tu veterinario",
+        variant: "destructive",
+      });
       return;
     }
-    setMedicalRecords((prev) => ({
-      ...prev,
-      [category]: prev[category].filter((item) => item.id !== id),
-    }));
-  };
 
-  const editItem = (category, id, newValue) => {
-    if (userRange === 1) {
-      alert("No tienes permiso para editar elementos.");
+    const supabase = createClient();
+
+    let tableName;
+    switch (category) {
+      case "alergias":
+        tableName = "allergies";
+        break;
+      case "enfermedades":
+        tableName = "diseases";
+        break;
+      case "vacunas":
+        tableName = "vaccinations";
+        break;
+      case "medicamentos":
+        tableName = "medications";
+        break;
+      default:
+        return;
+    }
+
+    const { error } = await supabase.from(tableName).delete().eq("id", itemId);
+
+    if (error) {
+      console.error(`Error deleting ${category}:`, error.message);
+      toast({
+        title: "Error",
+        description: `No se pudo eliminar el elemento de ${category}.`,
+        variant: "destructive",
+      });
       return;
     }
+
     setMedicalRecords((prev) => ({
       ...prev,
-      [category]: prev[category].map((item) =>
-        item.id === id ? { ...item, name: newValue } : item
-      ),
+      [category]: prev[category].filter((item) => item.id !== itemId),
     }));
-    setEditingItem(null);
-  };
 
+    toast({
+      title: "¡Éxito!",
+      description: "Elemento eliminado con éxito.",
+    });
+  };
   const isOverdue = (date) => {
     return new Date(date) < new Date();
   };
@@ -146,7 +287,7 @@ export default function Medical() {
                   </h3>
                   {item.date && (
                     <p className="text-xs text-muted-foreground">
-                      Fecha de aplicación: {item.date}
+                      Fecha : {item.date}
                     </p>
                   )}
                   {(item.nextDue || item.next_due) && (
@@ -165,21 +306,21 @@ export default function Medical() {
                       Frecuencia: {item.frequency}
                     </p>
                   )}
+                  {category === "medicamentos" && item.note && (
+                    <p className="text-xs text-muted-foreground">
+                      Nota médica: {item.note}
+                    </p>
+                  )}
                 </div>
                 <div className="flex space-x-2">
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setEditingItem(item)}
-                    className="hover:bg-primary/20"
-                    disabled={userRange === 1}
-                  >
-                    <Edit size={16} />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => deleteItem(category, item.id)}
+                    onClick={() => {
+                      setItemToDelete(item.id);
+                      setCategoryToDelete(category);
+                      setIsAlertOpen(true);
+                    }}
                     className="hover:bg-destructive/20"
                     disabled={userRange === 1}
                   >
@@ -352,6 +493,57 @@ export default function Medical() {
       fetchDiseases();
     }
   }, [selectedPet]); // Dependencia en selectedPet
+
+  const fetchNotes = async () => {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("notes")
+      .select("note")
+      .eq("pet_id", selectedPet.id)
+      .single();
+
+    if (error) {
+      console.error("Error fetching notes:", error.message);
+      return;
+    }
+
+    setMedicalRecords((prev) => ({
+      ...prev,
+      notes: data.note,
+    }));
+  };
+  useEffect(() => {
+    if (selectedPet.id) {
+      fetchNotes();
+    }
+  }, [selectedPet.id]);
+  const updateNote = async () => {
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("notes")
+      .upsert({ pet_id: selectedPet.id, note: medicalRecords.notes });
+
+    if (error) {
+      console.error("Error updating note:", error.message);
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar la nota.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "¡Éxito!",
+      description: "Nota actualizada con éxito.",
+    });
+  };
+
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [date, setDate] = React.useState<Date | undefined>(undefined);
+  const [frequency, setFrequency] = useState("");
+  const [note, setNote] = useState("");
+  const [isAlertOpen, setIsAlertOpen] = useState(false); // Estado para el modal
   return (
     <Card className="w-full max-w-4xl mx-auto">
       <motion.div
@@ -416,11 +608,99 @@ export default function Medical() {
                           </CardHeader>
                           <CardContent className="space-y-4">
                             {renderList(category, items)}
-                            <div className="flex space-x-2">
-                              <div className="grid w-full max-w-sm items-center gap-1.5">
-                                <Label htmlFor={`new-${category}`}>
-                                  Nuevo {category.slice(0, -1)}
-                                </Label>
+                            {category === "vacunas" && (
+                              <div className="space-y-2">
+                                <Label htmlFor="dob">Próxima dosis</Label>
+                                <Popover
+                                  open={isCalendarOpen}
+                                  onOpenChange={setIsCalendarOpen}
+                                >
+                                  <PopoverTrigger asChild>
+                                    <Button
+                                      variant="outline"
+                                      className="pl-3 text-left font-normal text-muted-foreground ml-1 flex"
+                                    >
+                                      {date ? (
+                                        format(date, "PPP", { locale: es })
+                                      ) : (
+                                        <span>Selecciona una fecha</span>
+                                      )}
+                                      <CalendarDaysIcon className="ml-2 h-4 w-4 opacity-50" />
+                                    </Button>
+                                  </PopoverTrigger>
+                                  <PopoverContent
+                                    className="w-auto p-0"
+                                    align="start"
+                                  >
+                                    <Calendar
+                                      disabled={(day) => day < new Date()}
+                                      locale={es}
+                                      mode="single"
+                                      captionLayout="dropdown-buttons"
+                                      selected={date}
+                                      onSelect={(e) => {
+                                        setDate(e); // Asigna la fecha al estado 'date'
+                                        setNextDueDate(
+                                          e.toISOString().split("T")[0]
+                                        ); // También actualiza 'nextDueDate' formateado
+                                      }}
+                                      fromYear={1999}
+                                      toYear={2024}
+                                    />
+                                  </PopoverContent>
+                                </Popover>
+                              </div>
+                            )}
+                            {category === "medicamentos" && (
+                              <>
+                                <div className="space-y-2">
+                                  <Label
+                                    htmlFor={`frequency-${category}`}
+                                    className="text-sm font-medium text-gray-700"
+                                  >
+                                    Frecuencia de dosis
+                                  </Label>
+                                  <div className="flex space-x-2">
+                                    <Input
+                                      type="text"
+                                      id={`frequency-${category}`}
+                                      value={frequency}
+                                      onChange={(e) =>
+                                        setFrequency(e.target.value)
+                                      }
+                                      placeholder="Agregar frecuencia..."
+                                      className="flex-grow"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="space-y-2">
+                                  <Label
+                                    htmlFor={`frequency-${category}`}
+                                    className="text-sm font-medium text-gray-700"
+                                  >
+                                    Notas adicionales
+                                  </Label>
+                                  <div className="flex space-x-2">
+                                    <Input
+                                      type="text"
+                                      id={`note-${category}`}
+                                      value={note}
+                                      onChange={(e) => setNote(e.target.value)}
+                                      placeholder="Agregar nota... "
+                                      className="flex-grow"
+                                    />
+                                  </div>
+                                </div>
+                              </>
+                            )}
+                            <div className="space-y-2">
+                              <Label
+                                htmlFor={`new-${category}`}
+                                className="text-sm font-medium text-gray-700"
+                              >
+                                Nuevo {category.slice(0, -1)}
+                              </Label>
+                              <div className="flex space-x-2">
                                 <Input
                                   type="text"
                                   id={`new-${category}`}
@@ -430,14 +710,22 @@ export default function Medical() {
                                     0,
                                     -1
                                   )}...`}
+                                  className="flex-grow"
                                 />
+                                <Button
+                                  onClick={() => {
+                                    if (newItem.trim()) {
+                                      addItem(category);
+                                      setNewItem("");
+                                    }
+                                  }}
+                                  size="icon"
+                                  className="shrink-0"
+                                >
+                                  <PlusCircle className="h-4 w-4" />
+                                  <span className="sr-only">Agregar</span>
+                                </Button>
                               </div>
-                              <Button
-                                className="mt-auto"
-                                onClick={() => addItem(category)}
-                              >
-                                Agregar
-                              </Button>
                             </div>
                           </CardContent>
                         </>
@@ -447,6 +735,35 @@ export default function Medical() {
                 </TabsContent>
               );
             })}
+            <AlertDialog
+              open={isAlertOpen} // Abre el modal si isAlertOpen es true
+              onOpenChange={(open) => setIsAlertOpen(open)} // Controla el estado del modal
+            >
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    ¿Estás absolutamente seguro?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta acción no se puede deshacer. Esto eliminará
+                    permanentemente el registro.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel onClick={() => setIsAlertOpen(false)}>
+                    Cancelar
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={async () => {
+                      await deleteItem(categoryToDelete, itemToDelete);
+                      setIsAlertOpen(false);
+                    }}
+                  >
+                    Eliminar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
             <TabsContent value="weight">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -505,6 +822,9 @@ export default function Medical() {
                     }
                     placeholder="Agregar notas o observaciones generales..."
                   />
+                  <Button onClick={updateNote} className="mt-4">
+                    Actualizar
+                  </Button>
                 </CardContent>
               </Card>
             )}
@@ -607,7 +927,7 @@ function PetData() {
           }
         />
         <InfoItem
-          icon={Calendar}
+          icon={CalendarCheck}
           label="Fecha de Nacimiento"
           value={selectedPet.birthdate}
         />
