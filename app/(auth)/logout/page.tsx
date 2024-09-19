@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import React from "react";
 import { Spinner } from "@/components/ui/spinner";
 import { createClient } from "@/utils/supabase/client";
+import { useSelectedPet } from "@/contexts/selectedPetContext";
 const handleSignout = async () => {
   const supabase = createClient();
   const { error } = await supabase.auth.signOut();
@@ -17,12 +18,14 @@ const handleSignout = async () => {
 };
 
 const LogoutPage = () => {
+  const { selectedPet, setSelectedPet } = useSelectedPet();
   const router = useRouter();
   useEffect(() => {
     const signOut = async () => {
       const result = await handleSignout();
       if (result) {
         setTimeout(() => {
+          setSelectedPet(null);
           window.location.href = "/";
         }, 2000);
       }

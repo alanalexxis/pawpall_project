@@ -1100,6 +1100,26 @@ export default function CareGeneral() {
       },
     },
   };
+  const [medications, setMedications] = useState([]);
+  const fetchMedications = async () => {
+    if (!selectedPet || !selectedPet.id) return;
+
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("medications")
+      .select("id, name, frequency")
+      .eq("pet_id", selectedPet.id);
+
+    if (error) {
+      console.error("Error fetching medications:", error.message);
+      return;
+    }
+
+    setMedications(data);
+  };
+  useEffect(() => {
+    fetchMedications();
+  }, [selectedPet]);
   return (
     <div className="max-w-4xl mx-auto p-4">
       <Card className="mb-6">
@@ -1373,14 +1393,15 @@ export default function CareGeneral() {
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
-                <li className="flex justify-between items-center">
-                  <span>Antiparasitario</span>
-                  <Badge>Cada 3 meses</Badge>
-                </li>
-                <li className="flex justify-between items-center">
-                  <span>Vitaminas</span>
-                  <Badge>Diario</Badge>
-                </li>
+                {medications.map((medication) => (
+                  <li
+                    key={medication.id}
+                    className="flex justify-between items-center"
+                  >
+                    <span>{medication.name}</span>
+                    <Badge>{medication.frequency}</Badge>
+                  </li>
+                ))}
               </ul>
               <Link href="/dashboard/medical" className="block mt-6">
                 <Button variant="outline" className="w-full">
