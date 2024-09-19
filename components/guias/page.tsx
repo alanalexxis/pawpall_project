@@ -16,8 +16,8 @@ import Link from "next/link";
 export default function GuiasPage() {
   return (
     <>
-      <div className="md:hidden"></div>
-      <div className="hidden md:block">
+      <div className="sm:block md:hidden"></div>
+      <div className="sm:block md:block">
         <div className="">
           <div className="bg-background">
             <div className="grid lg:grid-cols-3">
