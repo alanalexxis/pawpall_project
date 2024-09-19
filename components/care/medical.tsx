@@ -494,29 +494,31 @@ export default function Medical() {
     }
   }, [selectedPet]); // Dependencia en selectedPet
 
-  const fetchNotes = async () => {
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from("notes")
-      .select("note")
-      .eq("pet_id", selectedPet.id)
-      .single();
-
-    if (error) {
-      console.error("Error fetching notes:", error.message);
-      return;
-    }
-
-    setMedicalRecords((prev) => ({
-      ...prev,
-      notes: data.note,
-    }));
-  };
   useEffect(() => {
-    if (selectedPet.id) {
+    const fetchNotes = async () => {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("notes")
+        .select("note")
+        .eq("pet_id", selectedPet.id)
+        .single();
+
+      if (error) {
+        console.error("Error fetching notes:", error.message);
+        return;
+      }
+
+      setMedicalRecords((prev) => ({
+        ...prev,
+        notes: data.note,
+      }));
+    };
+
+    if (selectedPet) {
       fetchNotes();
     }
-  }, [selectedPet.id]);
+  }, [selectedPet]); // Elimina el punto al final y asegúrate de que selectedPet sea la dependencia.
+
   const updateNote = async () => {
     const supabase = createClient();
     const { error } = await supabase
