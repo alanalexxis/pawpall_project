@@ -31,7 +31,7 @@ export function Menu({ isOpen }: MenuProps) {
     if (!isPremium && user) {
       // Check if user exists and is not premium
       try {
-        const res = await fetch("/api/checkout", {
+        const res = await fetch("https://www.pawpal.site/api/checkout", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

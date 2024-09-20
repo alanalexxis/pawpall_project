@@ -6,7 +6,7 @@ export async function POST(request) {
   const { userId } = await request.json();
 
   const session = await stripe.checkout.sessions.create({
-    success_url: "http://localhost:3000/success",
+    success_url: "https://www.pawpal.site/success",
     line_items: [
       {
         price_data: {
