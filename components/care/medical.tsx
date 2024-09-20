@@ -31,7 +31,8 @@ import {
   YAxis,
   CartesianGrid,
   ResponsiveContainer,
-  Tooltip as RechartsTooltip, // Renombramos el Tooltip de recharts
+  Tooltip as RechartsTooltip,
+  ReferenceLine, // Renombramos el Tooltip de recharts
 } from "recharts";
 import {
   User,
@@ -75,20 +76,45 @@ export default function Medical() {
     alergias: [],
     enfermedades: [{ id: 1, name: "Otitis - 2023-05-10" }],
     citas: [],
-    weightHistory: [
-      { date: "2023-01-01", weight: 28 },
-      { date: "2023-03-01", weight: 29 },
-      { date: "2023-05-01", weight: 30 },
-    ],
+    weightHistory: [],
     notes: "",
   });
-
+  const { selectedPet } = useSelectedPet();
   const [newItem, setNewItem] = useState("");
   const [userRange, setUserRange] = useState(null);
   const [nextDueDate, setNextDueDate] = useState("");
   const [itemToDelete, setItemToDelete] = useState(null);
   const [categoryToDelete, setCategoryToDelete] = useState(null);
+  const supabase = createClient();
+  const [weightHistory, setWeightHistory] = useState([]); // Estado para el historial de peso
 
+  const fetchWeightHistory = async () => {
+    if (!selectedPet) return;
+
+    const { data, error } = await supabase
+      .from("weight_history")
+      .select("*")
+      .eq("pet_id", selectedPet.id)
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error("Error al obtener el historial de peso:", error);
+    } else {
+      const formattedData = data.map((entry) => ({
+        date: new Date(entry.created_at).toLocaleDateString("es-ES", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }),
+        weight: entry.weight,
+      }));
+      setWeightHistory(formattedData);
+    }
+  };
+
+  useEffect(() => {
+    fetchWeightHistory();
+  }, [selectedPet]);
   const addItem = async (category) => {
     if (userRange === 1) {
       toast({
@@ -335,8 +361,6 @@ export default function Medical() {
     </ScrollArea>
   );
 
-  const { selectedPet } = useSelectedPet();
-
   // Estado para los datos del dueño
   const [ownerData, setOwnerData] = useState({
     userFullName: null,
@@ -546,6 +570,7 @@ export default function Medical() {
   const [frequency, setFrequency] = useState("");
   const [note, setNote] = useState("");
   const [isAlertOpen, setIsAlertOpen] = useState(false); // Estado para el modal
+  const [targetWeight, setTargetWeight] = useState(10);
   return (
     <Card className="w-full max-w-4xl mx-auto">
       <motion.div
@@ -782,13 +807,23 @@ export default function Medical() {
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="h-[300px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <LineChart data={medicalRecords.weightHistory}>
+                      <div>
+                        <h3 className="text-xl font-semibold mb-4">
+                          Gráfico de peso
+                        </h3>
+                        <ResponsiveContainer width="100%" height={200}>
+                          <LineChart data={weightHistory}>
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="date" />
-                            <YAxis />
+                            <YAxis
+                              domain={["dataMin - 0.5", "dataMax + 0.5"]}
+                            />
                             <RechartsTooltip />
+                            <ReferenceLine
+                              y={targetWeight}
+                              stroke="red"
+                              strokeDasharray="3 3"
+                            />
                             <Line
                               type="monotone"
                               dataKey="weight"
