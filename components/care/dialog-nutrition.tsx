@@ -37,6 +37,24 @@ export const DialogNutrition = ({ feedingLogs, setFeedingLogs }) => {
       return;
     }
 
+    if (foodAmount <= 0) {
+      toast({
+        variant: "destructive",
+        title: "Cantidad inválida",
+        description: "Por favor, ingresa una cantidad de comida válida.",
+      });
+      return;
+    }
+
+    if (!foodType) {
+      toast({
+        variant: "destructive",
+        title: "Tipo de comida no seleccionado",
+        description: "Por favor, selecciona un tipo de comida.",
+      });
+      return;
+    }
+
     const { data, error } = await supabase.from("pet_nutrition").insert([
       {
         pet_id: selectedPet.id,
