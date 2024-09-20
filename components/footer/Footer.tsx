@@ -1,44 +1,32 @@
+"use client";
+import Link from "next/link";
+
 export default function Footer() {
   return (
     <div className="z-[3] items-center absolute bottom-5 left-0 right-0 mx-auto">
-      <ul className="flex flex-row justify-center">
-        <li className="mr-4 md:mr-[44px]">
-          <a
-            className="text-[10px] font-medium text-zinc-950 dark:text-zinc-400 lg:text-sm"
-            target="_blank"
-            href="https://horizon-ui.notion.site/Terms-Conditions-c671e573673746e19d2fc3e4cba0c161"
-          >
+      <div className="flex flex-row justify-center">
+        <Link href="/terms-of-service" passHref>
+          <div className="mr-4 md:mr-[44px] text-[10px] font-medium text-zinc-950 dark:text-zinc-400 lg:text-sm">
             Términos y condiciones
-          </a>
-        </li>
-        <li className="mr-4 md:mr-[44px]">
-          <a
-            className="text-[10px] font-medium text-zinc-950 dark:text-zinc-400 lg:text-sm"
-            target="_blank"
-            href="https://horizon-ui.notion.site/Privacy-Policy-c22ff04f55474ae3b35ec45feca62bad"
-          >
-            Política de privacidad
-          </a>
-        </li>
-        <li className="mr-4 md:mr-[44px]">
-          <a
-            className="text-[10px] font-medium text-zinc-950 dark:text-zinc-400 lg:text-sm"
-            target="_blank"
-            href="https://horizon-ui.notion.site/End-User-License-Agreement-8fb09441ea8c4c08b60c37996195a6d5"
-          >
-            Licencia
-          </a>
-        </li>
-        <li>
-          <a
-            className="text-[10px] font-medium text-zinc-950 dark:text-zinc-400 lg:text-sm"
-            target="_blank"
-            href="https://horizon-ui.notion.site/Refund-Policy-1b0983287b92486cb6b18071b2343ac9"
-          >
-            Política de reembolso
-          </a>
-        </li>
-      </ul>
+          </div>
+        </Link>
+
+        <Link href="/privacy-policy" passHref>
+          <div className="mr-4 md:mr-[44px]">
+            <div className="text-[10px] font-medium text-zinc-950 dark:text-zinc-400 lg:text-sm">
+              Política de privacidad
+            </div>
+          </div>
+        </Link>
+
+        <Link href="/cookie-policy" passHref>
+          <div className="mr-4 md:mr-[44px]">
+            <div className="text-[10px] font-medium text-zinc-950 dark:text-zinc-400 lg:text-sm">
+              Política de cookies
+            </div>
+          </div>
+        </Link>
+      </div>
     </div>
   );
 }
