@@ -94,8 +94,27 @@ export default function Grooming() {
 
     fetchActivities();
   }, [selectedPet, supabase]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!newActivity.type) {
+      toast({
+        variant: "destructive",
+        title: "Tipo de actividad no seleccionado",
+        description: "Por favor, selecciona un tipo de actividad.",
+      });
+      return;
+    }
+
+    if (!date) {
+      toast({
+        variant: "destructive",
+        title: "Fecha no seleccionada",
+        description: "Por favor, selecciona una fecha para la actividad.",
+      });
+      return;
+    }
 
     if (newActivity.type && newActivity.date && selectedPet) {
       const formattedDate = date ? format(date, "yyyy-MM-dd") : "";
