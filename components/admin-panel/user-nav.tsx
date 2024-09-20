@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useUser } from "@/contexts/userContext";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/utils/supabase/client";
+
 export function UserNav() {
   const { user, setUser } = useUser();
   const router = useRouter();

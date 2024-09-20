@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Ellipsis, LogOut } from "lucide-react";
+import { Ellipsis, LogOut, Crown, Star } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
@@ -15,6 +15,7 @@ import {
   TooltipContent,
   TooltipProvider,
 } from "@/components/ui/tooltip";
+import { useUser } from "@/contexts/userContext";
 
 interface MenuProps {
   isOpen: boolean | undefined;
@@ -23,7 +24,8 @@ interface MenuProps {
 export function Menu({ isOpen }: MenuProps) {
   const pathname = usePathname();
   const menuList = getMenuList(pathname);
-
+  const { user, setUser } = useUser();
+  const isPremium = user?.premium === "yes"; // Actualiza isPremium
   return (
     <ScrollArea className="[&>div>div[style]]:!block">
       <nav className="mt-7 h-full w-full">
@@ -103,14 +105,14 @@ export function Menu({ isOpen }: MenuProps) {
               )}
             </li>
           ))}
-          <li className="w-full grow flex items-end">
+          <li className="w-full grow flex flex-col items-end justify-end space-y-2">
             <TooltipProvider disableHoverableContent>
               <Tooltip delayDuration={100}>
                 <TooltipTrigger asChild>
                   <Button
                     onClick={() => {}}
                     variant="outline"
-                    className="w-full justify-center h-10 mt-5"
+                    className="w-full justify-center h-10"
                   >
                     <span className={cn(isOpen === false ? "" : "mr-4")}>
                       <LogOut size={18} />
@@ -127,6 +129,55 @@ export function Menu({ isOpen }: MenuProps) {
                 </TooltipTrigger>
                 {isOpen === false && (
                   <TooltipContent side="right">Cerrar sesión</TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
+            <TooltipProvider disableHoverableContent>
+              <Tooltip delayDuration={100}>
+                <TooltipTrigger asChild>
+                  <div
+                    className={cn(
+                      "w-full h-8 rounded-full flex items-center justify-center cursor-default transition-all duration-300 ease-in-out",
+                      isPremium
+                        ? "bg-gradient-to-r from-yellow-200 to-yellow-500 text-black relative overflow-hidden"
+                        : "bg-gradient-to-r from-gray-200 via-gray-300 to-gray-400 text-gray-800",
+                      isOpen === false ? "px-2" : "px-4"
+                    )}
+                  >
+                    {isPremium && (
+                      <div
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent animate-shimmer"
+                        style={{ backgroundSize: "200% 100%" }}
+                      />
+                    )}
+                    {isPremium ? (
+                      <Crown
+                        size={18}
+                        className={cn(
+                          "animate-pulse relative z-10",
+                          isOpen === false ? "" : "mr-2"
+                        )}
+                      />
+                    ) : (
+                      <Star
+                        size={18}
+                        className={cn(isOpen === false ? "" : "mr-2")}
+                      />
+                    )}
+                    <span
+                      className={cn(
+                        "font-semibold whitespace-nowrap relative z-10",
+                        isOpen === false ? "sr-only" : ""
+                      )}
+                    >
+                      {isPremium ? "Plan premium" : "Plan gratuito"}
+                    </span>
+                  </div>
+                </TooltipTrigger>
+                {isOpen === false && (
+                  <TooltipContent side="right">
+                    {isPremium ? "Plan premium" : "Plan gratuito"}
+                  </TooltipContent>
                 )}
               </Tooltip>
             </TooltipProvider>

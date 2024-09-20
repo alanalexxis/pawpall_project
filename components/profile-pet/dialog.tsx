@@ -52,7 +52,7 @@ const petSchema = z.object({
   tags: z.array(z.object({ id: z.string(), text: z.string() })).optional(), // Asegúrate de que 'tags' esté definido aquí
   weight: z.number().min(0, "El peso debe ser un número positivo"), // Agrega validación para el peso
 });
-export function DialogDemo({ onPetAdded }) {
+export function DialogDemo({ onPetAdded, isPremium }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const supabase = createClient();
@@ -138,11 +138,24 @@ export function DialogDemo({ onPetAdded }) {
     }
   };
 
+  const handleOpenChange = (open) => {
+    if (!isPremium && open) {
+      toast({
+        variant: "destructive",
+        title: "Adquiere premium",
+        description:
+          "Solo puedes añadir una mascota si no eres usuario premium.",
+      });
+      return;
+    }
+    setIsDialogOpen(open);
+  };
+
   // Convert the tags to a JSON structure
   const tagsJson = tags.map((tag) => ({ id: tag.id, text: tag.text }));
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+    <Dialog open={isDialogOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger
         asChild
         className="bg-primary transition-all duration-200 shadow-lg hover:shadow-xl"

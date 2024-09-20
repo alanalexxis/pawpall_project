@@ -37,6 +37,8 @@ import {
 import { toast } from "../ui/use-toast";
 
 export default function ProfilePet() {
+  const [isPremium, setIsPremium] = useState(false);
+
   const { selectedPet, setSelectedPet } = useSelectedPet();
   const supabase = createClient();
   const [searchTerm, setSearchTerm] = useState("");
@@ -47,6 +49,7 @@ export default function ProfilePet() {
   const handleSave = () => {
     setIsPetsUpdated(true); // Actualiza el estado para forzar la actualización de las mascotas
   };
+
   useEffect(() => {
     async function fetchPets() {
       const {
@@ -62,7 +65,7 @@ export default function ProfilePet() {
       const profileId = user.id;
       const { data: userProfile, error: profileError } = await supabase
         .from("profiles")
-        .select("full_name")
+        .select("full_name, premium")
         .eq("id", profileId)
         .single();
 
@@ -72,6 +75,7 @@ export default function ProfilePet() {
       }
 
       const userFullName = userProfile.full_name;
+      setIsPremium(userProfile.premium === "yes");
 
       const { data: petsData, error: petsError } = await supabase
         .from("pets")
@@ -254,7 +258,10 @@ export default function ProfilePet() {
             >
               {filteredPets.length} mascotas
             </Badge>
-            <DialogDemo onPetAdded={() => setIsPetsUpdated(true)} />
+            <DialogDemo
+              onPetAdded={() => setIsPetsUpdated(true)}
+              isPremium={isPremium}
+            />
           </div>
         </div>
 
