@@ -61,18 +61,37 @@ export default function Nutrition() {
   const [editLog, setEditLog] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [today, setToday] = useState("");
+  const [weightHistory, setWeightHistory] = useState([]); // Estado para el historial de peso
 
   const [selectedDate, setSelectedDate] = useState(new Date());
-  // Simulated weight data
-  const weightData = [
-    { date: "1 May", weight: 9.8 },
-    { date: "8 May", weight: 9.9 },
-    { date: "15 May", weight: 10 },
-    { date: "22 May", weight: 10.1 },
-    { date: "29 May", weight: 10 },
-  ];
-
   const { selectedPet } = useSelectedPet();
+  const fetchWeightHistory = async () => {
+    if (!selectedPet) return;
+
+    const { data, error } = await supabase
+      .from("weight_history")
+      .select("*")
+      .eq("pet_id", selectedPet.id)
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error("Error al obtener el historial de peso:", error);
+    } else {
+      const formattedData = data.map((entry) => ({
+        date: new Date(entry.created_at).toLocaleDateString("es-ES", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }),
+        weight: entry.weight,
+      }));
+      setWeightHistory(formattedData);
+    }
+  };
+
+  useEffect(() => {
+    fetchWeightHistory();
+  }, [selectedPet]);
 
   const calculateIdealWeight = (selectedPet) => {
     if (!selectedPet) return null; // Verifica si selectedPet está definido
@@ -508,7 +527,7 @@ export default function Nutrition() {
                     Gráfico de peso
                   </h3>
                   <ResponsiveContainer width="100%" height={200}>
-                    <LineChart data={weightData}>
+                    <LineChart data={weightHistory}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="date" />
                       <YAxis domain={["dataMin - 0.5", "dataMax + 0.5"]} />
