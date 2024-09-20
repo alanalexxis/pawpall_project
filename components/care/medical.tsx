@@ -115,6 +115,7 @@ export default function Medical() {
   useEffect(() => {
     fetchWeightHistory();
   }, [selectedPet]);
+
   const addItem = async (category) => {
     if (userRange === 1) {
       toast({
@@ -125,111 +126,90 @@ export default function Medical() {
       });
       return;
     }
+
     if (newItem.trim() !== "") {
-      const newItemData = {
+      let newItemData = {
         pet_id: selectedPet.id,
         name: newItem,
         date: new Date().toISOString().split("T")[0], // Añadir la fecha actual
-        frequency: frequency, // Añadir la frecuencia
-        note: note, // Añadir la nota
       };
 
+      // Enviar solo los campos específicos según la categoría
       if (category === "vacunas" && nextDueDate.trim() !== "") {
-        newItemData.next_due = nextDueDate;
-      }
-
-      const supabase = createClient();
-
-      if (category === "alergias") {
-        const { data, error } = await supabase
-          .from("allergies")
-          .insert([newItemData]);
-        toast({
-          title: "¡Éxito!",
-          description: "Información guardada con éxito.",
-        });
-
-        if (error) {
-          console.error("Error inserting allergy:", error.message);
-          return;
-        }
-
-        setMedicalRecords((prev) => ({
-          ...prev,
-          [category]: [...prev[category], newItemData],
-        }));
-      } else if (category === "enfermedades") {
-        const newDiseaseData = {
-          ...newItemData,
+        // Para "vacunas", solo enviar pet_id, name, date y next_due
+        newItemData = {
+          pet_id: selectedPet.id,
+          name: newItem,
+          date: new Date().toISOString().split("T")[0],
+          next_due: nextDueDate,
+        };
+      } else if (category === "alergias") {
+        // Para "alergias", solo enviar id, pet_id, name y date
+        newItemData = {
+          pet_id: selectedPet.id,
+          name: newItem,
           date: new Date().toISOString().split("T")[0],
         };
-        const { data, error } = await supabase
-          .from("diseases")
-          .insert([newDiseaseData]);
-        toast({
-          title: "¡Éxito!",
-          description: "Información guardada con éxito.",
-        });
-
-        if (error) {
-          console.error("Error inserting disease:", error.message);
-          return;
-        }
-
-        setMedicalRecords((prev) => ({
-          ...prev,
-          [category]: [...prev[category], newDiseaseData],
-        }));
-      } else if (category === "vacunas") {
-        const { data, error } = await supabase
-          .from("vaccinations")
-          .insert([newItemData]);
-        toast({
-          title: "¡Éxito!",
-          description: "Información guardada con éxito.",
-        });
-
-        if (error) {
-          console.error("Error inserting vaccination:", error.message);
-          return;
-        }
-
-        setMedicalRecords((prev) => ({
-          ...prev,
-          [category]: [...prev[category], newItemData],
-        }));
-      } else if (category === "medicamentos") {
-        const { data, error } = await supabase
-          .from("medications")
-          .insert([newItemData]);
-        toast({
-          title: "¡Éxito!",
-          description: "Información guardada con éxito.",
-        });
-
-        if (error) {
-          console.error("Error inserting medication:", error.message);
-          return;
-        }
-
-        setMedicalRecords((prev) => ({
-          ...prev,
-          [category]: [...prev[category], newItemData],
-        }));
+      } else if (category === "enfermedades") {
+        // Para "enfermedades", solo enviar id, pet_id, name y date
+        newItemData = {
+          pet_id: selectedPet.id,
+          name: newItem,
+          date: new Date().toISOString().split("T")[0],
+        };
       } else {
+        // Para el resto de categorías, incluir frecuencia y nota
+        newItemData = { ...newItemData, frequency, note };
+      }
+
+      let tableName = "";
+      if (category === "alergias") {
+        tableName = "allergies";
+      } else if (category === "enfermedades") {
+        tableName = "diseases";
+      } else if (category === "vacunas") {
+        tableName = "vaccinations";
+      } else if (category === "medicamentos") {
+        tableName = "medications";
+      }
+
+      if (tableName) {
+        const { data, error } = await supabase
+          .from(tableName)
+          .insert([newItemData])
+          .select(); // Asegúrate de seleccionar los datos insertados para obtener el id
+
+        if (error) {
+          console.error(`Error inserting ${category}:`, error.message);
+          toast({
+            title: "Error",
+            description: `Error al guardar ${category}.`,
+          });
+          return;
+        }
+
+        const insertedItem = data[0]; // Obtén el elemento insertado con el id generado
+
+        toast({
+          title: "¡Éxito!",
+          description: "Información guardada con éxito.",
+        });
+
         setMedicalRecords((prev) => ({
           ...prev,
-          [category]: [...prev[category], newItemData],
+          [category]: [...prev[category], insertedItem],
         }));
       }
 
+      // Resetear los campos
       setNewItem("");
-      setFrequency(""); // Resetear la frecuencia
-      setNote(""); // Resetear la nota
-      setNextDueDate(""); // Resetear la fecha de "next due"
+      setFrequency("");
+      setNote("");
+      setNextDueDate("");
       setDate(undefined);
     }
   };
+
   const deleteItem = async (category, itemId) => {
     if (userRange === 1) {
       toast({
