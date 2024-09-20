@@ -28,12 +28,31 @@ export function Menu({ isOpen }: MenuProps) {
   const isPremium = user?.premium === "yes"; // Actualiza isPremium
 
   const handleFreePlanClick = async () => {
-    if (!isPremium) {
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-      });
-      const session = await res.json();
-      window.location.href = session.url;
+    if (!isPremium && user) {
+      // Check if user exists and is not premium
+      try {
+        const res = await fetch("/api/checkout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: user.id, // Sending user.id
+          }),
+        });
+
+        if (!res.ok) {
+          throw new Error(`Error: ${res.status}`);
+        }
+
+        const session = await res.json();
+        if (session?.url) {
+          window.location.href = session.url; // Redirect to Stripe Checkout
+        }
+      } catch (error) {
+        console.error("Error during checkout:", error);
+        // Optionally display an error message to the user
+      }
     }
   };
   return (
