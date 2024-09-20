@@ -26,6 +26,16 @@ export function Menu({ isOpen }: MenuProps) {
   const menuList = getMenuList(pathname);
   const { user, setUser } = useUser();
   const isPremium = user?.premium === "yes"; // Actualiza isPremium
+
+  const handleFreePlanClick = async () => {
+    if (!isPremium) {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+      });
+      const session = await res.json();
+      window.location.href = session.url;
+    }
+  };
   return (
     <ScrollArea className="[&>div>div[style]]:!block">
       <nav className="mt-7 h-full w-full">
@@ -143,6 +153,7 @@ export function Menu({ isOpen }: MenuProps) {
                         : "bg-gradient-to-r from-gray-200 via-gray-300 to-gray-400 text-gray-800",
                       isOpen === false ? "px-2" : "px-4"
                     )}
+                    onClick={handleFreePlanClick}
                   >
                     {isPremium && (
                       <div
