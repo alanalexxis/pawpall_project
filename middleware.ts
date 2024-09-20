@@ -6,9 +6,22 @@ export async function middleware(request: NextRequest) {
   const { session, response } = await updateSession(request);
   const url = request.nextUrl.clone();
 
-  // Si no hay sesión, redirige al login
   if (!session) {
-    if (url.pathname === "/dashboard" || url.pathname === "/admin/dashboard") {
+    if (
+      url.pathname === "/dashboard" ||
+      url.pathname === "/admin/dashboard" ||
+      url.pathname === "/admin/dashboard/medical" ||
+      url.pathname === "/dashboard/nutrition" ||
+      url.pathname === "/dashboard/grooming" ||
+      url.pathname === "/dashboard/sleep" ||
+      url.pathname === "/dashboard/emotions" ||
+      url.pathname === "/dashboard/walk" ||
+      url.pathname === "/dashboard/medical" ||
+      url.pathname === "/guides" ||
+      url.pathname === "/breeds" ||
+      url.pathname === "/profile" ||
+      url.pathname === "/pets"
+    ) {
       url.pathname = "/login";
       return NextResponse.redirect(url);
     }

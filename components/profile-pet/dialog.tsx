@@ -138,19 +138,34 @@ export function DialogDemo({ onPetAdded, isPremium }) {
     }
   };
 
-  const handleOpenChange = (open) => {
+  const handleOpenChange = async (open) => {
     if (!isPremium && open) {
-      toast({
-        variant: "destructive",
-        title: "Adquiere premium",
-        description:
-          "Solo puedes añadir una mascota si no eres usuario premium.",
-      });
-      return;
+      const { data: pets, error } = await supabase
+        .from("pets")
+        .select("*")
+        .eq("profile_id", user.id);
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "No se pudo verificar el número de mascotas.",
+        });
+        return;
+      }
+
+      if (pets.length >= 1) {
+        toast({
+          variant: "destructive",
+          title: "Adquiere premium",
+          description:
+            "Solo puedes añadir una mascota si no eres usuario premium.",
+        });
+        return;
+      }
     }
     setIsDialogOpen(open);
   };
-
   // Convert the tags to a JSON structure
   const tagsJson = tags.map((tag) => ({ id: tag.id, text: tag.text }));
 

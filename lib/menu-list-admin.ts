@@ -41,38 +41,8 @@ export function getMenuList(pathname: string): Group[] {
           submenus: [
             {
               href: "/dashboard",
-              label: "Monitoreo de salud",
+              label: "Citas veterinarias",
               active: pathname === "/dashboard",
-            },
-            {
-              href: "/dashboard/nutrition",
-              label: "Nutrición",
-              active: pathname === "/dashboard/nutrition",
-            },
-            {
-              href: "/dashboard/grooming",
-              label: "Estética",
-              active: pathname === "/dashboard/grooming",
-            },
-            {
-              href: "/dashboard/sleep",
-              label: "Sueño",
-              active: pathname === "/dashboard/sleep",
-            },
-            {
-              href: "/dashboard/emotions",
-              label: "Emociones",
-              active: pathname === "/dashboard/emotions",
-            },
-            {
-              href: "/dashboard/walk",
-              label: "Paseos",
-              active: pathname === "/dashboard/walk",
-            },
-            {
-              href: "/dashboard/medical",
-              label: "Historial médico",
-              active: pathname === "/dashboard/medical",
             },
           ],
         },
