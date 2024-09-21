@@ -389,7 +389,15 @@ export default function Nutrition() {
     });
   };
   const formatWeight = (weight) => {
-    return weight % 1 === 0 ? weight.toString() : weight.toFixed(2);
+    const numWeight = Number(weight); // Convertir a número
+
+    if (isNaN(numWeight)) {
+      console.error("El peso no es un número válido:", weight);
+      return "";
+    }
+
+    // Si el peso es un número entero, convertirlo a cadena
+    return numWeight % 1 === 0 ? numWeight.toString() : numWeight.toFixed(2);
   };
 
   return (
