@@ -1,6 +1,5 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { NavBar } from "@/components/navbar";
 import Background from "@/components/background";
 import { Main, Section } from "@/components/craft";

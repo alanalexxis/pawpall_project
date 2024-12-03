@@ -5,7 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import NextTopLoader from "nextjs-toploader";
 import { Toaster } from "@/components/ui/toaster";
 import { SelectedPetProvider } from "@/contexts/selectedPetContext";
-
+import { SpeedInsights } from "@vercel/speed-insights/next";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -29,6 +29,7 @@ export default function RootLayout({
         <SelectedPetProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             {children}
+            <SpeedInsights />
             <Toaster />
           </ThemeProvider>
         </SelectedPetProvider>
